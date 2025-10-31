@@ -3,7 +3,7 @@ import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { Users, CreditCard, FileText, TrendingUp, Activity } from "lucide-react";
@@ -127,105 +127,81 @@ const AdminDashboard = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-                  <Card className="bg-slate-800/50 border-slate-700">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-sm font-medium text-slate-300">
-                        Total Users
-                      </CardTitle>
+                  <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                    <div className="flex flex-row items-center justify-between pb-2">
+                      <h3 className="text-sm font-medium text-slate-300">Total Users</h3>
                       <Users className="h-4 w-4 text-blue-400" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-white">{stats.totalUsers}</div>
-                      <p className="text-xs text-slate-400 mt-1">Registered users</p>
-                    </CardContent>
-                  </Card>
+                    </div>
+                    <div className="text-2xl font-bold text-white">{stats.totalUsers}</div>
+                    <p className="text-xs text-slate-400 mt-1">Registered users</p>
+                  </div>
 
-                  <Card className="bg-slate-800/50 border-slate-700">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-sm font-medium text-slate-300">
-                        Accounts
-                      </CardTitle>
+                  <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                    <div className="flex flex-row items-center justify-between pb-2">
+                      <h3 className="text-sm font-medium text-slate-300">Accounts</h3>
                       <Activity className="h-4 w-4 text-green-400" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-white">{stats.totalAccounts}</div>
-                      <p className="text-xs text-slate-400 mt-1">Active accounts</p>
-                    </CardContent>
-                  </Card>
+                    </div>
+                    <div className="text-2xl font-bold text-white">{stats.totalAccounts}</div>
+                    <p className="text-xs text-slate-400 mt-1">Active accounts</p>
+                  </div>
 
-                  <Card className="bg-slate-800/50 border-slate-700">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-sm font-medium text-slate-300">
-                        Transactions
-                      </CardTitle>
+                  <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                    <div className="flex flex-row items-center justify-between pb-2">
+                      <h3 className="text-sm font-medium text-slate-300">Transactions</h3>
                       <CreditCard className="h-4 w-4 text-purple-400" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-white">{stats.totalTransactions}</div>
-                      <p className="text-xs text-slate-400 mt-1">Total processed</p>
-                    </CardContent>
-                  </Card>
+                    </div>
+                    <div className="text-2xl font-bold text-white">{stats.totalTransactions}</div>
+                    <p className="text-xs text-slate-400 mt-1">Total processed</p>
+                  </div>
 
-                  <Card className="bg-slate-800/50 border-slate-700">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-sm font-medium text-slate-300">
-                        Pending Apps
-                      </CardTitle>
+                  <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                    <div className="flex flex-row items-center justify-between pb-2">
+                      <h3 className="text-sm font-medium text-slate-300">Pending Apps</h3>
                       <FileText className="h-4 w-4 text-yellow-400" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-white">{stats.pendingApplications}</div>
-                      <p className="text-xs text-slate-400 mt-1">Awaiting review</p>
-                    </CardContent>
-                  </Card>
+                    </div>
+                    <div className="text-2xl font-bold text-white">{stats.pendingApplications}</div>
+                    <p className="text-xs text-slate-400 mt-1">Awaiting review</p>
+                  </div>
 
-                  <Card className="bg-slate-800/50 border-slate-700">
-                    <CardHeader className="flex flex-row items-center justify-between pb-2">
-                      <CardTitle className="text-sm font-medium text-slate-300">
-                        Loan Requests
-                      </CardTitle>
+                  <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                    <div className="flex flex-row items-center justify-between pb-2">
+                      <h3 className="text-sm font-medium text-slate-300">Loan Requests</h3>
                       <TrendingUp className="h-4 w-4 text-orange-400" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold text-white">{stats.pendingLoans}</div>
-                      <p className="text-xs text-slate-400 mt-1">Pending approval</p>
-                    </CardContent>
-                  </Card>
+                    </div>
+                    <div className="text-2xl font-bold text-white">{stats.pendingLoans}</div>
+                    <p className="text-xs text-slate-400 mt-1">Pending approval</p>
+                  </div>
                 </div>
 
-                <Card className="bg-slate-800/50 border-slate-700">
-                  <CardHeader>
-                    <CardTitle className="text-white">Quick Actions</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <Button 
-                        className="h-24 text-lg" 
-                        variant="outline"
-                        onClick={() => navigate("/admin/applications")}
-                      >
-                        <FileText className="mr-2 h-5 w-5" />
-                        Review Applications
-                      </Button>
-                      <Button 
-                        className="h-24 text-lg" 
-                        variant="outline"
-                        onClick={() => navigate("/admin/support")}
-                      >
-                        <FileText className="mr-2 h-5 w-5" />
-                        Support Tickets
-                      </Button>
-                      <Button 
-                        className="h-24 text-lg" 
-                        variant="outline"
-                        onClick={() => navigate("/admin/users")}
-                      >
-                        <Users className="mr-2 h-5 w-5" />
-                        Manage Users
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                  <h3 className="text-white text-xl font-semibold mb-6">Quick Actions</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Button 
+                      className="h-24 text-lg" 
+                      variant="outline"
+                      onClick={() => navigate("/admin/applications")}
+                    >
+                      <FileText className="mr-2 h-5 w-5" />
+                      Review Applications
+                    </Button>
+                    <Button 
+                      className="h-24 text-lg" 
+                      variant="outline"
+                      onClick={() => navigate("/admin/support")}
+                    >
+                      <FileText className="mr-2 h-5 w-5" />
+                      Support Tickets
+                    </Button>
+                    <Button 
+                      className="h-24 text-lg" 
+                      variant="outline"
+                      onClick={() => navigate("/admin/users")}
+                    >
+                      <Users className="mr-2 h-5 w-5" />
+                      Manage Users
+                    </Button>
+                  </div>
+                </div>
               </div>
             ) : (
               <Outlet />

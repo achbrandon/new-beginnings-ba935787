@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -134,26 +134,22 @@ export default function AdminTransactions() {
 
         <TabsContent value="crypto" className="space-y-4 mt-6">
           {transactions.filter(t => t.category === "Crypto").length === 0 ? (
-            <Card className="bg-slate-800/50 border-slate-700">
-              <CardContent className="py-12 text-center text-slate-400">
-                No pending crypto deposits
-              </CardContent>
-            </Card>
+            <div className="bg-slate-800/50 border border-slate-700 rounded-lg py-12 text-center text-slate-400">
+              No pending crypto deposits
+            </div>
           ) : (
             transactions.filter(t => t.category === "Crypto").map((transaction) => (
-              <Card key={transaction.id} className="bg-slate-800/50 border-slate-700">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-white flex items-center gap-2">
-                      <Clock className="h-5 w-5 text-yellow-400" />
-                      Crypto Deposit Pending
-                    </CardTitle>
-                    <Badge variant="secondary">
-                      {new Date(transaction.created_at).toLocaleString()}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
+              <div key={transaction.id} className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-white flex items-center gap-2 text-lg font-semibold">
+                    <Clock className="h-5 w-5 text-yellow-400" />
+                    Crypto Deposit Pending
+                  </h3>
+                  <Badge variant="secondary">
+                    {new Date(transaction.created_at).toLocaleString()}
+                  </Badge>
+                </div>
+                <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <p className="text-slate-400">User</p>
@@ -190,34 +186,30 @@ export default function AdminTransactions() {
                       Reject
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))
           )}
         </TabsContent>
 
         <TabsContent value="transfers" className="space-y-4 mt-6">
           {transfers.length === 0 ? (
-            <Card className="bg-slate-800/50 border-slate-700">
-              <CardContent className="py-12 text-center text-slate-400">
-                No pending transfers
-              </CardContent>
-            </Card>
+            <div className="bg-slate-800/50 border border-slate-700 rounded-lg py-12 text-center text-slate-400">
+              No pending transfers
+            </div>
           ) : (
             transfers.map((transfer) => (
-              <Card key={transfer.id} className="bg-slate-800/50 border-slate-700">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-white flex items-center gap-2">
-                      <Clock className="h-5 w-5 text-yellow-400" />
-                      Transfer Pending
-                    </CardTitle>
-                    <Badge variant="secondary">
-                      {new Date(transfer.created_at).toLocaleString()}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
+              <div key={transfer.id} className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-white flex items-center gap-2 text-lg font-semibold">
+                    <Clock className="h-5 w-5 text-yellow-400" />
+                    Transfer Pending
+                  </h3>
+                  <Badge variant="secondary">
+                    {new Date(transfer.created_at).toLocaleString()}
+                  </Badge>
+                </div>
+                <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <p className="text-slate-400">Amount</p>
@@ -241,8 +233,8 @@ export default function AdminTransactions() {
                     <Check className="h-4 w-4 mr-2" />
                     Approve Transfer
                   </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))
           )}
         </TabsContent>
@@ -250,28 +242,24 @@ export default function AdminTransactions() {
         <TabsContent value="all" className="space-y-4 mt-6">
           {/* Combined view of all pending transactions */}
           {transactions.length === 0 && transfers.length === 0 ? (
-            <Card className="bg-slate-800/50 border-slate-700">
-              <CardContent className="py-12 text-center text-slate-400">
-                No pending transactions
-              </CardContent>
-            </Card>
+            <div className="bg-slate-800/50 border border-slate-700 rounded-lg py-12 text-center text-slate-400">
+              No pending transactions
+            </div>
           ) : (
             <>
               {transactions.map((transaction) => (
-                <Card key={transaction.id} className="bg-slate-800/50 border-slate-700">
-                  <CardContent className="py-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-white font-medium">{transaction.description}</p>
-                        <p className="text-slate-400 text-sm">{transaction.profiles?.email}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-white font-bold">${parseFloat(transaction.amount).toFixed(2)}</p>
-                        <p className="text-slate-400 text-sm">{transaction.category}</p>
-                      </div>
+                <div key={transaction.id} className="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-white font-medium">{transaction.description}</p>
+                      <p className="text-slate-400 text-sm">{transaction.profiles?.email}</p>
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="text-right">
+                      <p className="text-white font-bold">${parseFloat(transaction.amount).toFixed(2)}</p>
+                      <p className="text-slate-400 text-sm">{transaction.category}</p>
+                    </div>
+                  </div>
+                </div>
               ))}
             </>
           )}
