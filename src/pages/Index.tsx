@@ -59,15 +59,15 @@ const Index = () => {
   };
   return (
     <div className="min-h-screen bg-background">
-      {/* Utility Bar */}
-      <div className="bg-background border-b border-border">
+      {/* Utility Bar - Hidden on mobile */}
+      <div className="bg-background border-b border-border hidden lg:block">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-10 text-sm">
             {/* Category Tabs - Left Side */}
             <div className="flex items-center gap-6">
               <button
                 onClick={() => setActiveTab('personal')}
-                className={`relative py-2 transition-colors ${
+                className={`relative py-2 transition-smooth touch-manipulation ${
                   activeTab === 'personal' 
                     ? 'text-foreground font-medium after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary' 
                     : 'text-muted-foreground hover:text-foreground'
@@ -77,7 +77,7 @@ const Index = () => {
               </button>
               <Link
                 to="/business"
-                className={`relative py-2 transition-colors ${
+                className={`relative py-2 transition-smooth touch-manipulation ${
                   activeTab === 'business' 
                     ? 'text-foreground font-medium after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary' 
                     : 'text-muted-foreground hover:text-foreground'
@@ -87,7 +87,7 @@ const Index = () => {
               </Link>
               <button
                 onClick={() => setActiveTab('commercial')}
-                className={`relative py-2 transition-colors ${
+                className={`relative py-2 transition-smooth touch-manipulation ${
                   activeTab === 'commercial' 
                     ? 'text-foreground font-medium after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-primary' 
                     : 'text-muted-foreground hover:text-foreground'
@@ -99,30 +99,24 @@ const Index = () => {
 
             {/* Utility Links - Right Side */}
             <div className="flex items-center gap-6">
-              <Link to="/schedule-meeting" className="text-muted-foreground hover:text-foreground transition-colors">
+              <Link to="/schedule-meeting" className="text-muted-foreground hover:text-foreground transition-smooth">
                 Schedule a meeting
               </Link>
               
               <DropdownMenu>
-                <DropdownMenuTrigger className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors">
+                <DropdownMenuTrigger className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-smooth">
                   Customer service
                   <ChevronDown className="h-3.5 w-3.5" />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>
-                    Contact Us
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    Help Center
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    FAQ
-                  </DropdownMenuItem>
+                <DropdownMenuContent align="end" className="bg-background z-50">
+                  <DropdownMenuItem>Contact Us</DropdownMenuItem>
+                  <DropdownMenuItem>Help Center</DropdownMenuItem>
+                  <DropdownMenuItem>FAQ</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
 
               <DropdownMenu>
-                <DropdownMenuTrigger className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors">
+                <DropdownMenuTrigger className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-smooth">
                   Español
                   <ChevronDown className="h-3.5 w-3.5" />
                 </DropdownMenuTrigger>
@@ -138,14 +132,14 @@ const Index = () => {
       </div>
 
       {/* Header */}
-      <header className="border-b border-border bg-background sticky top-0 z-50 w-full">
-        <div className="container mx-auto px-4 h-full">
-          <div className="flex items-center justify-between h-16 w-full">
-            <div className="flex items-center gap-8 flex-1">
-              <Link to="/" className="flex items-center">
-                <img src={vaultBankLogo} alt="VaultBank" className="h-16" />
+      <header className="border-b border-border bg-background/95 backdrop-blur-md sticky top-0 z-50 w-full shadow-sm">
+        <div className="container mx-auto px-3 sm:px-4 h-full">
+          <div className="flex items-center justify-between h-14 sm:h-16 w-full">
+            <div className="flex items-center gap-4 sm:gap-8 flex-1">
+              <Link to="/" className="flex items-center flex-shrink-0">
+                <img src={vaultBankLogo} alt="VaultBank" className="h-12 sm:h-16" />
               </Link>
-              <NavigationMenu className="hidden md:flex flex-1">
+              <NavigationMenu className="hidden lg:flex flex-1">
                 <NavigationMenuList>
                   <NavigationMenuItem>
                     <NavigationMenuTrigger className="text-sm font-medium">Checking</NavigationMenuTrigger>
@@ -280,37 +274,45 @@ const Index = () => {
                 </NavigationMenuList>
               </NavigationMenu>
             </div>
-            <div className="flex items-center gap-4">
-              <Button onClick={() => setAuthDialogOpen(true)}>
+            <div className="flex items-center gap-2 sm:gap-4">
+              <Button 
+                onClick={() => setAuthDialogOpen(true)} 
+                size="sm"
+                className="h-9 sm:h-10 px-4 sm:px-6 text-sm sm:text-base touch-manipulation"
+              >
                 Sign In
               </Button>
               
               {/* Mobile Menu */}
               <DropdownMenu>
-                <DropdownMenuTrigger className="md:hidden">
-                  <Menu className="h-6 w-6" />
+                <DropdownMenuTrigger className="lg:hidden p-2 touch-manipulation" aria-label="Menu">
+                  <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-background w-48">
-                  <DropdownMenuItem onClick={() => handleNavClick('checking')}>
+                <DropdownMenuContent align="end" className="bg-background z-50 w-56">
+                  <DropdownMenuItem onClick={() => handleNavClick('checking')} className="py-3">
                     Checking
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleNavClick('savings')}>
+                  <DropdownMenuItem onClick={() => handleNavClick('savings')} className="py-3">
                     Savings & CDs
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleNavClick('credit-cards')}>
+                  <DropdownMenuItem onClick={() => handleNavClick('credit-cards')} className="py-3">
                     Credit cards
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleNavClick('loans')}>
+                  <DropdownMenuItem onClick={() => handleNavClick('loans')} className="py-3">
                     Home loans
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleNavClick('loans')}>
+                  <DropdownMenuItem onClick={() => handleNavClick('loans')} className="py-3">
                     Auto
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleNavClick('investments')}>
-                    Investing by J.P. Morgan
+                  <DropdownMenuItem onClick={() => handleNavClick('investments')} className="py-3">
+                    Investing
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
+                  <DropdownMenuItem asChild className="py-3">
                     <Link to="/crypto">Crypto</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild className="py-3">
+                    <Link to="/schedule-meeting">Schedule Meeting</Link>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -320,24 +322,33 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-32 overflow-hidden">
+      <section className="relative py-16 sm:py-24 lg:py-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-hero z-0">
           <img src={bankingHero} alt="Modern Banking" className="w-full h-full object-cover mix-blend-overlay opacity-30" />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background z-0"></div>
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-4 sm:px-6 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-6xl md:text-7xl font-bold mb-6 text-white animate-fade-in-up leading-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 text-white animate-fade-in leading-tight">
               Banking Made <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-white">Simple</span>
             </h1>
-            <p className="text-xl md:text-2xl text-white/90 mb-10 animate-fade-in font-light">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 mb-8 sm:mb-10 animate-fade-in font-light px-4">
               Experience modern banking with competitive rates, powerful tools, and exceptional service
             </p>
-            <div className="flex flex-col sm:flex-row gap-5 justify-center animate-fade-in-up">
-              <Button size="lg" variant="premium" onClick={() => setAuthDialogOpen(true)} className="text-lg h-16 px-12">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-5 justify-center animate-fade-in px-4">
+              <Button 
+                size="lg" 
+                onClick={() => setAuthDialogOpen(true)} 
+                className="text-base sm:text-lg h-12 sm:h-14 lg:h-16 px-8 sm:px-10 lg:px-12 touch-manipulation shadow-elegant hover:shadow-glow transition-all"
+              >
                 Open Account
               </Button>
-              <Button size="lg" variant="outline" asChild className="text-lg h-16 px-12 bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                asChild 
+                className="text-base sm:text-lg h-12 sm:h-14 lg:h-16 px-8 sm:px-10 lg:px-12 bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 touch-manipulation transition-all"
+              >
                 <Link to="/checking">Explore Products</Link>
               </Button>
             </div>
@@ -346,11 +357,11 @@ const Index = () => {
       </section>
 
       {/* Promotional Banners */}
-      <section className="py-20 bg-gradient-to-b from-background via-secondary/20 to-background">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Featured Offers</h2>
-            <p className="text-muted-foreground text-lg">Exclusive benefits for VaultBank customers</p>
+      <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-background via-secondary/20 to-background">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold mb-3 sm:mb-4">Featured Offers</h2>
+            <p className="text-muted-foreground text-base sm:text-lg">Exclusive benefits for VaultBank customers</p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="overflow-hidden hover:shadow-2xl transition-all duration-500 group border-0 bg-gradient-card animate-fade-in">
