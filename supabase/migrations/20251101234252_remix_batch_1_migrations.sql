@@ -1,4 +1,6 @@
 
+-- Migration: 20251031001443
+
 -- Migration: 20251030210603
 -- Create account applications table
 CREATE TABLE public.account_applications (
@@ -979,3 +981,4 @@ INSERT INTO public.crypto_deposit_addresses (currency, wallet_address, network) 
 ('USDC-ERC20', '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb3', 'Ethereum ERC-20'),
 ('BNB', 'bnb1xy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0w', 'Binance Smart Chain')
 ON CONFLICT (currency) DO NOTHING;
+
