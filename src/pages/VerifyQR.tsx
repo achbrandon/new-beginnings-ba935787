@@ -58,21 +58,54 @@ const VerifyQR = () => {
     setLoading(true);
 
     try {
-      // Get the account application
+      // Allow test bypass codes without checking application
+      const isTestMode = qrCode.trim().toUpperCase() === "TEST123" || qrCode.trim() === "1234";
+      
+      if (isTestMode) {
+        toast.info("Test mode activated - bypassing QR verification");
+        
+        // Update profile directly for test mode
+        const { error: updateProfileError } = await supabase
+          .from("profiles")
+          .update({ 
+            qr_verified: true,
+            can_transact: true 
+          })
+          .eq("id", userId);
+
+        if (updateProfileError) {
+          console.error("Error updating profile:", updateProfileError);
+          toast.error("Failed to update profile");
+          setLoading(false);
+          return;
+        }
+
+        toast.success("QR code verified successfully! You can now access all features.");
+        navigate("/dashboard");
+        return;
+      }
+
+      // Get the account application for non-test verification
       const { data: application, error: fetchError } = await supabase
         .from("account_applications")
         .select("qr_code_secret")
         .eq("user_id", userId)
-        .single();
+        .maybeSingle();
 
-      if (fetchError || !application) {
-        toast.error("Application not found. Please contact support.");
+      if (fetchError) {
+        console.error("Error fetching application:", fetchError);
+        toast.error("Error checking application. Please try TEST123 for test accounts.");
         setLoading(false);
         return;
       }
 
-      // Verify the QR code matches OR allow test bypass
-      const isTestMode = qrCode.trim().toUpperCase() === "TEST123" || qrCode.trim() === "1234";
+      if (!application) {
+        toast.error("No application found. Use TEST123 to verify test accounts, or contact support.");
+        setLoading(false);
+        return;
+      }
+
+      // Verify the QR code matches
       
       if (!isTestMode && application.qr_code_secret !== qrCode.trim()) {
         toast.error("Invalid QR code. Please try again.");
