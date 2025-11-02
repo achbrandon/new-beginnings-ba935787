@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           account_type: string
           address: string | null
+          address_proof_url: string | null
           city: string | null
           created_at: string | null
           date_of_birth: string | null
@@ -25,9 +26,12 @@ export type Database = {
           email_verified: boolean | null
           full_name: string
           id: string
+          id_back_url: string | null
+          id_front_url: string | null
           phone: string | null
           qr_code_secret: string | null
           qr_code_verified: boolean | null
+          selfie_url: string | null
           ssn: string | null
           state: string | null
           status: string | null
@@ -39,6 +43,7 @@ export type Database = {
         Insert: {
           account_type: string
           address?: string | null
+          address_proof_url?: string | null
           city?: string | null
           created_at?: string | null
           date_of_birth?: string | null
@@ -46,9 +51,12 @@ export type Database = {
           email_verified?: boolean | null
           full_name: string
           id?: string
+          id_back_url?: string | null
+          id_front_url?: string | null
           phone?: string | null
           qr_code_secret?: string | null
           qr_code_verified?: boolean | null
+          selfie_url?: string | null
           ssn?: string | null
           state?: string | null
           status?: string | null
@@ -60,6 +68,7 @@ export type Database = {
         Update: {
           account_type?: string
           address?: string | null
+          address_proof_url?: string | null
           city?: string | null
           created_at?: string | null
           date_of_birth?: string | null
@@ -67,9 +76,12 @@ export type Database = {
           email_verified?: boolean | null
           full_name?: string
           id?: string
+          id_back_url?: string | null
+          id_front_url?: string | null
           phone?: string | null
           qr_code_secret?: string | null
           qr_code_verified?: boolean | null
+          selfie_url?: string | null
           ssn?: string | null
           state?: string | null
           status?: string | null

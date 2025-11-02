@@ -69,12 +69,28 @@ const OpenAccount = () => {
     acceptTerms: false,
   });
 
+  // File preview URLs
+  const [filePreviews, setFilePreviews] = useState({
+    idFront: "",
+    idBack: "",
+    selfie: "",
+    addressProof: "",
+  });
+
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleFileChange = (field: string, file: File | null) => {
     setFormData(prev => ({ ...prev, [field]: file }));
+    
+    // Create preview URL
+    if (file) {
+      const previewUrl = URL.createObjectURL(file);
+      setFilePreviews(prev => ({ ...prev, [field]: previewUrl }));
+    } else {
+      setFilePreviews(prev => ({ ...prev, [field]: "" }));
+    }
   };
 
   const validateStep = () => {
@@ -138,6 +154,25 @@ const OpenAccount = () => {
     if (step > 1) setStep(step - 1);
   };
 
+  const uploadFile = async (file: File, path: string): Promise<string | null> => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('account-documents')
+        .upload(path, file, { upsert: true });
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('account-documents')
+        .getPublicUrl(path);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      return null;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.acceptTerms) {
@@ -158,6 +193,25 @@ const OpenAccount = () => {
         return;
       }
 
+      // Upload documents to storage
+      let idFrontUrl = null;
+      let idBackUrl = null;
+      let selfieUrl = null;
+      let addressProofUrl = null;
+
+      if (formData.idFront) {
+        idFrontUrl = await uploadFile(formData.idFront, `${user.id}/id-front-${Date.now()}.${formData.idFront.name.split('.').pop()}`);
+      }
+      if (formData.idBack) {
+        idBackUrl = await uploadFile(formData.idBack, `${user.id}/id-back-${Date.now()}.${formData.idBack.name.split('.').pop()}`);
+      }
+      if (formData.selfie) {
+        selfieUrl = await uploadFile(formData.selfie, `${user.id}/selfie-${Date.now()}.${formData.selfie.name.split('.').pop()}`);
+      }
+      if (formData.addressProof) {
+        addressProofUrl = await uploadFile(formData.addressProof, `${user.id}/address-proof-${Date.now()}.${formData.addressProof.name.split('.').pop()}`);
+      }
+
       // Save application to database
       const { error } = await supabase.from("account_applications").insert({
         user_id: user.id,
@@ -169,6 +223,10 @@ const OpenAccount = () => {
         account_type: formData.accountType,
         ssn: formData.ssn,
         status: 'pending',
+        id_front_url: idFrontUrl,
+        id_back_url: idBackUrl,
+        selfie_url: selfieUrl,
+        address_proof_url: addressProofUrl,
       });
 
       if (error) {
@@ -356,11 +414,15 @@ const OpenAccount = () => {
                 <div>
                   <Label htmlFor="idFront">Front of Document *</Label>
                   <div className="mt-2">
-                    <label htmlFor="idFront" className="flex items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50">
-                      <div className="text-center">
-                        <Upload className="mx-auto h-8 w-8 text-gray-400" />
-                        <span className="text-sm text-gray-600">Upload Front</span>
-                      </div>
+                    <label htmlFor="idFront" className="flex items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 overflow-hidden relative">
+                      {filePreviews.idFront ? (
+                        <img src={filePreviews.idFront} alt="ID Front" className="absolute inset-0 w-full h-full object-cover" />
+                      ) : (
+                        <div className="text-center">
+                          <Upload className="mx-auto h-8 w-8 text-gray-400" />
+                          <span className="text-sm text-gray-600">Upload Front</span>
+                        </div>
+                      )}
                       <input 
                         id="idFront" 
                         type="file" 
@@ -370,7 +432,9 @@ const OpenAccount = () => {
                       />
                     </label>
                     {formData.idFront && (
-                      <p className="text-xs text-green-600 mt-1">{formData.idFront.name}</p>
+                      <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+                        <CheckCircle className="w-3 h-3" /> {formData.idFront.name}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -378,11 +442,15 @@ const OpenAccount = () => {
                 <div>
                   <Label htmlFor="idBack">Back of Document *</Label>
                   <div className="mt-2">
-                    <label htmlFor="idBack" className="flex items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50">
-                      <div className="text-center">
-                        <Upload className="mx-auto h-8 w-8 text-gray-400" />
-                        <span className="text-sm text-gray-600">Upload Back</span>
-                      </div>
+                    <label htmlFor="idBack" className="flex items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 overflow-hidden relative">
+                      {filePreviews.idBack ? (
+                        <img src={filePreviews.idBack} alt="ID Back" className="absolute inset-0 w-full h-full object-cover" />
+                      ) : (
+                        <div className="text-center">
+                          <Upload className="mx-auto h-8 w-8 text-gray-400" />
+                          <span className="text-sm text-gray-600">Upload Back</span>
+                        </div>
+                      )}
                       <input 
                         id="idBack" 
                         type="file" 
@@ -392,7 +460,9 @@ const OpenAccount = () => {
                       />
                     </label>
                     {formData.idBack && (
-                      <p className="text-xs text-green-600 mt-1">{formData.idBack.name}</p>
+                      <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+                        <CheckCircle className="w-3 h-3" /> {formData.idBack.name}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -401,22 +471,29 @@ const OpenAccount = () => {
               <div>
                 <Label htmlFor="selfie">Selfie Verification *</Label>
                 <div className="mt-2">
-                  <label htmlFor="selfie" className="flex items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50">
-                    <div className="text-center">
-                      <Upload className="mx-auto h-8 w-8 text-gray-400" />
-                      <span className="text-sm text-gray-600">Upload Selfie</span>
-                      <p className="text-xs text-gray-500 mt-1">Hold your ID next to your face</p>
-                    </div>
+                  <label htmlFor="selfie" className="flex items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 overflow-hidden relative">
+                    {filePreviews.selfie ? (
+                      <img src={filePreviews.selfie} alt="Selfie" className="absolute inset-0 w-full h-full object-cover" />
+                    ) : (
+                      <div className="text-center">
+                        <Upload className="mx-auto h-8 w-8 text-gray-400" />
+                        <span className="text-sm text-gray-600">Upload Selfie</span>
+                        <p className="text-xs text-gray-500 mt-1">Hold your ID next to your face</p>
+                      </div>
+                    )}
                     <input 
                       id="selfie" 
                       type="file" 
                       className="hidden" 
                       accept="image/*"
+                      capture="user"
                       onChange={(e) => handleFileChange("selfie", e.target.files?.[0] || null)}
                     />
                   </label>
                   {formData.selfie && (
-                    <p className="text-xs text-green-600 mt-1">{formData.selfie.name}</p>
+                    <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+                      <CheckCircle className="w-3 h-3" /> {formData.selfie.name}
+                    </p>
                   )}
                 </div>
               </div>
@@ -447,12 +524,16 @@ const OpenAccount = () => {
               <div>
                 <Label htmlFor="addressProof">Upload Document *</Label>
                 <div className="mt-2">
-                  <label htmlFor="addressProof" className="flex items-center justify-center w-full h-40 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50">
-                    <div className="text-center">
-                      <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                      <span className="text-sm text-gray-600 mt-2 block">Upload Proof of Address</span>
-                      <p className="text-xs text-gray-500 mt-1">PDF, JPG, or PNG (Max 5MB)</p>
-                    </div>
+                  <label htmlFor="addressProof" className="flex items-center justify-center w-full h-40 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 overflow-hidden relative">
+                    {filePreviews.addressProof ? (
+                      <img src={filePreviews.addressProof} alt="Address Proof" className="absolute inset-0 w-full h-full object-cover" />
+                    ) : (
+                      <div className="text-center">
+                        <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                        <span className="text-sm text-gray-600 mt-2 block">Upload Proof of Address</span>
+                        <p className="text-xs text-gray-500 mt-1">PDF, JPG, or PNG (Max 5MB)</p>
+                      </div>
+                    )}
                     <input 
                       id="addressProof" 
                       type="file" 
@@ -462,7 +543,9 @@ const OpenAccount = () => {
                     />
                   </label>
                   {formData.addressProof && (
-                    <p className="text-xs text-green-600 mt-1">{formData.addressProof.name}</p>
+                    <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+                      <CheckCircle className="w-3 h-3" /> {formData.addressProof.name}
+                    </p>
                   )}
                 </div>
               </div>
