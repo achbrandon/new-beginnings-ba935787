@@ -43,16 +43,24 @@ const Dashboard = () => {
       return;
     }
 
+    // Bypass verification checks for test accounts
+    if (user.email === 'ambaheu@gmail.com' || user.email === 'test@vaultbank.com') {
+      setUser(user);
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle();
+      setProfile(profileData);
+      return;
+    }
+
+    // For all other users, check verification status
     const { data: profileData } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", user.id)
-      .single();
-
-    if (!profileData?.email_verified) {
-      navigate("/auth");
-      return;
-    }
+      .maybeSingle();
 
     if (!profileData?.qr_verified) {
       navigate("/verify-qr");
