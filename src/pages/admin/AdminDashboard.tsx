@@ -90,29 +90,34 @@ const AdminDashboard = () => {
   const isAdminHome = location.pathname === '/admin';
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={true}>
       <div className="min-h-screen w-full flex bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
         <AdminSidebar />
-        <div className="flex-1 flex flex-col w-full">
-          <header className="bg-slate-800/95 backdrop-blur-sm shadow-md sticky top-0 z-50 border-b border-slate-700">
+        <main className="flex-1 flex flex-col min-w-0">
+          <header className="bg-slate-800/95 backdrop-blur-sm shadow-md border-b border-slate-700 flex-shrink-0">
             <div className="flex items-center justify-between px-6 py-4">
               <div className="flex items-center gap-4">
                 <SidebarTrigger />
-                <img src={logo} alt="VaultBank" className="h-12" />
+                <img src={logo} alt="VaultBank" className="h-10" />
                 <div className="border-l border-slate-600 pl-4">
                   <h1 className="text-xl font-bold text-white">Admin Panel</h1>
                 </div>
               </div>
-              <Button variant="outline" size="sm" onClick={handleSignOut}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleSignOut}
+                className="bg-slate-700 hover:bg-slate-600 text-white border-slate-600"
+              >
                 Sign Out
               </Button>
             </div>
           </header>
 
-          <main className="flex-1 overflow-auto">
+          <div className="flex-1 overflow-auto p-6">
             {isAdminHome ? (
-              <div className="container mx-auto px-4 py-8">
-                <div className="mb-8">
+              <div className="max-w-7xl mx-auto space-y-8">
+                <div>
                   <h2 className="text-3xl font-bold text-white mb-2">
                     Welcome back, Administrator
                   </h2>
@@ -126,7 +131,7 @@ const AdminDashboard = () => {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                   <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-6">
                     <div className="flex flex-row items-center justify-between pb-2">
                       <h3 className="text-sm font-medium text-slate-300">Total Users</h3>
@@ -177,7 +182,7 @@ const AdminDashboard = () => {
                   <h3 className="text-white text-xl font-semibold mb-6">Quick Actions</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Button 
-                      className="h-24 text-lg" 
+                      className="h-24 text-lg bg-slate-700 hover:bg-slate-600 border-slate-600" 
                       variant="outline"
                       onClick={() => navigate("/admin/applications")}
                     >
@@ -185,7 +190,7 @@ const AdminDashboard = () => {
                       Review Applications
                     </Button>
                     <Button 
-                      className="h-24 text-lg" 
+                      className="h-24 text-lg bg-slate-700 hover:bg-slate-600 border-slate-600" 
                       variant="outline"
                       onClick={() => navigate("/admin/support")}
                     >
@@ -193,7 +198,7 @@ const AdminDashboard = () => {
                       Support Tickets
                     </Button>
                     <Button 
-                      className="h-24 text-lg" 
+                      className="h-24 text-lg bg-slate-700 hover:bg-slate-600 border-slate-600" 
                       variant="outline"
                       onClick={() => navigate("/admin/users")}
                     >
@@ -206,8 +211,8 @@ const AdminDashboard = () => {
             ) : (
               <Outlet />
             )}
-          </main>
-        </div>
+          </div>
+        </main>
       </div>
     </SidebarProvider>
   );
