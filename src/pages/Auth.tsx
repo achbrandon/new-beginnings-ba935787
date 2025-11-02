@@ -27,12 +27,23 @@ const Auth = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
-    // Set up auth state listener
+    // Check for existing session only once on mount
+    const checkExistingSession = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && !isRedirecting.current) {
+        isRedirecting.current = true;
+        await handleAuthRedirect(user);
+      }
+    };
+    
+    checkExistingSession();
+
+    // Set up auth state listener for NEW sign-ins only
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('Auth event:', event, 'Session:', session);
         
-        // Only handle NEW sign-ins from the form submission
+        // Only handle NEW sign-ins (not INITIAL_SESSION)
         if (event === 'SIGNED_IN' && session?.user && !isRedirecting.current) {
           isRedirecting.current = true;
           await handleAuthRedirect(session.user);
@@ -40,21 +51,12 @@ const Auth = () => {
       }
     );
 
-    // Check for existing session only once on mount
-    checkUser();
-
     return () => {
       subscription.unsubscribe();
     };
   }, []);
 
   const handleAuthRedirect = async (user: any) => {
-    // Prevent duplicate calls
-    if (isRedirecting.current) {
-      return;
-    }
-    isRedirecting.current = true;
-    
     try {
       // Special case: bypass all verification for test account
       if (user.email === 'ambaheu@gmail.com') {
@@ -97,12 +99,6 @@ const Auth = () => {
     }
   };
 
-  const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      await handleAuthRedirect(user);
-    }
-  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
