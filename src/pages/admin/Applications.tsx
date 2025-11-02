@@ -58,11 +58,17 @@ export default function AdminApplications() {
           .order("created_at", { ascending: false }),
         supabase
           .from("card_applications")
-          .select("*")
+          .select(`
+            *,
+            profiles(full_name, email, phone_number)
+          `)
           .order("created_at", { ascending: false }),
         supabase
           .from("loan_applications")
-          .select("*")
+          .select(`
+            *,
+            profiles(full_name, email, phone_number)
+          `)
           .order("created_at", { ascending: false }),
       ]);
 
@@ -154,8 +160,8 @@ export default function AdminApplications() {
       // Send approval email
       await supabase.functions.invoke("send-application-decision", {
         body: {
-          applicantName: app.full_name || "Customer",
-          applicantEmail: app.email || "",
+          applicantName: app.profiles?.full_name || app.full_name || "Customer",
+          applicantEmail: app.profiles?.email || app.email || "",
           applicationType: "card",
           decision: "approved",
           cardType: app.card_type,
@@ -185,8 +191,8 @@ export default function AdminApplications() {
       // Send rejection email
       await supabase.functions.invoke("send-application-decision", {
         body: {
-          applicantName: app.full_name || "Customer",
-          applicantEmail: app.email || "",
+          applicantName: app.profiles?.full_name || app.full_name || "Customer",
+          applicantEmail: app.profiles?.email || app.email || "",
           applicationType: "card",
           decision: "rejected",
           cardType: app.card_type,
@@ -216,8 +222,8 @@ export default function AdminApplications() {
       // Send approval email
       await supabase.functions.invoke("send-application-decision", {
         body: {
-          applicantName: app.full_name || "Customer",
-          applicantEmail: app.email || "",
+          applicantName: app.profiles?.full_name || app.full_name || "Customer",
+          applicantEmail: app.profiles?.email || app.email || "",
           applicationType: "loan",
           decision: "approved",
           loanAmount: app.loan_amount,
@@ -247,8 +253,8 @@ export default function AdminApplications() {
       // Send rejection email
       await supabase.functions.invoke("send-application-decision", {
         body: {
-          applicantName: app.full_name || "Customer",
-          applicantEmail: app.email || "",
+          applicantName: app.profiles?.full_name || app.full_name || "Customer",
+          applicantEmail: app.profiles?.email || app.email || "",
           applicationType: "loan",
           decision: "rejected",
           loanAmount: app.loan_amount,
@@ -487,7 +493,7 @@ export default function AdminApplications() {
                     <TableCell className="font-medium text-white">
                       {app.profiles?.full_name || "N/A"}
                     </TableCell>
-                    <TableCell className="text-slate-300">{app.profiles?.email}</TableCell>
+                    <TableCell className="text-slate-300">{app.profiles?.email || "N/A"}</TableCell>
                     <TableCell className="text-slate-300">{app.profiles?.phone_number || "N/A"}</TableCell>
                     <TableCell className="text-slate-300">{app.card_type}</TableCell>
                     <TableCell className="text-slate-300">
@@ -547,7 +553,7 @@ export default function AdminApplications() {
                     <TableCell className="font-medium text-white">
                       {app.profiles?.full_name || "N/A"}
                     </TableCell>
-                    <TableCell className="text-slate-300">{app.profiles?.email}</TableCell>
+                    <TableCell className="text-slate-300">{app.profiles?.email || "N/A"}</TableCell>
                     <TableCell className="text-slate-300">{app.profiles?.phone_number || "N/A"}</TableCell>
                     <TableCell className="text-slate-300">
                       ${app.loan_amount?.toLocaleString()}
