@@ -30,8 +30,10 @@ const Auth = () => {
   useEffect(() => {
     // Check for existing session only once on mount
     const checkExistingSession = async () => {
+      if (isRedirecting.current) return;
+      
       const { data: { user } } = await supabase.auth.getUser();
-      if (user && !isRedirecting.current) {
+      if (user) {
         isRedirecting.current = true;
         await handleAuthRedirect(user);
       }
@@ -42,8 +44,6 @@ const Auth = () => {
     // Set up auth state listener for NEW sign-ins only
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth event:', event, 'Session:', session);
-        
         // Only handle NEW sign-ins (not INITIAL_SESSION)
         if (event === 'SIGNED_IN' && session?.user && !isRedirecting.current) {
           isRedirecting.current = true;
@@ -59,44 +59,29 @@ const Auth = () => {
 
   const handleAuthRedirect = async (user: any) => {
     try {
-      // Special case: bypass all verification for test account
-      if (user.email === 'ambaheu@gmail.com') {
-        toast.success("Signed in successfully! (Test Account)");
-        navigate("/dashboard");
+      // Bypass all verification for test accounts
+      if (user.email === 'ambaheu@gmail.com' || user.email === 'test@vaultbank.com') {
+        toast.success("Signed in successfully!");
+        navigate("/dashboard", { replace: true });
         return;
       }
 
-      // For all other users: enforce strict verification
-      // Check if email is verified
-      if (!user.email_confirmed_at) {
-        toast.error("Please verify your email before signing in");
-        await supabase.auth.signOut();
-        return;
-      }
-
-      // Check if QR is verified
-      const { data: profile, error } = await supabase
+      // For all other users: check QR verification
+      const { data: profile } = await supabase
         .from("profiles")
         .select("qr_verified")
         .eq("id", user.id)
-        .single();
-
-      if (error) {
-        console.error("Profile fetch error:", error);
-        toast.error("Please complete account setup");
-        return;
-      }
+        .maybeSingle();
 
       if (!profile?.qr_verified) {
         toast.info("Please complete QR verification");
-        navigate("/verify-qr");
+        navigate("/verify-qr", { replace: true });
       } else {
         toast.success("Signed in successfully!");
-        navigate("/dashboard");
+        navigate("/dashboard", { replace: true });
       }
     } catch (error) {
       console.error("Redirect error:", error);
-      toast.error("Authentication error. Please try again.");
     }
   };
 
