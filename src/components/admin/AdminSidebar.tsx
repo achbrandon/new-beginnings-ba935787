@@ -69,10 +69,10 @@ export function AdminSidebar() {
   const isCollapsed = state === "collapsed";
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarContent>
+    <Sidebar collapsible="icon" className="bg-slate-900 border-slate-700">
+      <SidebarContent className="bg-slate-900">
         <SidebarGroup>
-          <SidebarGroupLabel>Admin Panel</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-slate-300">Admin Panel</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
@@ -84,7 +84,7 @@ export function AdminSidebar() {
                       className={({ isActive }) =>
                         isActive
                           ? "bg-primary text-primary-foreground font-medium"
-                          : "hover:bg-muted/50"
+                          : "text-slate-300 hover:bg-slate-800 hover:text-white"
                       }
                     >
                       <item.icon className="h-4 w-4" />
