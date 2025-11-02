@@ -185,15 +185,31 @@ const OpenAccount = () => {
     }
 
     try {
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        alert("You must be logged in to submit an application.");
+      // Step 1: Create the user account
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.fullName,
+          },
+          emailRedirectTo: `${window.location.origin}/auth`,
+        },
+      });
+
+      if (signUpError) {
+        alert(`Error creating account: ${signUpError.message}`);
         return;
       }
 
-      // Upload documents to storage
+      if (!signUpData.user) {
+        alert("Failed to create account. Please try again.");
+        return;
+      }
+
+      const user = signUpData.user;
+
+      // Step 2: Upload documents to storage
       let idFrontUrl = null;
       let idBackUrl = null;
       let selfieUrl = null;
@@ -212,13 +228,14 @@ const OpenAccount = () => {
         addressProofUrl = await uploadFile(formData.addressProof, `${user.id}/address-proof-${Date.now()}.${formData.addressProof.name.split('.').pop()}`);
       }
 
-      // Update profile with security info
+      // Step 3: Update profile with security info
       const { error: profileError } = await supabase
         .from("profiles")
         .update({
           pin: formData.pin,
           security_question: formData.securityQuestion,
           security_answer: formData.securityAnswer,
+          phone: formData.phoneNumber,
         })
         .eq("id", user.id);
 
@@ -226,7 +243,7 @@ const OpenAccount = () => {
         console.error("Error updating profile:", profileError);
       }
 
-      // Save application to database
+      // Step 4: Save application to database
       const { error } = await supabase.from("account_applications").insert({
         user_id: user.id,
         full_name: formData.fullName,
