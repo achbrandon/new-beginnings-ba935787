@@ -213,27 +213,10 @@ const OpenAccount = () => {
     setIsSubmitting(true);
 
     try {
-      // Check if there's an existing session and warn user
-      const { data: { session: existingSession } } = await supabase.auth.getSession();
-      if (existingSession) {
-        console.log('Existing session detected, signing out first');
-        const { error: signOutError } = await supabase.auth.signOut();
-        if (signOutError) {
-          console.error('SignOut error:', signOutError);
-        }
-        // Wait for signOut to complete and storage to clear
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Force reload to clear any cached sessions
-        alert("Please reload the page and try again to ensure a clean session.");
-        setIsSubmitting(false);
-        return;
-      }
-
       // Generate QR secret
       const qrSecret = crypto.randomUUID();
 
-      // Step 1: Create the user account
+      // Create the user account
       console.log('Creating account for:', formData.email);
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: formData.email,
@@ -268,33 +251,10 @@ const OpenAccount = () => {
       const user = signUpData.user;
       console.log('User created successfully:', user.id);
 
-      // Wait for session to be established
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Wait a moment for session to stabilize
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
-      // Force refresh the session to ensure we have the right one
-      const { data: { session: newSession }, error: sessionError } = await supabase.auth.refreshSession();
-      
-      if (sessionError || !newSession) {
-        console.error('Session refresh error:', sessionError);
-        alert("Session error. Your account was created but please sign in manually at /auth to complete setup.");
-        setIsSubmitting(false);
-        return;
-      }
-
-      console.log('Session refreshed for user:', newSession.user.id);
-
-      // Verify the session matches the new user
-      if (newSession.user.id !== user.id) {
-        console.error('Session mismatch!', { 
-          newUserId: user.id, 
-          sessionUserId: newSession.user.id 
-        });
-        alert("Session mismatch detected. Your account was created. Please reload the page and sign in at /auth.");
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Step 2: Upload documents to storage
+      // Upload documents to storage
       let idFrontUrl = null;
       let idBackUrl = null;
       let selfieUrl = null;
@@ -333,7 +293,7 @@ const OpenAccount = () => {
         }
       }
 
-      // Step 3: Update profile with security info
+      // Update profile with security info
       const { error: profileError } = await supabase
         .from("profiles")
         .update({
@@ -348,7 +308,7 @@ const OpenAccount = () => {
         console.error("Error updating profile:", profileError);
       }
 
-      // Step 4: Save application to database
+      // Save application to database
       const { error } = await supabase.from("account_applications").insert({
         user_id: user.id,
         full_name: formData.fullName,
@@ -374,7 +334,7 @@ const OpenAccount = () => {
         return;
       }
 
-      // Step 5: Send verification email
+      // Send verification email
       try {
         await supabase.functions.invoke("send-verification-email", {
           body: {
