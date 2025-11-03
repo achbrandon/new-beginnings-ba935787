@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useKeyboardShortcut } from "./hooks/useKeyboardShortcut";
+import { AdminAccessDialog } from "./components/AdminAccessDialog";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Checking from "./pages/Checking";
@@ -60,16 +62,21 @@ import AdminSettings from "./pages/admin/AdminSettings";
 const queryClient = new QueryClient();
 
 function AppRoutes() {
-  const navigate = useNavigate();
+  const [showAdminDialog, setShowAdminDialog] = useState(false);
 
-  // Keyboard shortcut: Ctrl+Shift+4 to access admin panel
+  // Keyboard shortcut: Ctrl+Shift+4 to show admin password prompt
   useKeyboardShortcut(
     { key: "4", ctrlKey: true, shiftKey: true },
-    () => navigate("/admin")
+    () => setShowAdminDialog(true)
   );
 
   return (
-    <Routes>
+    <>
+      <AdminAccessDialog 
+        open={showAdminDialog} 
+        onOpenChange={setShowAdminDialog} 
+      />
+      <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/checking" element={<Checking />} />
       <Route path="/savings" element={<Savings />} />
@@ -127,7 +134,8 @@ function AppRoutes() {
       
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
-    </Routes>
+      </Routes>
+    </>
   );
 }
 
