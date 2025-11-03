@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.create-test-account]
 verify_jwt = false
+
+[functions.support-bot]
+verify_jwt = false

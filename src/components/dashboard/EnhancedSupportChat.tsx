@@ -298,46 +298,18 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
   const sendMessage = async () => {
     if (!newMessage.trim() || !ticketId || !userId) return;
 
+    const messageText = newMessage.trim();
+    setNewMessage("");
     setLoading(true);
+
     try {
-      // Check if agent is online, if not use AI bot
-      if (!agentOnline && ticket?.chat_mode !== 'agent') {
-        // Call AI bot
-        const { data, error: botError } = await supabase.functions.invoke('support-bot', {
-          body: { message: newMessage.trim(), ticketId }
-        });
-
-        if (botError) {
-          console.error('Bot error:', botError);
-          // Fallback to regular message
-          await supabase.from("support_messages").insert({
-            ticket_id: ticketId,
-            sender_id: userId,
-            message: newMessage.trim(),
-            is_staff: false
-          });
-        } else if (data?.suggestsLiveAgent) {
-          // Update ticket to connecting mode
-          await supabase
-            .from('support_tickets')
-            .update({ chat_mode: 'connecting' })
-            .eq('id', ticketId);
-          
-          toast.info("Connecting you to a live agent...");
-        }
-      } else {
-        // Send regular message
-        const { error } = await supabase
-          .from("support_messages")
-          .insert({
-            ticket_id: ticketId,
-            sender_id: userId,
-            message: newMessage.trim(),
-            is_staff: false
-          });
-
-        if (error) throw error;
-      }
+      // First, insert the user's message
+      await supabase.from("support_messages").insert({
+        ticket_id: ticketId,
+        sender_id: userId,
+        message: messageText,
+        is_staff: false
+      });
 
       // Clear typing indicator
       await supabase
@@ -345,7 +317,32 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
         .update({ user_typing: false })
         .eq('id', ticketId);
 
-      setNewMessage("");
+      // Check if agent is online, if not use AI bot
+      if (!agentOnline && ticket?.chat_mode !== 'agent') {
+        console.log('No agent online, calling AI bot...');
+        
+        // Call AI bot
+        const { data, error: botError } = await supabase.functions.invoke('support-bot', {
+          body: { message: messageText, ticketId }
+        });
+
+        console.log('Bot response:', data, 'Error:', botError);
+
+        if (botError) {
+          console.error('Bot error:', botError);
+          toast.error("AI assistant is unavailable. An agent will respond soon.");
+        } else if (data?.suggestsLiveAgent) {
+          // Update ticket to connecting mode
+          await supabase
+            .from('support_tickets')
+            .update({ chat_mode: 'connecting' })
+            .eq('id', ticketId);
+          
+          toast.info("🔄 Connecting you to a live agent...", {
+            duration: 5000
+          });
+        }
+      }
     } catch (error: any) {
       console.error("Error sending message:", error);
       toast.error("Failed to send message");
