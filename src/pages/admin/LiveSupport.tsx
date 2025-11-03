@@ -126,11 +126,15 @@ export default function LiveSupport() {
 
   // Handle agent typing indicator
   useEffect(() => {
-    if (newMessage && selectedChat) {
+    if (!selectedChat) return;
+
+    if (newMessage && newMessage.trim()) {
+      // Clear any existing timeout
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
       }
 
+      // Set typing to true
       supabase
         .from('support_tickets')
         .update({ 
@@ -138,21 +142,29 @@ export default function LiveSupport() {
           agent_typing_at: new Date().toISOString()
         })
         .eq('id', selectedChat.id)
-        .then();
+        .then(({ error }) => {
+          if (error) console.error('Error setting agent typing:', error);
+        });
 
+      // Clear typing indicator after 3 seconds of no typing
       typingTimeoutRef.current = setTimeout(() => {
         supabase
           .from('support_tickets')
           .update({ agent_typing: false })
           .eq('id', selectedChat.id)
-          .then();
+          .then(({ error }) => {
+            if (error) console.error('Error clearing agent typing:', error);
+          });
       }, 3000);
-    } else if (selectedChat && !newMessage) {
+    } else {
+      // Clear typing immediately if message is empty
       supabase
         .from('support_tickets')
         .update({ agent_typing: false })
         .eq('id', selectedChat.id)
-        .then();
+        .then(({ error }) => {
+          if (error) console.error('Error clearing agent typing:', error);
+        });
     }
 
     return () => {

@@ -99,11 +99,15 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
 
   // Handle user typing indicator
   useEffect(() => {
-    if (newMessage && ticketId) {
+    if (!ticketId) return;
+
+    if (newMessage && newMessage.trim()) {
+      // Clear any existing timeout
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
       }
 
+      // Set typing to true
       supabase
         .from('support_tickets')
         .update({ 
@@ -111,21 +115,29 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
           user_typing_at: new Date().toISOString()
         })
         .eq('id', ticketId)
-        .then();
+        .then(({ error }) => {
+          if (error) console.error('Error setting user typing:', error);
+        });
 
+      // Clear typing indicator after 3 seconds of no typing
       typingTimeoutRef.current = setTimeout(() => {
         supabase
           .from('support_tickets')
           .update({ user_typing: false })
           .eq('id', ticketId)
-          .then();
+          .then(({ error }) => {
+            if (error) console.error('Error clearing user typing:', error);
+          });
       }, 3000);
-    } else if (ticketId && !newMessage) {
+    } else if (ticketId) {
+      // Clear typing immediately if message is empty
       supabase
         .from('support_tickets')
         .update({ user_typing: false })
         .eq('id', ticketId)
-        .then();
+        .then(({ error }) => {
+          if (error) console.error('Error clearing user typing:', error);
+        });
     }
 
     return () => {
