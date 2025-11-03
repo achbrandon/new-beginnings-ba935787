@@ -233,17 +233,14 @@ const OpenAccount = () => {
 
       if (error) {
         console.error('Application error:', error);
-        if (error.message.includes("already registered") || error.message.includes("already exists")) {
-          alert("This email is already registered. Please use a different email or sign in to your existing account.");
-        } else {
-          alert(`Error creating account: ${error.message}`);
-        }
+        alert(`Error creating account: ${error.message || 'Unknown error occurred'}`);
         setIsSubmitting(false);
         return;
       }
 
       if (!data?.success) {
-        alert(data?.error || "Failed to create account. Please try again.");
+        const errorMessage = data?.error || "Failed to create account. Please try again.";
+        alert(errorMessage);
         setIsSubmitting(false);
         return;
       }
