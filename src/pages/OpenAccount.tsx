@@ -1120,12 +1120,13 @@ const OpenAccount = () => {
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
             </div>
-            <DialogTitle className="text-center text-2xl">Application Submitted Successfully!</DialogTitle>
+            <DialogTitle className="text-center text-2xl">Account Created Successfully!</DialogTitle>
             <DialogDescription className="text-center pt-2">
               <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg mt-2">
-                <p className="font-semibold text-amber-900 mb-1">⚠️ IMPORTANT: Email Verification Required</p>
+                <p className="font-semibold text-amber-900 mb-1">📧 Verification Email Sent</p>
                 <p className="text-sm text-amber-800">
-                  You MUST verify your email address before you can sign in. Check your inbox (and spam folder) for the verification link.
+                  A verification email has been automatically sent to <strong>{formData.email}</strong>. 
+                  Please check your inbox (and spam folder) and click the verification link.
                 </p>
               </div>
             </DialogDescription>
@@ -1136,23 +1137,23 @@ const OpenAccount = () => {
             <ul className="text-sm space-y-3">
               <li className="flex items-start gap-2">
                 <span className="text-red-600 mt-0.5 font-bold">1.</span>
-                <span className="font-semibold">Check your email NOW and click the verification link</span>
+                <span className="font-semibold">Click the verification link in your email</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">2.</span>
-                <span>After email verification, complete QR code authentication</span>
+                <span>After email verification, you can sign in at /auth</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">3.</span>
-                <span>Your application will be reviewed by our team (1-2 business days)</span>
+                <span>Complete QR code authentication on first login</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">4.</span>
-                <span>We may contact you for additional verification via phone or video call</span>
+                <span>Our admin team will review your application (1-2 business days)</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">5.</span>
-                <span>Once approved, you'll receive your account details via email</span>
+                <span>Once approved, full account access will be granted</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">6.</span>
@@ -1162,7 +1163,7 @@ const OpenAccount = () => {
             
             <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg mt-4">
               <p className="text-xs text-blue-900">
-                <strong>Note:</strong> You cannot sign in until your email is verified. Please check your inbox immediately!
+                <strong>Important:</strong> You must verify your email before you can sign in. The verification link expires in 24 hours.
               </p>
             </div>
           </div>
