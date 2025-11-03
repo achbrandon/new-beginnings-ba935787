@@ -213,110 +213,40 @@ const OpenAccount = () => {
     setIsSubmitting(true);
 
     try {
-      // CRITICAL: Sign out any existing session first to prevent conflicts
-      const { data: { session: existingSession } } = await supabase.auth.getSession();
-      if (existingSession) {
-        console.log('Found existing session, signing out first...');
-        await supabase.auth.signOut();
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-
-      // Generate QR secret
-      const qrSecret = crypto.randomUUID();
-
-      // Create the user account
-      console.log('Creating account for:', formData.email);
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            full_name: formData.fullName,
-          },
-          emailRedirectTo: `${window.location.origin}/auth`,
+      // Call edge function to create account (bypasses RLS issues)
+      console.log('Submitting application for:', formData.email);
+      const { data, error } = await supabase.functions.invoke("create-account-application", {
+        body: {
+          email: formData.email,
+          password: formData.password,
+          fullName: formData.fullName,
+          dateOfBirth: formData.dateOfBirth,
+          phoneNumber: formData.phoneNumber,
+          residentialAddress: formData.residentialAddress,
+          accountType: formData.accountType,
+          ssn: formData.ssn,
+          pin: formData.pin,
+          securityQuestion: formData.securityQuestion,
+          securityAnswer: formData.securityAnswer,
         },
       });
 
-      if (signUpError) {
-        console.error('SignUp error:', signUpError);
-        if (signUpError.message.includes("already registered") || signUpError.message.includes("already exists") || signUpError.message.includes("User already registered")) {
+      if (error) {
+        console.error('Application error:', error);
+        if (error.message.includes("already registered") || error.message.includes("already exists")) {
           alert("This email is already registered. Please use a different email or sign in to your existing account.");
-        } else if (signUpError.message.includes("rate limit")) {
-          alert("Too many attempts. Please wait a minute and try again.");
         } else {
-          alert(`Error creating account: ${signUpError.message}`);
+          alert(`Error creating account: ${error.message}`);
         }
         setIsSubmitting(false);
         return;
       }
 
-      if (!signUpData.user) {
-        alert("Failed to create account. Please try again.");
+      if (!data?.success) {
+        alert(data?.error || "Failed to create account. Please try again.");
         setIsSubmitting(false);
         return;
       }
-
-      const user = signUpData.user;
-      console.log('User created successfully:', user.id);
-
-      // NOTE: No session is created until email is verified
-      // We'll save the application without files for now
-      console.log('Account created, no session yet (email not verified)');
-
-      // Save application to database WITHOUT file uploads
-      const { error: appError } = await supabase.from("account_applications").insert({
-        user_id: user.id,
-        full_name: formData.fullName,
-        date_of_birth: formData.dateOfBirth,
-        email: formData.email,
-        phone: formData.phoneNumber,
-        address: formData.residentialAddress,
-        account_type: formData.accountType,
-        ssn: formData.ssn,
-        status: 'pending',
-        email_verified: false,
-        qr_code_secret: qrSecret,
-        verification_token: user.id,
-      });
-
-      if (appError) {
-        console.error("Error submitting application:", appError);
-        alert(`Error submitting application: ${appError.message || 'Please try again'}`);
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Update profile with security info (no auth required for own profile during signup)
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .update({
-          pin: formData.pin,
-          security_question: formData.securityQuestion,
-          security_answer: formData.securityAnswer,
-          phone: formData.phoneNumber,
-        })
-        .eq("id", user.id);
-
-      if (profileError) {
-        console.error("Error updating profile:", profileError);
-      }
-
-      // Send verification email
-      try {
-        await supabase.functions.invoke("send-verification-email", {
-          body: {
-            email: formData.email,
-            fullName: formData.fullName,
-            verificationToken: user.id,
-            qrSecret: qrSecret,
-          },
-        });
-      } catch (emailError) {
-        console.error("Error sending verification email:", emailError);
-      }
-
-      // Sign out user until they verify email
-      await supabase.auth.signOut();
 
       console.log('Application submitted successfully');
       setShowSuccessDialog(true);
