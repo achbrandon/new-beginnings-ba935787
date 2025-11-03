@@ -137,7 +137,13 @@ export default function AdminSupportPage() {
         table: 'support_messages',
         filter: `ticket_id=eq.${ticketId}`
       }, (payload) => {
-        setMessages(prev => [...prev, payload.new]);
+        setMessages(prev => {
+          // Prevent duplicate messages
+          if (prev.some(msg => msg.id === payload.new.id)) {
+            return prev;
+          }
+          return [...prev, payload.new];
+        });
         if (!payload.new.is_staff) {
           markMessageAsRead(payload.new.id);
         }
@@ -183,7 +189,10 @@ export default function AdminSupportPage() {
 
       await supabase
         .from("support_tickets")
-        .update({ updated_at: new Date().toISOString() })
+        .update({ 
+          updated_at: new Date().toISOString(),
+          agent_typing: false
+        })
         .eq("id", selectedTicket.id);
 
       setNewMessage("");

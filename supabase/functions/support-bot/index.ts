@@ -44,6 +44,15 @@ serve(async (req) => {
       content: msg.message
     })) || [];
 
+    // Check if any agents are online
+    const { data: onlineAgents } = await supabase
+      .from('support_agents')
+      .select('id')
+      .eq('is_available', true)
+      .limit(1);
+
+    const hasOnlineAgents = onlineAgents && onlineAgents.length > 0;
+
     const systemPrompt = `You are VaultBank's AI support assistant. Your role is to:
 1. Help customers with banking questions (accounts, transactions, cards, loans)
 2. Provide general banking information
@@ -51,9 +60,11 @@ serve(async (req) => {
 
 Important guidelines:
 - Be helpful and professional
-- If asked about specific account details or transactions, offer to connect with live support
-- For general questions, provide helpful information
-- Always ask if they'd like to speak with a live agent if their issue seems complex
+- If asked about specific account details or transactions, ALWAYS offer to connect with live support
+- For general questions, provide helpful information first
+- If the customer seems frustrated or the issue is complex, suggest connecting to a live agent
+${hasOnlineAgents ? '- Live agents are currently available for immediate assistance' : '- Inform customer that agents will be available soon if they need human assistance'}
+- When offering live agent, end your message with "Would you like me to connect you with a live agent?"
 
 Current ticket type: ${ticket?.ticket_type || 'general'}
 Customer name: ${ticket?.profiles?.full_name || 'Customer'}`;
@@ -95,14 +106,20 @@ Customer name: ${ticket?.profiles?.full_name || 'Customer'}`;
         is_read: false
       });
 
+    // Check if user wants live agent connection
+    const userWantsAgent = message.toLowerCase().includes('yes') || 
+                          message.toLowerCase().includes('live agent') ||
+                          message.toLowerCase().includes('human') ||
+                          message.toLowerCase().includes('connect');
+    
     // Check if bot suggested connecting to live agent
-    const suggestsLiveAgent = botReply.toLowerCase().includes('live agent') || 
-                             botReply.toLowerCase().includes('human support') ||
-                             botReply.toLowerCase().includes('speak with');
+    const botSuggestsAgent = botReply.toLowerCase().includes('live agent') || 
+                            botReply.toLowerCase().includes('human support') ||
+                            botReply.toLowerCase().includes('connect you with');
 
     return new Response(JSON.stringify({ 
       reply: botReply,
-      suggestsLiveAgent
+      suggestsLiveAgent: botSuggestsAgent || userWantsAgent
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

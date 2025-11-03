@@ -30,8 +30,11 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
   const [rating, setRating] = useState(0);
   const [ratingFeedback, setRatingFeedback] = useState("");
   const [userOnline, setUserOnline] = useState(true);
+  const [agentTyping, setAgentTyping] = useState(false);
+  const [agentName, setAgentName] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
     if (userId) {
@@ -65,9 +68,20 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
           table: 'support_tickets',
           filter: `id=eq.${ticketId}`
         },
-        (payload) => {
+        async (payload) => {
           setAgentOnline(payload.new.agent_online || false);
+          setAgentTyping(payload.new.agent_typing || false);
           setTicket(payload.new);
+          
+          // Fetch agent name if assigned
+          if (payload.new.assigned_agent_id && !agentName) {
+            const { data } = await supabase
+              .from('support_agents')
+              .select('name')
+              .eq('id', payload.new.assigned_agent_id)
+              .single();
+            if (data) setAgentName(data.name);
+          }
         }
       )
       .subscribe();
@@ -82,6 +96,44 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Handle user typing indicator
+  useEffect(() => {
+    if (newMessage && ticketId) {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+
+      supabase
+        .from('support_tickets')
+        .update({ 
+          user_typing: true,
+          user_typing_at: new Date().toISOString()
+        })
+        .eq('id', ticketId)
+        .then();
+
+      typingTimeoutRef.current = setTimeout(() => {
+        supabase
+          .from('support_tickets')
+          .update({ user_typing: false })
+          .eq('id', ticketId)
+          .then();
+      }, 3000);
+    } else if (ticketId && !newMessage) {
+      supabase
+        .from('support_tickets')
+        .update({ user_typing: false })
+        .eq('id', ticketId)
+        .then();
+    }
+
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, [newMessage, ticketId]);
 
   const subscribeToMessages = () => {
     const channel = supabase
@@ -248,16 +300,51 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
 
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from("support_messages")
-        .insert({
-          ticket_id: ticketId,
-          sender_id: userId,
-          message: newMessage.trim(),
-          is_staff: false
+      // Check if agent is online, if not use AI bot
+      if (!agentOnline && ticket?.chat_mode !== 'agent') {
+        // Call AI bot
+        const { data, error: botError } = await supabase.functions.invoke('support-bot', {
+          body: { message: newMessage.trim(), ticketId }
         });
 
-      if (error) throw error;
+        if (botError) {
+          console.error('Bot error:', botError);
+          // Fallback to regular message
+          await supabase.from("support_messages").insert({
+            ticket_id: ticketId,
+            sender_id: userId,
+            message: newMessage.trim(),
+            is_staff: false
+          });
+        } else if (data?.suggestsLiveAgent) {
+          // Update ticket to connecting mode
+          await supabase
+            .from('support_tickets')
+            .update({ chat_mode: 'connecting' })
+            .eq('id', ticketId);
+          
+          toast.info("Connecting you to a live agent...");
+        }
+      } else {
+        // Send regular message
+        const { error } = await supabase
+          .from("support_messages")
+          .insert({
+            ticket_id: ticketId,
+            sender_id: userId,
+            message: newMessage.trim(),
+            is_staff: false
+          });
+
+        if (error) throw error;
+      }
+
+      // Clear typing indicator
+      await supabase
+        .from('support_tickets')
+        .update({ user_typing: false })
+        .eq('id', ticketId);
+
       setNewMessage("");
     } catch (error: any) {
       console.error("Error sending message:", error);
@@ -314,14 +401,16 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
               <MessageSquare className="h-6 w-6 text-primary" />
               <div>
                 <DialogTitle className="text-lg">VaultBank Support</DialogTitle>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge variant={agentOnline ? "default" : "secondary"} className="text-xs">
-                    {agentOnline ? "Agent Online" : "Waiting for agent"}
-                  </Badge>
-                  {ticket && (
-                    <span className="text-xs text-muted-foreground">Ticket #{ticket.id.slice(0, 8)}</span>
-                  )}
-                </div>
+                 <div className="flex items-center gap-2 mt-1">
+                   <Badge variant={agentOnline ? "default" : "secondary"} className="text-xs">
+                     {ticket?.chat_mode === 'connecting' ? "Connecting to agent..." :
+                      agentOnline ? (agentName ? `${agentName.replace('Support - ', '')} is helping you` : "Agent Online") : 
+                      "AI Assistant"}
+                   </Badge>
+                   {ticket && (
+                     <span className="text-xs text-muted-foreground">Ticket #{ticket.id.slice(0, 8)}</span>
+                   )}
+                 </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -453,11 +542,34 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
                           })}
                         </span>
                       </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
+                     </div>
+                   </div>
+                 ))}
+                 {agentTyping && (
+                   <div className="flex gap-3">
+                     <Avatar className="h-10 w-10 border-2">
+                       <AvatarFallback className="bg-primary text-primary-foreground">VB</AvatarFallback>
+                     </Avatar>
+                     <div className="flex-1">
+                       <div className="inline-block rounded-2xl px-4 py-3 bg-muted rounded-tl-none">
+                         <div className="flex items-center gap-2">
+                           <div className="flex gap-1">
+                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
+                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
+                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                           </div>
+                           {agentName && (
+                             <span className="text-xs text-muted-foreground ml-2">
+                               {agentName.replace('Support - ', '')} is typing...
+                             </span>
+                           )}
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                 )}
+               </div>
+             </ScrollArea>
 
             <div className="p-4 border-t bg-muted/30">
               <div className="flex gap-2 mb-2">

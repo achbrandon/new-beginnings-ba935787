@@ -265,6 +265,7 @@ export default function LiveSupport() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      // Don't add to state here - let realtime handle it
       const { error } = await supabase
         .from("support_messages")
         .insert({
@@ -287,8 +288,6 @@ export default function LiveSupport() {
           agent_online: true
         })
         .eq('id', selectedChat.id);
-
-      toast.success('Message sent');
     } catch (error) {
       console.error("Error sending message:", error);
       toast.error("Failed to send message");
