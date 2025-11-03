@@ -111,10 +111,6 @@ export default function LiveSupport() {
         },
         (payload) => {
           if (selectedChat && payload.new.id === selectedChat.id) {
-            console.log('Admin side received ticket update:', {
-              user_typing: payload.new.user_typing,
-              ticket_id: payload.new.id
-            });
             setUserTyping(payload.new.user_typing);
           }
         }
@@ -128,16 +124,16 @@ export default function LiveSupport() {
     };
   }, [selectedChat, loadMessages]);
 
-  // Handle agent typing indicator
+  // Handle agent typing indicator with debouncing
   useEffect(() => {
     if (!selectedChat) return;
 
-    if (newMessage && newMessage.trim()) {
-      // Clear any existing timeout
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
+    // Clear any existing timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
 
+    if (newMessage && newMessage.trim()) {
       // Set typing to true
       supabase
         .from('support_tickets')
@@ -146,33 +142,23 @@ export default function LiveSupport() {
           agent_typing_at: new Date().toISOString()
         })
         .eq('id', selectedChat.id)
-        .then(({ error }) => {
-          if (error) {
-            console.error('Error setting agent typing:', error);
-          } else {
-            console.log('Agent typing indicator set to TRUE');
-          }
-        });
+        .then();
 
-      // Clear typing indicator after 3 seconds of no typing
+      // Auto-clear after 2 seconds of no typing
       typingTimeoutRef.current = setTimeout(() => {
         supabase
           .from('support_tickets')
           .update({ agent_typing: false })
           .eq('id', selectedChat.id)
-          .then(({ error }) => {
-            if (error) console.error('Error clearing agent typing:', error);
-          });
-      }, 3000);
+          .then();
+      }, 2000);
     } else {
-      // Clear typing immediately if message is empty
+      // Clear immediately when message is empty
       supabase
         .from('support_tickets')
         .update({ agent_typing: false })
         .eq('id', selectedChat.id)
-        .then(({ error }) => {
-          if (error) console.error('Error clearing agent typing:', error);
-        });
+        .then();
     }
 
     return () => {

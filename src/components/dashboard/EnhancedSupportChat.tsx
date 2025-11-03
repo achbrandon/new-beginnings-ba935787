@@ -69,10 +69,6 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
           filter: `id=eq.${ticketId}`
         },
         async (payload) => {
-          console.log('User side received ticket update:', {
-            agent_typing: payload.new.agent_typing,
-            agent_online: payload.new.agent_online
-          });
           setAgentOnline(payload.new.agent_online || false);
           setAgentTyping(payload.new.agent_typing || false);
           setTicket(payload.new);
@@ -101,17 +97,17 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
     }
   }, [messages]);
 
-  // Handle user typing indicator
+  // Handle user typing indicator with debouncing
   useEffect(() => {
     if (!ticketId) return;
 
-    if (newMessage && newMessage.trim()) {
-      // Clear any existing timeout
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
+    // Clear any existing timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
 
-      // Set typing to true
+    if (newMessage && newMessage.trim()) {
+      // Set typing to true (only once, not on every keystroke)
       supabase
         .from('support_tickets')
         .update({ 
@@ -119,33 +115,23 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
           user_typing_at: new Date().toISOString()
         })
         .eq('id', ticketId)
-        .then(({ error }) => {
-          if (error) {
-            console.error('Error setting user typing:', error);
-          } else {
-            console.log('User typing indicator set to TRUE');
-          }
-        });
+        .then();
 
-      // Clear typing indicator after 3 seconds of no typing
+      // Auto-clear after 2 seconds of no typing
       typingTimeoutRef.current = setTimeout(() => {
         supabase
           .from('support_tickets')
           .update({ user_typing: false })
           .eq('id', ticketId)
-          .then(({ error }) => {
-            if (error) console.error('Error clearing user typing:', error);
-          });
-      }, 3000);
-    } else if (ticketId) {
-      // Clear typing immediately if message is empty
+          .then();
+      }, 2000);
+    } else {
+      // Clear immediately when message is empty
       supabase
         .from('support_tickets')
         .update({ user_typing: false })
         .eq('id', ticketId)
-        .then(({ error }) => {
-          if (error) console.error('Error clearing user typing:', error);
-        });
+        .then();
     }
 
     return () => {
