@@ -35,6 +35,7 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  const messagesChannelRef = useRef<any>(null);
 
   useEffect(() => {
     if (userId) {
@@ -151,6 +152,13 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
   }, [newMessage, ticketId]);
 
   const subscribeToMessages = () => {
+    // Clean up any existing subscription first
+    if (messagesChannelRef.current) {
+      console.log('Removing existing message subscription');
+      supabase.removeChannel(messagesChannelRef.current);
+      messagesChannelRef.current = null;
+    }
+
     const channel = supabase
       .channel(`support-messages-${ticketId}`)
       .on(
@@ -179,8 +187,13 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
         console.log('Message subscription status:', status);
       });
 
+    messagesChannelRef.current = channel;
+
     return () => {
-      supabase.removeChannel(channel);
+      if (messagesChannelRef.current) {
+        supabase.removeChannel(messagesChannelRef.current);
+        messagesChannelRef.current = null;
+      }
     };
   };
 
