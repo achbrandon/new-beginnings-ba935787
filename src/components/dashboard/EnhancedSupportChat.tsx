@@ -45,16 +45,18 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
 
   useEffect(() => {
     if (ticketId) {
-      subscribeToMessages();
-      subscribeToTicketChanges();
+      console.log('Setting up subscriptions for ticket:', ticketId);
+      const messagesCleanup = subscribeToMessages();
+      const ticketCleanup = subscribeToTicketChanges();
       updateUserOnlineStatus(true);
-    }
 
-    return () => {
-      if (ticketId) {
+      return () => {
+        console.log('Cleaning up subscriptions');
+        messagesCleanup();
+        ticketCleanup();
         updateUserOnlineStatus(false);
-      }
-    };
+      };
+    }
   }, [ticketId]);
 
   const subscribeToTicketChanges = () => {
@@ -253,6 +255,7 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
 
   const loadMessages = async (ticketId: string) => {
     try {
+      console.log('Loading messages for ticket:', ticketId);
       const { data, error } = await supabase
         .from("support_messages")
         .select("*")
@@ -260,6 +263,7 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
         .order("created_at", { ascending: true });
 
       if (error) throw error;
+      console.log('Loaded messages:', data?.length || 0);
       setMessages(data || []);
     } catch (error: any) {
       console.error("Error loading messages:", error);
@@ -354,6 +358,9 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
         });
 
         console.log('Bot response:', data, 'Error:', botError);
+
+        // Reload messages to get the bot's reply
+        await loadMessages(ticketId);
 
         // Even if there's an error, the bot returns a fallback message
         if (data?.suggestsLiveAgent) {
