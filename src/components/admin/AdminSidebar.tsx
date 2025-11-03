@@ -51,6 +51,11 @@ const menuItems = [
     icon: FileText,
   },
   {
+    title: "Documents & Verification",
+    url: "/admin/documents",
+    icon: FileText,
+  },
+  {
     title: "Transactions",
     url: "/admin/transactions",
     icon: CreditCard,
