@@ -302,8 +302,22 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
     setNewMessage("");
     setLoading(true);
 
+    // Optimistically add message to UI immediately
+    const optimisticMessage = {
+      id: `temp-${Date.now()}`,
+      ticket_id: ticketId,
+      sender_id: userId,
+      message: messageText,
+      is_staff: false,
+      created_at: new Date().toISOString(),
+      file_url: null,
+      file_name: null,
+      is_read: false
+    };
+    setMessages(prev => [...prev, optimisticMessage]);
+
     try {
-      // First, insert the user's message
+      // Insert the user's message to database
       await supabase.from("support_messages").insert({
         ticket_id: ticketId,
         sender_id: userId,
