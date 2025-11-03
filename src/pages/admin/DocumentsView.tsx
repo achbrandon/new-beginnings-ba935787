@@ -30,16 +30,35 @@ export default function DocumentsView() {
 
   const loadApplications = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: apps, error } = await supabase
         .from("account_applications")
-        .select(`
-          *,
-          profiles!account_applications_user_id_fkey(full_name, email, qr_verified)
-        `)
+        .select("*")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setApplications(data || []);
+
+      // Fetch profiles separately
+      if (apps && apps.length > 0) {
+        const userIds = apps.map(a => a.user_id).filter(Boolean);
+        if (userIds.length > 0) {
+          const { data: profiles } = await supabase
+            .from("profiles")
+            .select("id, full_name, email, qr_verified")
+            .in("id", userIds);
+
+          // Merge profiles with applications
+          const appsWithProfiles = apps.map(app => ({
+            ...app,
+            profiles: profiles?.find(p => p.id === app.user_id)
+          }));
+
+          setApplications(appsWithProfiles);
+        } else {
+          setApplications(apps);
+        }
+      } else {
+        setApplications([]);
+      }
     } catch (error) {
       console.error("Error loading applications:", error);
       toast.error("Failed to load applications");

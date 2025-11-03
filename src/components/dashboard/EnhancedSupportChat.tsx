@@ -301,7 +301,7 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl h-[700px] flex flex-col p-0">
+      <DialogContent className="sm:max-w-4xl h-[85vh] flex flex-col p-0">
         <DialogHeader className="p-6 pb-4 border-b bg-gradient-to-r from-primary/5 to-primary/10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
