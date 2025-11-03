@@ -56,8 +56,8 @@ const menuItems = [
     icon: CreditCard,
   },
   {
-    title: "Support Tickets",
-    url: "/admin/support",
+    title: "Live Support",
+    url: "/admin/live-support",
     icon: MessageSquare,
   },
   {

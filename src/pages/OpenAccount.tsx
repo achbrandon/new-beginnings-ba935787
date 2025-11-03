@@ -162,11 +162,14 @@ const OpenAccount = () => {
 
       if (error) throw error;
 
-      const { data: { publicUrl } } = supabase.storage
+      // Get signed URL for private bucket (expires in 1 year)
+      const { data: signedData, error: signedError } = await supabase.storage
         .from('account-documents')
-        .getPublicUrl(path);
+        .createSignedUrl(path, 31536000); // 1 year in seconds
 
-      return publicUrl;
+      if (signedError) throw signedError;
+
+      return signedData.signedUrl;
     } catch (error) {
       console.error('Error uploading file:', error);
       return null;

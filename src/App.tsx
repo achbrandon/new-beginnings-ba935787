@@ -47,6 +47,7 @@ import AccountDetails from "./pages/dashboard/AccountDetails";
 import StatementGenerator from "./pages/dashboard/StatementGenerator";
 import LoanApplication from "./pages/dashboard/LoanApplication";
 import AdminSupport from "./pages/dashboard/AdminSupport";
+import LiveSupport from "./pages/admin/LiveSupport";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/Users";
 import AdminApplications from "./pages/admin/Applications";
@@ -126,6 +127,7 @@ function AppRoutes() {
         <Route path="applications" element={<AdminApplications />} />
         <Route path="transactions" element={<AdminTransactions />} />
         <Route path="support" element={<AdminSupportPage />} />
+        <Route path="live-support" element={<LiveSupport />} />
         <Route path="email" element={<AdminEmailSystem />} />
         <Route path="wallets" element={<AdminWalletSettings />} />
         <Route path="settings" element={<AdminSettings />} />
