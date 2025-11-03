@@ -123,7 +123,7 @@ export default function AdminUserManagement() {
           account_id: selectedAccount,
           transaction_type: "deposit",
           amount: parseFloat(depositAmount),
-          description: `Manual deposit by admin${notes ? ': ' + notes : ''}`,
+          description: "Deposit",
           status: "completed",
           transaction_date: new Date(depositDate).toISOString(),
           category: "Deposit",
