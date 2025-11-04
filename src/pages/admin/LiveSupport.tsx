@@ -509,7 +509,6 @@ export default function LiveSupport() {
                   <Input
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
                     placeholder="Type your message..."
                     className="bg-slate-900/50 border-slate-600 text-white"
                   />
