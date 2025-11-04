@@ -143,7 +143,9 @@ export default function CryptoWallet() {
         user_id: user.id
       });
 
-      toast.success("Deposit request submitted! Waiting for admin approval.");
+      toast.success("Payment pending for confirmation by automated VaultBank system. You will be notified once verified.", {
+        duration: 5000
+      });
       setDepositData({ currency: "USDT-TRC20", amount: "", proofFile: null });
       setDepositAddress("");
     } catch (error) {
@@ -186,9 +188,18 @@ export default function CryptoWallet() {
           crypto_currency: pendingTransaction.currency,
           destination_wallet_address: pendingTransaction.destinationAddress
         });
+
+        // Create admin notification for withdrawal
+        await supabase.from("admin_notifications").insert({
+          notification_type: "crypto_withdrawal",
+          message: `Crypto withdrawal request: ${pendingTransaction.currency} $${pendingTransaction.amount.toLocaleString()} to ${pendingTransaction.destinationAddress.substring(0, 10)}...`,
+          user_id: user.id
+        });
       }
 
-      toast.success("Withdrawal request submitted! Waiting for admin approval.");
+      toast.success("Transaction pending for confirmation by automated VaultBank system. Your balance will not be affected until completion.", {
+        duration: 5000
+      });
       setWithdrawData({ currency: "", amount: "", destinationAddress: "" });
     } catch (error) {
       console.error("Error processing withdrawal:", error);
