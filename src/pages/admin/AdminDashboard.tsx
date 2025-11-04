@@ -104,7 +104,7 @@ const AdminDashboard = () => {
                   <h1 className="text-xl font-bold text-white">Admin Panel</h1>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-4">
                 <AdminNotifications />
                 <Button 
                   variant="outline" 
