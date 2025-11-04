@@ -36,6 +36,7 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
   const messagesChannelRef = useRef<any>(null);
+  const ticketChannelRef = useRef<any>(null);
 
   useEffect(() => {
     if (userId) {
@@ -61,6 +62,13 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
   }, [ticketId]);
 
   const subscribeToTicketChanges = () => {
+    // Clean up any existing subscription first
+    if (ticketChannelRef.current) {
+      console.log('Removing existing ticket subscription');
+      supabase.removeChannel(ticketChannelRef.current);
+      ticketChannelRef.current = null;
+    }
+
     const channel = supabase
       .channel(`ticket-status-${ticketId}`)
       .on(
@@ -95,6 +103,8 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
       .subscribe((status) => {
         console.log('Ticket subscription status:', status);
       });
+
+    ticketChannelRef.current = channel;
 
     return () => {
       supabase.removeChannel(channel);
