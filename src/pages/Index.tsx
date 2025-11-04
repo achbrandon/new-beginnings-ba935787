@@ -136,11 +136,11 @@ const Index = () => {
 
       {/* Header */}
       <header className="border-b border-border bg-background/95 backdrop-blur-md sticky top-0 z-50 w-full shadow-sm">
-        <div className="container mx-auto px-3 sm:px-4 h-full">
-          <div className="flex items-center justify-between h-14 sm:h-16 w-full">
-            <div className="flex items-center gap-4 sm:gap-8 flex-1">
+        <div className="container mx-auto px-4 sm:px-6 h-full">
+          <div className="flex items-center justify-between h-16 sm:h-18 w-full">
+            <div className="flex items-center gap-3 sm:gap-6 flex-1">
               <Link to="/" className="flex items-center flex-shrink-0">
-                <img src={vaultBankLogo} alt="VaultBank" className="h-12 sm:h-16" />
+                <img src={vaultBankLogo} alt="VaultBank" className="h-10 sm:h-14 md:h-16" />
               </Link>
               <NavigationMenu className="hidden lg:flex flex-1">
                 <NavigationMenuList>
@@ -277,19 +277,19 @@ const Index = () => {
                 </NavigationMenuList>
               </NavigationMenu>
             </div>
-            <div className="flex items-center gap-2 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-3">
               <Button 
                 onClick={() => setAuthDialogOpen(true)} 
                 size="sm"
-                className="h-9 sm:h-10 px-4 sm:px-6 text-sm sm:text-base touch-manipulation"
+                className="h-10 sm:h-11 px-5 sm:px-7 text-sm sm:text-base font-medium touch-manipulation shadow-sm hover:shadow-md transition-all"
               >
                 Sign In
               </Button>
               
               {/* Mobile Menu */}
               <DropdownMenu>
-                <DropdownMenuTrigger className="lg:hidden p-2 touch-manipulation" aria-label="Menu">
-                  <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
+                <DropdownMenuTrigger className="lg:hidden p-2.5 hover:bg-accent rounded-md touch-manipulation transition-colors" aria-label="Menu">
+                  <Menu className="h-6 w-6" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-background z-50 w-56">
                   <DropdownMenuItem onClick={() => handleNavClick('checking')} className="py-3">
@@ -325,24 +325,24 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-16 sm:py-24 lg:py-32 overflow-hidden">
+      <section className="relative py-20 sm:py-28 lg:py-36 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-hero z-0">
           <img src={bankingHero} alt="Modern Banking" className="w-full h-full object-cover mix-blend-overlay opacity-30" />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background z-0"></div>
-        <div className="container mx-auto px-4 sm:px-6 relative z-10">
+        <div className="container mx-auto px-5 sm:px-6 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 text-white animate-fade-in leading-tight">
-              Banking Made <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-white">Simple</span>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-5 sm:mb-7 text-white animate-fade-in leading-tight tracking-tight">
+              Banking Made <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-200 via-blue-100 to-white">Simple</span>
             </h1>
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-white/90 mb-8 sm:mb-10 animate-fade-in font-light px-4">
+            <p className="text-lg sm:text-xl md:text-2xl lg:text-2xl text-white/95 mb-10 sm:mb-12 animate-fade-in font-light max-w-3xl mx-auto leading-relaxed">
               Experience modern banking with competitive rates, powerful tools, and exceptional service
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-5 justify-center animate-fade-in px-4">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center animate-fade-in max-w-lg mx-auto sm:max-w-none">
               <Button 
                 size="lg" 
                 onClick={() => setAuthDialogOpen(true)} 
-                className="text-base sm:text-lg h-12 sm:h-14 lg:h-16 px-8 sm:px-10 lg:px-12 touch-manipulation shadow-elegant hover:shadow-glow transition-all"
+                className="text-base sm:text-lg h-14 sm:h-16 lg:h-18 px-10 sm:px-12 lg:px-14 font-semibold touch-manipulation shadow-elegant hover:shadow-glow transition-all rounded-xl"
               >
                 Open Account
               </Button>
@@ -350,7 +350,7 @@ const Index = () => {
                 size="lg" 
                 variant="outline" 
                 asChild 
-                className="text-base sm:text-lg h-12 sm:h-14 lg:h-16 px-8 sm:px-10 lg:px-12 bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 touch-manipulation transition-all"
+                className="text-base sm:text-lg h-14 sm:h-16 lg:h-18 px-10 sm:px-12 lg:px-14 font-semibold bg-white/10 backdrop-blur-md border-2 border-white/40 text-white hover:bg-white/20 hover:border-white/60 touch-manipulation transition-all rounded-xl"
               >
                 <Link to="/checking">Explore Products</Link>
               </Button>
@@ -360,65 +360,65 @@ const Index = () => {
       </section>
 
       {/* Promotional Banners */}
-      <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-background via-secondary/20 to-background">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="text-center mb-8 sm:mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-3 sm:mb-4">Featured Offers</h2>
-            <p className="text-muted-foreground text-base sm:text-lg">Exclusive benefits for VaultBank customers</p>
+      <section className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-background via-secondary/20 to-background">
+        <div className="container mx-auto px-5 sm:px-6">
+          <div className="text-center mb-10 sm:mb-14">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-5">Featured Offers</h2>
+            <p className="text-muted-foreground text-base sm:text-lg md:text-xl max-w-2xl mx-auto">Exclusive benefits for VaultBank customers</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="overflow-hidden hover:shadow-2xl transition-all duration-500 group border-0 bg-gradient-card animate-fade-in">
-              <div className="relative h-56 overflow-hidden">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <Card className="overflow-hidden hover:shadow-2xl transition-all duration-500 group border-0 bg-gradient-card animate-fade-in rounded-2xl">
+              <div className="relative h-52 sm:h-56 overflow-hidden">
                 <img src={promoCheckingBonus} alt="$300 Checking Bonus" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                <div className="absolute top-4 right-4 bg-success text-success-foreground px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                <div className="absolute top-5 right-5 bg-success text-success-foreground px-5 py-2.5 rounded-full text-sm font-bold shadow-lg">
                   $300 Bonus
                 </div>
               </div>
-              <div className="p-8">
-                <h3 className="text-xl font-bold mb-3">New checking customers</h3>
-                <p className="text-muted-foreground mb-6 leading-relaxed">
+              <div className="p-6 sm:p-8">
+                <h3 className="text-xl sm:text-2xl font-bold mb-3">New checking customers</h3>
+                <p className="text-muted-foreground mb-6 leading-relaxed text-sm sm:text-base">
                   Open a VaultBank Total Checking account with qualifying activities.
                 </p>
-                <Button onClick={() => setAuthDialogOpen(true)} className="w-full h-12" variant="premium">
+                <Button onClick={() => setAuthDialogOpen(true)} className="w-full h-12 sm:h-13 font-semibold touch-manipulation">
                   Open an account
                 </Button>
               </div>
             </Card>
 
-            <Card className="overflow-hidden hover:shadow-2xl transition-all duration-500 group border-0 bg-gradient-card animate-fade-in">
-              <div className="relative h-56 overflow-hidden">
+            <Card className="overflow-hidden hover:shadow-2xl transition-all duration-500 group border-0 bg-gradient-card animate-fade-in rounded-2xl">
+              <div className="relative h-52 sm:h-56 overflow-hidden">
                 <img src={promoCreditCard} alt="Credit Card Rewards" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                <div className="absolute top-4 right-4 bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                <div className="absolute top-5 right-5 bg-primary text-primary-foreground px-5 py-2.5 rounded-full text-sm font-bold shadow-lg">
                   $200 Bonus
                 </div>
               </div>
-              <div className="p-8">
-                <h3 className="text-xl font-bold mb-3">Earn rewards</h3>
-                <p className="text-muted-foreground mb-6 leading-relaxed">
+              <div className="p-6 sm:p-8">
+                <h3 className="text-xl sm:text-2xl font-bold mb-3">Earn rewards</h3>
+                <p className="text-muted-foreground mb-6 leading-relaxed text-sm sm:text-base">
                   Plus, earn unlimited 1.5% cash back on all purchases — no annual fee.
                 </p>
-                <Button asChild className="w-full h-12">
+                <Button asChild className="w-full h-12 sm:h-13 font-semibold touch-manipulation">
                   <Link to="/credit-cards">Learn more</Link>
                 </Button>
               </div>
             </Card>
 
-            <Card className="overflow-hidden hover:shadow-2xl transition-all duration-500 group border-0 bg-gradient-card animate-fade-in">
-              <div className="relative h-56 overflow-hidden">
+            <Card className="overflow-hidden hover:shadow-2xl transition-all duration-500 group border-0 bg-gradient-card animate-fade-in rounded-2xl">
+              <div className="relative h-52 sm:h-56 overflow-hidden">
                 <img src={promoAdvisor} alt="Financial Advisor" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                <div className="absolute top-4 right-4 bg-accent text-accent-foreground px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                <div className="absolute top-5 right-5 bg-accent text-accent-foreground px-5 py-2.5 rounded-full text-sm font-bold shadow-lg">
                   Expert Help
                 </div>
               </div>
-              <div className="p-8">
-                <h3 className="text-xl font-bold mb-3">Partner with an Advisor</h3>
-                <p className="text-muted-foreground mb-6 leading-relaxed">
+              <div className="p-6 sm:p-8">
+                <h3 className="text-xl sm:text-2xl font-bold mb-3">Partner with an Advisor</h3>
+                <p className="text-muted-foreground mb-6 leading-relaxed text-sm sm:text-base">
                   Get dedicated help reaching your individual investment goals.
                 </p>
-                <Button asChild className="w-full h-12">
+                <Button asChild className="w-full h-12 sm:h-13 font-semibold touch-manipulation">
                   <Link to="/investments">Continue</Link>
                 </Button>
               </div>
@@ -428,41 +428,41 @@ const Index = () => {
       </section>
 
       {/* Quick Access Tiles */}
-      <section className="py-12">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold text-center mb-8">Choose what's right for you</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            <Link to="/credit-cards" className="flex flex-col items-center gap-2 p-4 rounded-lg hover:bg-accent transition-all group">
-              <CreditCard className="h-10 w-10 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="text-sm font-medium text-center">Credit cards</span>
+      <section className="py-14 sm:py-16">
+        <div className="container mx-auto px-5 sm:px-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-10 sm:mb-12">Choose what's right for you</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+            <Link to="/credit-cards" className="flex flex-col items-center gap-3 p-5 sm:p-6 rounded-xl hover:bg-accent/50 transition-all group touch-manipulation">
+              <CreditCard className="h-11 w-11 sm:h-12 sm:w-12 text-muted-foreground group-hover:text-primary transition-colors group-hover:scale-110 transition-transform" />
+              <span className="text-xs sm:text-sm font-semibold text-center leading-tight">Credit cards</span>
             </Link>
-            <button onClick={() => handleNavClick('checking')} className="flex flex-col items-center gap-2 p-4 rounded-lg hover:bg-accent transition-all group">
-              <Wallet className="h-10 w-10 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="text-sm font-medium text-center">Checking</span>
+            <button onClick={() => handleNavClick('checking')} className="flex flex-col items-center gap-3 p-5 sm:p-6 rounded-xl hover:bg-accent/50 transition-all group touch-manipulation">
+              <Wallet className="h-11 w-11 sm:h-12 sm:w-12 text-muted-foreground group-hover:text-primary transition-colors group-hover:scale-110 transition-transform" />
+              <span className="text-xs sm:text-sm font-semibold text-center leading-tight">Checking</span>
             </button>
-            <button onClick={() => handleNavClick('savings')} className="flex flex-col items-center gap-2 p-4 rounded-lg hover:bg-accent transition-all group">
-              <TrendingUp className="h-10 w-10 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="text-sm font-medium text-center">Savings</span>
+            <button onClick={() => handleNavClick('savings')} className="flex flex-col items-center gap-3 p-5 sm:p-6 rounded-xl hover:bg-accent/50 transition-all group touch-manipulation">
+              <TrendingUp className="h-11 w-11 sm:h-12 sm:w-12 text-muted-foreground group-hover:text-primary transition-colors group-hover:scale-110 transition-transform" />
+              <span className="text-xs sm:text-sm font-semibold text-center leading-tight">Savings</span>
             </button>
-            <button onClick={() => handleNavClick('loans')} className="flex flex-col items-center gap-2 p-4 rounded-lg hover:bg-accent transition-all group">
-              <Building2 className="h-10 w-10 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="text-sm font-medium text-center">Home loans</span>
+            <button onClick={() => handleNavClick('loans')} className="flex flex-col items-center gap-3 p-5 sm:p-6 rounded-xl hover:bg-accent/50 transition-all group touch-manipulation">
+              <Building2 className="h-11 w-11 sm:h-12 sm:w-12 text-muted-foreground group-hover:text-primary transition-colors group-hover:scale-110 transition-transform" />
+              <span className="text-xs sm:text-sm font-semibold text-center leading-tight">Home loans</span>
             </button>
-            <Link to="/investments" className="flex flex-col items-center gap-2 p-4 rounded-lg hover:bg-accent transition-all group">
-              <TrendingUp className="h-10 w-10 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="text-sm font-medium text-center">Investments</span>
+            <Link to="/investments" className="flex flex-col items-center gap-3 p-5 sm:p-6 rounded-xl hover:bg-accent/50 transition-all group touch-manipulation">
+              <TrendingUp className="h-11 w-11 sm:h-12 sm:w-12 text-muted-foreground group-hover:text-primary transition-colors group-hover:scale-110 transition-transform" />
+              <span className="text-xs sm:text-sm font-semibold text-center leading-tight">Investments</span>
             </Link>
-            <Link to="/crypto" className="flex flex-col items-center gap-2 p-4 rounded-lg hover:bg-accent transition-all group">
-              <Bitcoin className="h-10 w-10 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="text-sm font-medium text-center">Crypto</span>
+            <Link to="/crypto" className="flex flex-col items-center gap-3 p-5 sm:p-6 rounded-xl hover:bg-accent/50 transition-all group touch-manipulation">
+              <Bitcoin className="h-11 w-11 sm:h-12 sm:w-12 text-muted-foreground group-hover:text-primary transition-colors group-hover:scale-110 transition-transform" />
+              <span className="text-xs sm:text-sm font-semibold text-center leading-tight">Crypto</span>
             </Link>
-            <button onClick={() => setAuthDialogOpen(true)} className="flex flex-col items-center gap-2 p-4 rounded-lg hover:bg-accent transition-all group">
-              <Wallet className="h-10 w-10 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="text-sm font-medium text-center">Free credit score</span>
+            <button onClick={() => setAuthDialogOpen(true)} className="flex flex-col items-center gap-3 p-5 sm:p-6 rounded-xl hover:bg-accent/50 transition-all group touch-manipulation">
+              <Wallet className="h-11 w-11 sm:h-12 sm:w-12 text-muted-foreground group-hover:text-primary transition-colors group-hover:scale-110 transition-transform" />
+              <span className="text-xs sm:text-sm font-semibold text-center leading-tight">Free credit score</span>
             </button>
-            <Link to="/locations" className="flex flex-col items-center gap-2 p-4 rounded-lg hover:bg-accent transition-all group">
-              <MapPin className="h-10 w-10 text-muted-foreground group-hover:text-primary transition-colors" />
-              <span className="text-sm font-medium text-center">Find locations</span>
+            <Link to="/locations" className="flex flex-col items-center gap-3 p-5 sm:p-6 rounded-xl hover:bg-accent/50 transition-all group touch-manipulation">
+              <MapPin className="h-11 w-11 sm:h-12 sm:w-12 text-muted-foreground group-hover:text-primary transition-colors group-hover:scale-110 transition-transform" />
+              <span className="text-xs sm:text-sm font-semibold text-center leading-tight">Find locations</span>
             </Link>
           </div>
         </div>
@@ -520,72 +520,72 @@ const Index = () => {
       )}
 
       {/* Services Grid */}
-      <section className="py-16 bg-secondary">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Our Services</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className="p-6 hover:shadow-lg transition-all">
-              <Wallet className="h-12 w-12 text-primary mb-4" />
-              <h3 className="text-xl font-bold mb-2">Checking Accounts</h3>
-              <p className="text-muted-foreground mb-4">
+      <section className="py-16 sm:py-20 lg:py-24 bg-secondary/30">
+        <div className="container mx-auto px-5 sm:px-6">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-12 sm:mb-16">Our Services</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
+            <Card className="p-7 sm:p-8 hover:shadow-xl transition-all duration-300 group rounded-2xl border-0 bg-gradient-card">
+              <Wallet className="h-12 w-12 sm:h-14 sm:w-14 text-primary mb-5 group-hover:scale-110 transition-transform" />
+              <h3 className="text-xl sm:text-2xl font-bold mb-3">Checking Accounts</h3>
+              <p className="text-muted-foreground mb-5 text-sm sm:text-base leading-relaxed">
                 Flexible accounts for everyday banking needs
               </p>
-              <Button variant="link" asChild className="p-0">
+              <Button variant="link" asChild className="p-0 text-base font-semibold">
                 <Link to="/checking">Learn More →</Link>
               </Button>
             </Card>
 
-            <Card className="p-6 hover:shadow-lg transition-all">
-              <TrendingUp className="h-12 w-12 text-primary mb-4" />
-              <h3 className="text-xl font-bold mb-2">Savings Accounts</h3>
-              <p className="text-muted-foreground mb-4">
+            <Card className="p-7 sm:p-8 hover:shadow-xl transition-all duration-300 group rounded-2xl border-0 bg-gradient-card">
+              <TrendingUp className="h-12 w-12 sm:h-14 sm:w-14 text-primary mb-5 group-hover:scale-110 transition-transform" />
+              <h3 className="text-xl sm:text-2xl font-bold mb-3">Savings Accounts</h3>
+              <p className="text-muted-foreground mb-5 text-sm sm:text-base leading-relaxed">
                 Grow your money with competitive interest rates
               </p>
-              <Button variant="link" asChild className="p-0">
+              <Button variant="link" asChild className="p-0 text-base font-semibold">
                 <Link to="/savings">Learn More →</Link>
               </Button>
             </Card>
 
-            <Card className="p-6 hover:shadow-lg transition-all">
-              <CreditCard className="h-12 w-12 text-primary mb-4" />
-              <h3 className="text-xl font-bold mb-2">Credit Cards</h3>
-              <p className="text-muted-foreground mb-4">
+            <Card className="p-7 sm:p-8 hover:shadow-xl transition-all duration-300 group rounded-2xl border-0 bg-gradient-card">
+              <CreditCard className="h-12 w-12 sm:h-14 sm:w-14 text-primary mb-5 group-hover:scale-110 transition-transform" />
+              <h3 className="text-xl sm:text-2xl font-bold mb-3">Credit Cards</h3>
+              <p className="text-muted-foreground mb-5 text-sm sm:text-base leading-relaxed">
                 Earn rewards and build your credit score
               </p>
-              <Button variant="link" asChild className="p-0">
+              <Button variant="link" asChild className="p-0 text-base font-semibold">
                 <Link to="/credit-cards">Learn More →</Link>
               </Button>
             </Card>
 
-            <Card className="p-6 hover:shadow-lg transition-all">
-              <Building2 className="h-12 w-12 text-primary mb-4" />
-              <h3 className="text-xl font-bold mb-2">Loans</h3>
-              <p className="text-muted-foreground mb-4">
+            <Card className="p-7 sm:p-8 hover:shadow-xl transition-all duration-300 group rounded-2xl border-0 bg-gradient-card">
+              <Building2 className="h-12 w-12 sm:h-14 sm:w-14 text-primary mb-5 group-hover:scale-110 transition-transform" />
+              <h3 className="text-xl sm:text-2xl font-bold mb-3">Loans</h3>
+              <p className="text-muted-foreground mb-5 text-sm sm:text-base leading-relaxed">
                 Competitive rates for personal and home loans
               </p>
-              <Button variant="link" asChild className="p-0">
+              <Button variant="link" asChild className="p-0 text-base font-semibold">
                 <Link to="/loans">Learn More →</Link>
               </Button>
             </Card>
 
-            <Card className="p-6 hover:shadow-lg transition-all">
-              <TrendingUp className="h-12 w-12 text-primary mb-4" />
-              <h3 className="text-xl font-bold mb-2">Investments</h3>
-              <p className="text-muted-foreground mb-4">
+            <Card className="p-7 sm:p-8 hover:shadow-xl transition-all duration-300 group rounded-2xl border-0 bg-gradient-card">
+              <TrendingUp className="h-12 w-12 sm:h-14 sm:w-14 text-primary mb-5 group-hover:scale-110 transition-transform" />
+              <h3 className="text-xl sm:text-2xl font-bold mb-3">Investments</h3>
+              <p className="text-muted-foreground mb-5 text-sm sm:text-base leading-relaxed">
                 Build wealth with expert investment guidance
               </p>
-              <Button variant="link" asChild className="p-0">
+              <Button variant="link" asChild className="p-0 text-base font-semibold">
                 <Link to="/investments">Learn More →</Link>
               </Button>
             </Card>
 
-            <Card className="p-6 hover:shadow-lg transition-all">
-              <Bitcoin className="h-12 w-12 text-primary mb-4" />
-              <h3 className="text-xl font-bold mb-2">Cryptocurrency</h3>
-              <p className="text-muted-foreground mb-4">
+            <Card className="p-7 sm:p-8 hover:shadow-xl transition-all duration-300 group rounded-2xl border-0 bg-gradient-card">
+              <Bitcoin className="h-12 w-12 sm:h-14 sm:w-14 text-primary mb-5 group-hover:scale-110 transition-transform" />
+              <h3 className="text-xl sm:text-2xl font-bold mb-3">Cryptocurrency</h3>
+              <p className="text-muted-foreground mb-5 text-sm sm:text-base leading-relaxed">
                 Buy, sell, and manage digital currencies
               </p>
-              <Button variant="link" asChild className="p-0">
+              <Button variant="link" asChild className="p-0 text-base font-semibold">
                 <Link to="/crypto">Learn More →</Link>
               </Button>
             </Card>

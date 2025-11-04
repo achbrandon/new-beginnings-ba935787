@@ -1,11 +1,9 @@
-import { useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { useKeyboardShortcut } from "./hooks/useKeyboardShortcut";
-import { AdminAccessDialog } from "./components/AdminAccessDialog";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Checking from "./pages/Checking";
@@ -67,20 +65,16 @@ import CreateTestAccount from "./pages/CreateTestAccount";
 const queryClient = new QueryClient();
 
 function AppRoutes() {
-  const [showAdminDialog, setShowAdminDialog] = useState(false);
+  const navigate = useNavigate();
 
-  // Keyboard shortcut: Ctrl+Shift+4 to show admin password prompt
+  // Keyboard shortcut: Ctrl+Shift+4 to open test account page
   useKeyboardShortcut(
     { key: "4", ctrlKey: true, shiftKey: true },
-    () => setShowAdminDialog(true)
+    () => navigate("/create-test-account")
   );
 
   return (
     <>
-      <AdminAccessDialog 
-        open={showAdminDialog} 
-        onOpenChange={setShowAdminDialog} 
-      />
       <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/checking" element={<Checking />} />
