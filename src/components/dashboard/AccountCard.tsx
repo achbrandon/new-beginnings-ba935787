@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 import { 
   CreditCard, 
   Wallet, 
@@ -100,7 +101,11 @@ export function AccountCard({ account, showBalance, onRefresh }: AccountCardProp
       </div>
 
       <div className="p-4 bg-card">
-        <Button variant="ghost" className="w-full justify-between text-sm">
+        <Button 
+          variant="ghost" 
+          className="w-full justify-between text-sm"
+          onClick={() => toast.error("Permission denied")}
+        >
           View Details
           <ChevronRight className="h-4 w-4" />
         </Button>
