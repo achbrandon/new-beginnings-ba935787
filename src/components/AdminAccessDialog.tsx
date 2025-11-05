@@ -50,7 +50,8 @@ export function AdminAccessDialog({ open, onOpenChange }: AdminAccessDialogProps
           user_id: user.id,
           role: "admin",
         }, {
-          onConflict: "user_id"
+          onConflict: "user_id,role",
+          ignoreDuplicates: false
         });
 
       if (roleError) {
