@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_applications: {
+        Row: {
+          account_type: string
+          address: string | null
+          created_at: string | null
+          email: string
+          full_name: string
+          id: string
+          phone: string | null
+          qr_code_verified: boolean | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          account_type: string
+          address?: string | null
+          created_at?: string | null
+          email: string
+          full_name: string
+          id?: string
+          phone?: string | null
+          qr_code_verified?: boolean | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          account_type?: string
+          address?: string | null
+          created_at?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          qr_code_verified?: boolean | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       accounts: {
         Row: {
           account_number: string
@@ -21,6 +63,7 @@ export type Database = {
           balance: number | null
           created_at: string | null
           id: string
+          qr_code_secret: string | null
           status: string | null
           user_id: string
         }
@@ -30,6 +73,7 @@ export type Database = {
           balance?: number | null
           created_at?: string | null
           id?: string
+          qr_code_secret?: string | null
           status?: string | null
           user_id: string
         }
@@ -39,6 +83,7 @@ export type Database = {
           balance?: number | null
           created_at?: string | null
           id?: string
+          qr_code_secret?: string | null
           status?: string | null
           user_id?: string
         }
@@ -62,6 +107,33 @@ export type Database = {
           id?: string
           is_read?: boolean | null
           message?: string | null
+        }
+        Relationships: []
+      }
+      loan_applications: {
+        Row: {
+          amount: number
+          created_at: string | null
+          id: string
+          loan_type: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          id?: string
+          loan_type: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          id?: string
+          loan_type?: string
+          status?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -89,21 +161,60 @@ export type Database = {
         }
         Relationships: []
       }
-      profiles: {
+      password_reset_requests: {
         Row: {
           created_at: string | null
+          expires_at: string
           id: string
-          qr_verified: boolean | null
+          user_id: string
+          verified: boolean | null
         }
         Insert: {
           created_at?: string | null
-          id: string
-          qr_verified?: boolean | null
+          expires_at: string
+          id?: string
+          user_id: string
+          verified?: boolean | null
         }
         Update: {
           created_at?: string | null
+          expires_at?: string
           id?: string
+          user_id?: string
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          can_transact: boolean | null
+          created_at: string | null
+          id: string
+          pin: string | null
+          qr_verified: boolean | null
+          security_answer: string | null
+          security_question: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          can_transact?: boolean | null
+          created_at?: string | null
+          id: string
+          pin?: string | null
           qr_verified?: boolean | null
+          security_answer?: string | null
+          security_question?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          can_transact?: boolean | null
+          created_at?: string | null
+          id?: string
+          pin?: string | null
+          qr_verified?: boolean | null
+          security_answer?: string | null
+          security_question?: string | null
         }
         Relationships: []
       }
@@ -112,18 +223,21 @@ export type Database = {
           created_at: string | null
           id: string
           is_online: boolean | null
+          name: string | null
           user_id: string
         }
         Insert: {
           created_at?: string | null
           id?: string
           is_online?: boolean | null
+          name?: string | null
           user_id: string
         }
         Update: {
           created_at?: string | null
           id?: string
           is_online?: boolean | null
+          name?: string | null
           user_id?: string
         }
         Relationships: []
@@ -160,9 +274,45 @@ export type Database = {
           },
         ]
       }
+      support_ratings: {
+        Row: {
+          created_at: string | null
+          feedback: string | null
+          id: string
+          rating: number
+          ticket_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          rating: number
+          ticket_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          feedback?: string | null
+          id?: string
+          rating?: number
+          ticket_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_ratings_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       support_tickets: {
         Row: {
           agent_online: boolean | null
+          chat_mode: string | null
           created_at: string | null
           id: string
           status: string | null
@@ -172,6 +322,7 @@ export type Database = {
         }
         Insert: {
           agent_online?: boolean | null
+          chat_mode?: string | null
           created_at?: string | null
           id?: string
           status?: string | null
@@ -181,6 +332,7 @@ export type Database = {
         }
         Update: {
           agent_online?: boolean | null
+          chat_mode?: string | null
           created_at?: string | null
           id?: string
           status?: string | null
@@ -189,6 +341,47 @@ export type Database = {
           user_typing?: boolean | null
         }
         Relationships: []
+      }
+      transactions: {
+        Row: {
+          account_id: string | null
+          amount: number
+          created_at: string | null
+          description: string | null
+          id: string
+          status: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          account_id?: string | null
+          amount: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          status?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string | null
+          amount?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          status?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       transfer_recipients: {
         Row: {
@@ -247,6 +440,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_activity: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -264,6 +481,30 @@ export type Database = {
           created_at?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          created_at: string | null
+          ended_at: string | null
+          id: string
+          started_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          ended_at?: string | null
+          id?: string
+          started_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          ended_at?: string | null
+          id?: string
+          started_at?: string | null
           user_id?: string
         }
         Relationships: []
