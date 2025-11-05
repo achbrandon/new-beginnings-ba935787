@@ -24,7 +24,7 @@ export default function CryptoWallet() {
   const [processingTransaction, setProcessingTransaction] = useState(false);
 
   const [depositData, setDepositData] = useState({
-    currency: "USDT-TRC20",
+    currency: "BTC",
     amount: "",
     proofFile: null as File | null
   });
@@ -35,8 +35,6 @@ export default function CryptoWallet() {
     destinationAddress: ""
   });
   
-  const [depositAddress, setDepositAddress] = useState("");
-
   useEffect(() => {
     checkAuth();
   }, []);
@@ -76,26 +74,6 @@ export default function CryptoWallet() {
     }
   };
 
-  const fetchDepositAddress = async (currency: string) => {
-    try {
-      const { data } = await supabase
-        .from("crypto_deposit_addresses")
-        .select("*")
-        .eq("currency", currency)
-        .eq("is_active", true)
-        .single();
-      
-      if (data) {
-        setDepositAddress(data.wallet_address);
-      } else {
-        setDepositAddress("");
-        toast.error("Deposit address not available for this currency. Please try another currency or contact support.");
-      }
-    } catch (error) {
-      console.error("Error fetching deposit address:", error);
-      setDepositAddress("");
-    }
-  };
 
   const handleDeposit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -146,8 +124,7 @@ export default function CryptoWallet() {
       toast.success("Deposit request submitted successfully. You will be notified once verified.", {
         duration: 5000
       });
-      setDepositData({ currency: "USDT-TRC20", amount: "", proofFile: null });
-      setDepositAddress("");
+      setDepositData({ currency: "BTC", amount: "", proofFile: null });
     } catch (error) {
       console.error("Error processing deposit:", error);
       toast.error("Failed to submit deposit request");
@@ -295,10 +272,7 @@ export default function CryptoWallet() {
                   <Label htmlFor="currency">Cryptocurrency</Label>
                   <Select 
                     value={depositData.currency} 
-                    onValueChange={(value) => {
-                      setDepositData({ ...depositData, currency: value });
-                      fetchDepositAddress(value);
-                    }}
+                    onValueChange={(value) => setDepositData({ ...depositData, currency: value })}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select currency" />
@@ -315,28 +289,6 @@ export default function CryptoWallet() {
                     </SelectContent>
                   </Select>
                 </div>
-
-                {depositAddress && (
-                  <div className="space-y-2 p-4 bg-primary/5 rounded-lg border border-primary/20">
-                    <Label>Deposit Address</Label>
-                    <div className="flex items-center gap-2">
-                      <code className="text-xs bg-background p-2 rounded flex-1 break-all">
-                        {depositAddress}
-                      </code>
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => copyToClipboard(depositAddress)}
-                      >
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Deposit using your {depositData.currency} wallet to VaultBank crypto address above, then upload proof of payment below.
-                    </p>
-                  </div>
-                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="depositAmount">Amount (USD)</Label>
@@ -368,7 +320,7 @@ export default function CryptoWallet() {
                 <Button 
                   type="submit" 
                   className="w-full bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600"
-                  disabled={!depositAddress || processingTransaction}
+                  disabled={processingTransaction}
                 >
                   <ArrowDownToLine className="h-4 w-4 mr-2" />
                   Submit Deposit Request
