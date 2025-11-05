@@ -8,6 +8,7 @@ import { ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import bankLogo from "@/assets/vaultbank-logo.png";
 
 interface AuthDialogProps {
   open: boolean;
@@ -21,6 +22,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showLoadingSpinner, setShowLoadingSpinner] = useState(false);
 
   useEffect(() => {
     if (!open) {
@@ -33,6 +35,10 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setShowLoadingSpinner(true);
+
+    // Ensure spinner shows for at least 2 seconds
+    const minSpinnerTime = new Promise(resolve => setTimeout(resolve, 2000));
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -43,6 +49,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
       if (error) {
         toast.error(error.message);
         setLoading(false);
+        setShowLoadingSpinner(false);
         return;
       }
 
@@ -60,6 +67,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
           toast.error("Please verify your email before signing in");
           await supabase.auth.signOut();
           setLoading(false);
+          setShowLoadingSpinner(false);
           return;
         }
 
@@ -69,6 +77,9 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
           .select("qr_verified")
           .eq("id", data.user.id)
           .single();
+
+        // Wait for minimum spinner time before proceeding
+        await minSpinnerTime;
 
         if (!profile?.qr_verified) {
           toast.info("Please complete QR verification");
@@ -83,6 +94,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
     } catch (error: any) {
       console.error("Sign in error:", error);
       toast.error("An error occurred during sign in");
+      setShowLoadingSpinner(false);
     } finally {
       setLoading(false);
     }
@@ -189,6 +201,20 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
           </form>
         </div>
       </DialogContent>
+
+      {showLoadingSpinner && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[100] flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <img 
+              src={bankLogo} 
+              alt="VaultBank" 
+              className="h-20 w-auto mx-auto animate-spin"
+              style={{ animationDuration: '2s' }}
+            />
+            <p className="text-lg font-semibold">Signing you in...</p>
+          </div>
+        </div>
+      )}
     </Dialog>
   );
 };
