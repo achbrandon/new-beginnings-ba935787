@@ -58,11 +58,11 @@ export function TransferReceipt({ open, onClose, transferData }: TransferReceipt
             <div className="bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-500 rounded-lg p-4 text-center">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-500" />
-                <h3 className="font-bold text-yellow-800 dark:text-yellow-500">Transaction Pending Verification</h3>
+                <h3 className="font-bold text-yellow-800 dark:text-yellow-500">Transaction Pending</h3>
               </div>
               <p className="text-sm text-yellow-700 dark:text-yellow-400">
-                Your {transferData.type} transfer has been submitted and is awaiting admin approval. 
-                You will be notified once the transaction is processed.
+                Your {transferData.type} transfer is being processed. 
+                You will be notified once the transaction is completed.
               </p>
             </div>
           )}
