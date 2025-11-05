@@ -132,6 +132,7 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
 
       setTimeout(() => {
         setShowLoadingSpinner(false);
+        setLoading(false);
         setReceiptData({
           type: 'internal',
           fromAccount: fromAcc?.account_name || '',
@@ -149,7 +150,7 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
     } catch (error: any) {
       console.error("Transfer error:", error);
       toast.error(error.message || "Failed to complete transfer");
-    } finally {
+      setShowLoadingSpinner(false);
       setLoading(false);
     }
   };
