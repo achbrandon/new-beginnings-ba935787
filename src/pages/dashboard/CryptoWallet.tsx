@@ -89,7 +89,7 @@ export default function CryptoWallet() {
         setDepositAddress(data.wallet_address);
       } else {
         setDepositAddress("");
-        toast.error("No deposit address available for this currency");
+        toast.error("Deposit address not available for this currency. Please try another currency or contact support.");
       }
     } catch (error) {
       console.error("Error fetching deposit address:", error);
@@ -143,7 +143,7 @@ export default function CryptoWallet() {
         user_id: user.id
       });
 
-      toast.success("Payment pending for confirmation by automated VaultBank system. You will be notified once verified.", {
+      toast.success("Deposit request submitted successfully. You will be notified once verified.", {
         duration: 5000
       });
       setDepositData({ currency: "USDT-TRC20", amount: "", proofFile: null });
@@ -197,7 +197,7 @@ export default function CryptoWallet() {
         });
       }
 
-      toast.success("Transaction pending for confirmation by automated VaultBank system. Your balance will not be affected until completion.", {
+      toast.success("Withdrawal request submitted successfully. Your balance will be updated once processed.", {
         duration: 5000
       });
       setWithdrawData({ currency: "", amount: "", destinationAddress: "" });
@@ -445,7 +445,7 @@ export default function CryptoWallet() {
             Important Information
           </h3>
           <ul className="text-sm text-muted-foreground space-y-2">
-            <li>• Deposits are reviewed and approved by admin - no OTP required</li>
+            <li>• Deposits are reviewed and processed automatically - no OTP required</li>
             <li>• Withdrawals require OTP verification for security</li>
             <li>• BTC/ETH deposits: 3-10 minutes | USDT/USDC (TRC-20): 1-3 minutes | BNB: 2-5 minutes</li>
             <li>• Network fees may apply for blockchain transactions</li>
@@ -464,18 +464,6 @@ export default function CryptoWallet() {
         email={profile?.email || ""}
       />
 
-      {processingTransaction && (
-        <Dialog open={true}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Submitting Request</DialogTitle>
-              <DialogDescription>
-                Please wait while we submit your request to the admin...
-              </DialogDescription>
-            </DialogHeader>
-          </DialogContent>
-        </Dialog>
-      )}
     </div>
   );
 }
