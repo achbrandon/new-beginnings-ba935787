@@ -54,24 +54,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
       }
 
       if (data.user) {
-        // Special case: bypass verification for test account
-        if (data.user.email === 'ambaheu@gmail.com') {
-          toast.success("Signed in successfully! (Test Account)");
-          onOpenChange(false);
-          navigate("/dashboard");
-          return;
-        }
-
-        // For all other users: enforce strict verification
-        if (!data.user.email_confirmed_at) {
-          toast.error("Please verify your email before signing in");
-          await supabase.auth.signOut();
-          setLoading(false);
-          setShowLoadingSpinner(false);
-          return;
-        }
-
-        // Check if user is admin
+        // Check if user is admin FIRST - admins bypass all other checks
         const { data: roleData } = await supabase
           .from("user_roles")
           .select("role")
@@ -82,11 +65,20 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
         // Wait for minimum spinner time before proceeding
         await minSpinnerTime;
 
-        // If admin, redirect to admin panel
+        // If admin, redirect to admin panel immediately
         if (roleData) {
           toast.success("Welcome, Admin!");
           onOpenChange(false);
           navigate("/admin");
+          return;
+        }
+
+        // For non-admin users: enforce email verification
+        if (!data.user.email_confirmed_at) {
+          toast.error("Please verify your email before signing in");
+          await supabase.auth.signOut();
+          setLoading(false);
+          setShowLoadingSpinner(false);
           return;
         }
 
