@@ -71,15 +71,31 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
           return;
         }
 
-        // Check if QR is verified
+        // Check if user is admin
+        const { data: roleData } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", data.user.id)
+          .eq("role", "admin")
+          .maybeSingle();
+
+        // Wait for minimum spinner time before proceeding
+        await minSpinnerTime;
+
+        // If admin, redirect to admin panel
+        if (roleData) {
+          toast.success("Welcome, Admin!");
+          onOpenChange(false);
+          navigate("/admin");
+          return;
+        }
+
+        // Check if QR is verified for regular users
         const { data: profile } = await supabase
           .from("profiles")
           .select("qr_verified")
           .eq("id", data.user.id)
-          .single();
-
-        // Wait for minimum spinner time before proceeding
-        await minSpinnerTime;
+          .maybeSingle();
 
         if (!profile?.qr_verified) {
           toast.info("Please complete QR verification");
