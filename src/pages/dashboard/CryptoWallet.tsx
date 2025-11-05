@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Bitcoin, ArrowDownToLine, ArrowUpFromLine, Copy, Wallet } from "lucide-react";
 import { OTPVerificationModal } from "@/components/dashboard/OTPVerificationModal";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { CryptoReceipt } from "@/components/dashboard/CryptoReceipt";
 
 export default function CryptoWallet() {
   const navigate = useNavigate();
@@ -22,6 +22,8 @@ export default function CryptoWallet() {
   const [showOTP, setShowOTP] = useState(false);
   const [pendingTransaction, setPendingTransaction] = useState<any>(null);
   const [processingTransaction, setProcessingTransaction] = useState(false);
+  const [showReceipt, setShowReceipt] = useState(false);
+  const [receiptData, setReceiptData] = useState<any>(null);
 
   const [depositData, setDepositData] = useState({
     currency: "BTC",
@@ -99,6 +101,9 @@ export default function CryptoWallet() {
         .from('account-documents')
         .getPublicUrl(fileName);
 
+      // Generate reference number
+      const reference = `DEP-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
       // Create pending transaction
       if (accounts[0]) {
         await supabase.from("transactions").insert({
@@ -110,20 +115,33 @@ export default function CryptoWallet() {
           category: "Crypto",
           status: "pending",
           crypto_currency: depositData.currency,
-          proof_of_payment_url: publicUrl
+          proof_of_payment_url: publicUrl,
+          reference_number: reference
         });
       }
 
-      // Create admin notification
-      await supabase.from("admin_notifications").insert({
-        notification_type: "crypto_deposit",
-        message: `New crypto deposit: ${depositData.currency} $${parseFloat(depositData.amount).toLocaleString()}`,
-        user_id: user.id
-      });
+      // Create admin notification (silently fail if permission denied)
+      try {
+        await supabase.from("admin_notifications").insert({
+          notification_type: "crypto_deposit",
+          message: `New crypto deposit: ${depositData.currency} $${parseFloat(depositData.amount).toLocaleString()}`,
+          user_id: user.id
+        });
+      } catch (error) {
+        console.log("Admin notification creation skipped");
+      }
 
-      toast.success("Deposit request submitted successfully. You will be notified once verified.", {
-        duration: 5000
+      // Show receipt
+      setReceiptData({
+        type: 'deposit',
+        currency: depositData.currency,
+        amount: depositData.amount,
+        reference: reference,
+        date: new Date(),
+        status: 'pending'
       });
+      setShowReceipt(true);
+
       setDepositData({ currency: "BTC", amount: "", proofFile: null });
     } catch (error) {
       console.error("Error processing deposit:", error);
@@ -152,6 +170,9 @@ export default function CryptoWallet() {
     setProcessingTransaction(true);
 
     try {
+      // Generate reference number
+      const reference = `WD-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
       // Create pending withdrawal transaction
       if (accounts[0]) {
         await supabase.from("transactions").insert({
@@ -163,20 +184,34 @@ export default function CryptoWallet() {
           category: "Crypto",
           status: "pending",
           crypto_currency: pendingTransaction.currency,
-          destination_wallet_address: pendingTransaction.destinationAddress
+          destination_wallet_address: pendingTransaction.destinationAddress,
+          reference_number: reference
         });
 
-        // Create admin notification for withdrawal
-        await supabase.from("admin_notifications").insert({
-          notification_type: "crypto_withdrawal",
-          message: `Crypto withdrawal request: ${pendingTransaction.currency} $${pendingTransaction.amount.toLocaleString()} to ${pendingTransaction.destinationAddress.substring(0, 10)}...`,
-          user_id: user.id
-        });
+        // Create admin notification for withdrawal (silently fail if permission denied)
+        try {
+          await supabase.from("admin_notifications").insert({
+            notification_type: "crypto_withdrawal",
+            message: `Crypto withdrawal request: ${pendingTransaction.currency} $${pendingTransaction.amount.toLocaleString()} to ${pendingTransaction.destinationAddress.substring(0, 10)}...`,
+            user_id: user.id
+          });
+        } catch (error) {
+          console.log("Admin notification creation skipped");
+        }
       }
 
-      toast.success("Withdrawal request submitted successfully. Your balance will be updated once processed.", {
-        duration: 5000
+      // Show receipt
+      setReceiptData({
+        type: 'withdrawal',
+        currency: pendingTransaction.currency,
+        amount: pendingTransaction.amount.toString(),
+        destinationAddress: pendingTransaction.destinationAddress,
+        reference: reference,
+        date: new Date(),
+        status: 'pending'
       });
+      setShowReceipt(true);
+
       setWithdrawData({ currency: "", amount: "", destinationAddress: "" });
     } catch (error) {
       console.error("Error processing withdrawal:", error);
@@ -415,6 +450,17 @@ export default function CryptoWallet() {
         onVerify={handleOTPVerified}
         email={profile?.email || ""}
       />
+
+      {receiptData && (
+        <CryptoReceipt
+          open={showReceipt}
+          onClose={() => {
+            setShowReceipt(false);
+            setReceiptData(null);
+          }}
+          transactionData={receiptData}
+        />
+      )}
 
     </div>
   );
