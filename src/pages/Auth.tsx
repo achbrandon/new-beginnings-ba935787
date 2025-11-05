@@ -371,6 +371,12 @@ const Auth = () => {
                 >
                   Use token instead <ChevronRight className="w-4 h-4" />
                 </Link>
+                <Link
+                  to="/create-admin-account"
+                  className="text-muted-foreground hover:text-foreground text-xs hover:underline flex items-center justify-center gap-1 mt-2 pt-2 border-t border-border"
+                >
+                  Admin Access <ChevronRight className="w-3 h-3" />
+                </Link>
               </div>
             </form>
           </TabsContent>

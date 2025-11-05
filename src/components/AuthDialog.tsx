@@ -198,6 +198,16 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
                 </Link>
               </div>
             </div>
+
+            <div className="pt-4 border-t border-border">
+              <Link 
+                to="/create-admin-account" 
+                className="text-muted-foreground hover:text-foreground text-xs flex items-center justify-center gap-1 group transition-all duration-200"
+                onClick={() => onOpenChange(false)}
+              >
+                Admin Access <ChevronRight className="w-3 h-3 transition-transform duration-200 group-hover:translate-x-1" />
+              </Link>
+            </div>
           </form>
         </div>
       </DialogContent>
