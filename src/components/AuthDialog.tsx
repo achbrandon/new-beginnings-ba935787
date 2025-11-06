@@ -73,15 +73,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
           return;
         }
 
-        // For non-admin users: enforce email verification
-        if (!data.user.email_confirmed_at) {
-          toast.error("Please verify your email before signing in");
-          await supabase.auth.signOut();
-          setLoading(false);
-          setShowLoadingSpinner(false);
-          return;
-        }
-
+        // For regular users: Allow login and check QR verification
         // Check if QR is verified for regular users
         const { data: profile } = await supabase
           .from("profiles")
@@ -90,7 +82,7 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
           .maybeSingle();
 
         if (!profile?.qr_verified) {
-          toast.info("Please complete QR verification");
+          toast.info("Please complete QR verification to access your account");
           onOpenChange(false);
           navigate("/verify-qr");
         } else {

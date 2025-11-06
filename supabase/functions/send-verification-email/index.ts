@@ -48,8 +48,8 @@ const handler = async (req: Request): Promise<Response> => {
       }
     });
 
-    // Create verification URL that redirects to the official website
-    const verificationUrl = `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?token=${verificationToken}&type=signup&redirect_to=https://vaultbankonline.com/verify-qr?verified=true`;
+    // Create verification URL - users will be redirected to verify-qr page
+    const verificationUrl = `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?token=${verificationToken}&type=signup&redirect_to=https://vaultbankonline.com/verify-qr`;
 
     const emailHtml = `
       <!DOCTYPE html>

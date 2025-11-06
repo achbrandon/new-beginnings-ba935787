@@ -1,29 +1,23 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Shield, Lock, CheckCircle } from "lucide-react";
+import { Shield, Lock } from "lucide-react";
 import logo from "@/assets/vaultbank-logo.png";
 
 const VerifyQR = () => {
   const [qrCode, setQrCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
-  const [emailVerified, setEmailVerified] = useState(false);
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    const verified = searchParams.get('verified');
-    if (verified === 'true') {
-      setEmailVerified(true);
-    }
     checkAuth();
-  }, [searchParams]);
+  }, []);
 
   const checkAuth = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -159,16 +153,6 @@ const VerifyQR = () => {
               <img src={logo} alt="VaultBank" className="h-16 w-auto" />
             </div>
           </div>
-
-          {/* Email Verification Success Badge */}
-          {emailVerified && (
-            <div className="flex items-center justify-center gap-2 bg-green-500/10 border border-green-500/30 rounded-lg px-4 py-3">
-              <CheckCircle className="h-5 w-5 text-green-500" />
-              <span className="text-sm font-medium text-green-500">
-                Email verified successfully!
-              </span>
-            </div>
-          )}
 
           {/* Title Section */}
           <div className="text-center space-y-2">
