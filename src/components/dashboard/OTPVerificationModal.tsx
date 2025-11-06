@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Shield, Loader2 } from "lucide-react";
 
@@ -20,17 +21,32 @@ export function OTPVerificationModal({ open, onClose, onVerify, email }: OTPVeri
 
   useEffect(() => {
     if (open) {
+      sendOTPEmail();
+    }
+  }, [open]);
+
+  const sendOTPEmail = async () => {
+    try {
       // Generate a random 6-digit OTP
       const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
       setCorrectOtp(generatedOtp);
       
-      // In a real application, this would be sent via email
-      console.log("OTP Code:", generatedOtp);
-      toast.info(`OTP sent to ${email}. Check console for demo OTP: ${generatedOtp}`, {
-        duration: 10000
+      // Send OTP via email
+      const { error } = await supabase.functions.invoke('send-otp-email', {
+        body: { email, otp: generatedOtp }
       });
+
+      if (error) {
+        console.error("Error sending OTP:", error);
+        toast.error("Failed to send OTP. Please try again.");
+      } else {
+        toast.success(`Verification code sent to ${email}`);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Failed to send OTP. Please try again.");
     }
-  }, [open, email]);
+  };
 
   const handleVerify = () => {
     if (otp === correctOtp) {
@@ -70,7 +86,7 @@ export function OTPVerificationModal({ open, onClose, onVerify, email }: OTPVeri
 
           <div className="bg-muted p-3 rounded-lg">
             <p className="text-sm text-muted-foreground">
-              For demo purposes, the OTP code is shown in the browser console and in a toast notification.
+              Check your email for the verification code. The code expires in 10 minutes.
             </p>
           </div>
         </div>
