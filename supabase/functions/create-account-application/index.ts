@@ -99,13 +99,15 @@ const handler = async (req: Request): Promise<Response> => {
         date_of_birth: applicationData.dateOfBirth,
         email: applicationData.email,
         phone: applicationData.phoneNumber,
+        phone_number: applicationData.phoneNumber,
         address: applicationData.residentialAddress,
+        residential_address: applicationData.residentialAddress,
         account_type: applicationData.accountType,
         ssn: applicationData.ssn,
+        security_question: applicationData.securityQuestion,
+        security_answer: applicationData.securityAnswer,
         status: 'pending',
-        email_verified: false,
         qr_code_secret: qrSecret,
-        verification_token: userId,
       });
 
     if (appError) {
