@@ -317,7 +317,7 @@ const handler = async (req: Request): Promise<Response> => {
           subject: subject
         }],
         from: {
-          email: "noreply@vaulteonline.com",
+          email: "info@vaulteonline.com",
           name: "VaultBank"
         },
         content: [{
