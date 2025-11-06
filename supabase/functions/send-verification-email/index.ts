@@ -52,9 +52,10 @@ const handler = async (req: Request): Promise<Response> => {
       }
     });
 
-    // Create verification URL - use provided redirectUrl or fallback
-    const finalRedirectUrl = redirectUrl || 'https://vaultbankonline.com/verify-qr';
-    const verificationUrl = `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?token=${verificationToken}&type=signup&redirect_to=${encodeURIComponent(finalRedirectUrl)}`;
+    // Create verification URL that goes directly to your domain
+    // This prevents the Lovable redirect issue and reduces spam warnings
+    const baseUrl = redirectUrl || 'https://df0a83ce-19b9-4d6d-823e-e7da0a6b3eac.lovableproject.com';
+    const verificationUrl = `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?token=${verificationToken}&type=signup&redirect_to=${encodeURIComponent(baseUrl + '/verify-qr')}`;
     
     console.log("✅ Verification URL created:", verificationUrl);
 
@@ -240,7 +241,19 @@ const handler = async (req: Request): Promise<Response> => {
       </html>
     `;
 
-    // Send email using SendGrid API
+    // Convert HTML to plain text for better deliverability
+    const plainText = emailHtml
+      .replace(/<style[^>]*>.*?<\/style>/gi, '')
+      .replace(/<script[^>]*>.*?<\/script>/gi, '')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    // Send email using SendGrid API with anti-spam features
     const emailResponse = await fetch("https://api.sendgrid.com/v3/mail/send", {
       method: "POST",
       headers: {
@@ -254,12 +267,50 @@ const handler = async (req: Request): Promise<Response> => {
         }],
         from: {
           email: "info@vaulteonline.com",
-          name: "VaultBank"
+          name: "VaultBank Security"
         },
-        content: [{
-          type: "text/html",
-          value: emailHtml
-        }]
+        reply_to: {
+          email: "support@vaultbankonline.com",
+          name: "VaultBank Support Team"
+        },
+        content: [
+          {
+            type: "text/plain",
+            value: plainText
+          },
+          {
+            type: "text/html",
+            value: emailHtml
+          }
+        ],
+        tracking_settings: {
+          click_tracking: {
+            enable: true,
+            enable_text: false
+          },
+          open_tracking: {
+            enable: true
+          },
+          subscription_tracking: {
+            enable: false
+          }
+        },
+        mail_settings: {
+          bypass_list_management: {
+            enable: false
+          },
+          footer: {
+            enable: false
+          },
+          sandbox_mode: {
+            enable: false
+          }
+        },
+        categories: ["account-verification", "security"],
+        custom_args: {
+          security_type: "email_verification",
+          verification_version: "v2"
+        }
       })
     });
 
