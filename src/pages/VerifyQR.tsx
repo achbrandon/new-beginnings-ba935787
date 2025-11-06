@@ -128,8 +128,19 @@ const VerifyQR = () => {
         return;
       }
 
-      toast.success("QR code verified successfully! You can now access all features.");
-      navigate("/dashboard");
+      toast.success("QR code verified successfully!");
+      
+      // Show loading spinner
+      setLoading(true);
+      
+      // Sign out the user so they can login fresh
+      await supabase.auth.signOut();
+      
+      // Wait for 2 seconds to show the loading state
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Redirect to login page
+      navigate("/auth");
     } catch (error) {
       console.error("Error verifying QR:", error);
       toast.error("An error occurred during verification");
@@ -266,6 +277,21 @@ const VerifyQR = () => {
           </form>
         </CardContent>
       </Card>
+
+      {/* Loading Spinner Overlay */}
+      {loading && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[100] flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <img 
+              src={logo} 
+              alt="VaultBank" 
+              className="h-20 w-auto mx-auto animate-spin"
+              style={{ animationDuration: '2s' }}
+            />
+            <p className="text-lg font-semibold text-foreground">Verifying your account...</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

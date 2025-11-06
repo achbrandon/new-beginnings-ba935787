@@ -73,11 +73,10 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
           return;
         }
 
-        // For regular users: Allow login and check QR verification
-        // Check if QR is verified for regular users
+        // For regular users: Check QR verification first
         const { data: profile } = await supabase
           .from("profiles")
-          .select("qr_verified")
+          .select("qr_verified, pin")
           .eq("id", data.user.id)
           .maybeSingle();
 
@@ -85,11 +84,29 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
           toast.info("Please complete QR verification to access your account");
           onOpenChange(false);
           navigate("/verify-qr");
-        } else {
-          toast.success("Signed in successfully!");
-          onOpenChange(false);
-          navigate("/dashboard");
+          return;
         }
+
+        // Check if account is approved by admin
+        const { data: application } = await supabase
+          .from("account_applications")
+          .select("status")
+          .eq("user_id", data.user.id)
+          .maybeSingle();
+
+        if (application && application.status !== 'approved') {
+          toast.info("Your account is under review. Our team will verify your information shortly and notify you once approved.");
+          await supabase.auth.signOut();
+          setLoading(false);
+          setShowLoadingSpinner(false);
+          return;
+        }
+
+        // TODO: Add PIN verification step here if needed
+        // For now, proceed to dashboard
+        toast.success("Signed in successfully!");
+        onOpenChange(false);
+        navigate("/dashboard");
       }
     } catch (error: any) {
       console.error("Sign in error:", error);
