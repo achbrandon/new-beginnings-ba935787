@@ -36,7 +36,9 @@ const Auth = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
-    // Clear any existing session on mount - do this synchronously
+    // Clear any existing session on mount and clear auth flag
+    sessionStorage.removeItem('auth_verification_completed');
+    
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         supabase.auth.signOut();
@@ -217,6 +219,9 @@ const Auth = () => {
         isLoggingIn.current = false;
         return;
       }
+
+      // Mark authentication as complete
+      sessionStorage.setItem('auth_verification_completed', 'true');
 
       // Wait for minimum spinner time
       await new Promise(resolve => setTimeout(resolve, 2000));

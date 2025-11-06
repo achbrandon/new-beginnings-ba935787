@@ -35,6 +35,18 @@ const Dashboard = () => {
   }, []);
 
   const checkAuth = async () => {
+    // CRITICAL: Check if user completed full authentication
+    const authCompleted = sessionStorage.getItem('auth_verification_completed');
+    
+    if (!authCompleted) {
+      console.log("No auth verification flag - forcing logout");
+      await supabase.auth.signOut();
+      sessionStorage.clear();
+      toast.error("Please complete the full authentication process (Email → PIN → OTP)");
+      navigate("/auth", { replace: true });
+      return;
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
@@ -97,6 +109,7 @@ const Dashboard = () => {
   };
 
   const handleSignOut = async () => {
+    sessionStorage.removeItem('auth_verification_completed');
     await supabase.auth.signOut();
     navigate("/auth");
   };
