@@ -113,19 +113,17 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
         {
           user_id: user.id,
           account_id: fromAccount,
-          transaction_type: "debit",
+          type: "debit",
           amount: transferAmount,
           description: `Transfer to ${toAcc?.account_name}`,
-          category: "Transfer",
           status: "completed"
         },
         {
           user_id: user.id,
           account_id: toAccount,
-          transaction_type: "credit",
+          type: "credit",
           amount: transferAmount,
           description: `Transfer from ${fromAcc?.account_name}`,
-          category: "Transfer",
           status: "completed"
         }
       ]);

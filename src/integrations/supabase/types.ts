@@ -23,6 +23,7 @@ export type Database = {
           full_name: string
           id: string
           phone: string | null
+          qr_code_secret: string | null
           qr_code_verified: boolean | null
           status: string | null
           updated_at: string | null
@@ -36,6 +37,7 @@ export type Database = {
           full_name: string
           id?: string
           phone?: string | null
+          qr_code_secret?: string | null
           qr_code_verified?: boolean | null
           status?: string | null
           updated_at?: string | null
@@ -49,6 +51,7 @@ export type Database = {
           full_name?: string
           id?: string
           phone?: string | null
+          qr_code_secret?: string | null
           qr_code_verified?: boolean | null
           status?: string | null
           updated_at?: string | null
@@ -107,6 +110,57 @@ export type Database = {
           id?: string
           is_read?: boolean | null
           message?: string | null
+        }
+        Relationships: []
+      }
+      admin_settings: {
+        Row: {
+          created_at: string | null
+          id: string
+          setting_key: string
+          setting_value: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          setting_key: string
+          setting_value: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          setting_key?: string
+          setting_value?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      crypto_deposit_addresses: {
+        Row: {
+          created_at: string | null
+          currency: string
+          id: string
+          is_active: boolean | null
+          network: string
+          wallet_address: string
+        }
+        Insert: {
+          created_at?: string | null
+          currency: string
+          id?: string
+          is_active?: boolean | null
+          network: string
+          wallet_address: string
+        }
+        Update: {
+          created_at?: string | null
+          currency?: string
+          id?: string
+          is_active?: boolean | null
+          network?: string
+          wallet_address?: string
         }
         Relationships: []
       }
@@ -190,6 +244,8 @@ export type Database = {
           avatar_url: string | null
           can_transact: boolean | null
           created_at: string | null
+          email: string | null
+          email_verified: boolean | null
           id: string
           pin: string | null
           qr_verified: boolean | null
@@ -200,6 +256,8 @@ export type Database = {
           avatar_url?: string | null
           can_transact?: boolean | null
           created_at?: string | null
+          email?: string | null
+          email_verified?: boolean | null
           id: string
           pin?: string | null
           qr_verified?: boolean | null
@@ -210,6 +268,8 @@ export type Database = {
           avatar_url?: string | null
           can_transact?: boolean | null
           created_at?: string | null
+          email?: string | null
+          email_verified?: boolean | null
           id?: string
           pin?: string | null
           qr_verified?: boolean | null
@@ -490,6 +550,11 @@ export type Database = {
           created_at: string | null
           ended_at: string | null
           id: string
+          is_online: boolean | null
+          last_activity: string | null
+          page_title: string | null
+          page_url: string | null
+          session_id: string | null
           started_at: string | null
           user_id: string
         }
@@ -497,6 +562,11 @@ export type Database = {
           created_at?: string | null
           ended_at?: string | null
           id?: string
+          is_online?: boolean | null
+          last_activity?: string | null
+          page_title?: string | null
+          page_url?: string | null
+          session_id?: string | null
           started_at?: string | null
           user_id: string
         }
@@ -504,6 +574,11 @@ export type Database = {
           created_at?: string | null
           ended_at?: string | null
           id?: string
+          is_online?: boolean | null
+          last_activity?: string | null
+          page_title?: string | null
+          page_url?: string | null
+          session_id?: string | null
           started_at?: string | null
           user_id?: string
         }
