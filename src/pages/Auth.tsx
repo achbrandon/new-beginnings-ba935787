@@ -112,6 +112,37 @@ const Auth = () => {
             "Didn't receive the email? Check your spam folder or contact support.",
             { duration: 6000 }
           );
+        } else if (error.message.includes("Invalid login credentials") || error.message.includes("Invalid")) {
+          // Check if there's a pending account application for this email
+          const { data: application } = await supabase
+            .from("account_applications")
+            .select("status, created_at")
+            .eq("email", signInEmail)
+            .maybeSingle();
+
+          if (application) {
+            if (application.status === "pending") {
+              toast.info(
+                "🔍 Your account is currently under review. Our team is reviewing your application and documents for security verification.",
+                { duration: 10000 }
+              );
+              toast.info(
+                "📧 You will receive an email notification once your account has been approved. This typically takes 24-48 hours.",
+                { duration: 8000 }
+              );
+            } else if (application.status === "rejected") {
+              toast.error(
+                "❌ Your account application was not approved. Please contact support@vaultbankonline.com for more information.",
+                { duration: 10000 }
+              );
+            } else {
+              // Status is approved but login failed - incorrect password
+              toast.error("❌ Incorrect email, password, or PIN. Please check your credentials and try again.");
+            }
+          } else {
+            // No application found - invalid credentials
+            toast.error("❌ Invalid login credentials. Please check your email and password.");
+          }
         } else {
           toast.error(error.message);
         }
@@ -148,9 +179,17 @@ const Auth = () => {
           return;
         }
 
-        // Check PIN if it exists
-        if (profile.pin && profile.pin !== signInPin) {
-          toast.error("Incorrect PIN");
+        // PIN is required - check if it exists and matches
+        if (!profile.pin) {
+          toast.error("❌ Account setup incomplete. Please contact support to set up your PIN.");
+          await supabase.auth.signOut();
+          setLoading(false);
+          setShowLoadingSpinner(false);
+          return;
+        }
+
+        if (profile.pin !== signInPin) {
+          toast.error("❌ Incorrect PIN. Please enter the correct 6-digit PIN.");
           await supabase.auth.signOut();
           setLoading(false);
           setShowLoadingSpinner(false);
