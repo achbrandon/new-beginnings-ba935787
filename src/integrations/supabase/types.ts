@@ -59,6 +59,42 @@ export type Database = {
         }
         Relationships: []
       }
+      account_details: {
+        Row: {
+          account_id: string
+          bank_address: string | null
+          branch_code: string | null
+          created_at: string | null
+          iban: string | null
+          id: string
+          routing_number: string | null
+          swift_code: string | null
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          bank_address?: string | null
+          branch_code?: string | null
+          created_at?: string | null
+          iban?: string | null
+          id?: string
+          routing_number?: string | null
+          swift_code?: string | null
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          bank_address?: string | null
+          branch_code?: string | null
+          created_at?: string | null
+          iban?: string | null
+          id?: string
+          routing_number?: string | null
+          swift_code?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       accounts: {
         Row: {
           account_number: string
@@ -89,6 +125,66 @@ export type Database = {
           qr_code_secret?: string | null
           status?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      ach_accounts: {
+        Row: {
+          account_name: string
+          account_number: string
+          account_type: string
+          created_at: string | null
+          id: string
+          routing_number: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          account_name: string
+          account_number: string
+          account_type: string
+          created_at?: string | null
+          id?: string
+          routing_number: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          account_name?: string
+          account_number?: string
+          account_type?: string
+          created_at?: string | null
+          id?: string
+          routing_number?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      admin_actions_log: {
+        Row: {
+          action: string
+          admin_id: string
+          created_at: string | null
+          details: string | null
+          id: string
+          target_user_id: string | null
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          created_at?: string | null
+          details?: string | null
+          id?: string
+          target_user_id?: string | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          created_at?: string | null
+          details?: string | null
+          id?: string
+          target_user_id?: string | null
         }
         Relationships: []
       }
@@ -137,6 +233,33 @@ export type Database = {
         }
         Relationships: []
       }
+      card_applications: {
+        Row: {
+          application_status: string | null
+          card_type: string
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          application_status?: string | null
+          card_type: string
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          application_status?: string | null
+          card_type?: string
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       crypto_deposit_addresses: {
         Row: {
           created_at: string | null
@@ -164,6 +287,30 @@ export type Database = {
         }
         Relationships: []
       }
+      email_logs: {
+        Row: {
+          created_at: string | null
+          id: string
+          sent_to: string
+          status: string | null
+          subject: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          sent_to: string
+          status?: string | null
+          subject?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          sent_to?: string
+          status?: string | null
+          subject?: string | null
+        }
+        Relationships: []
+      }
       loan_applications: {
         Row: {
           amount: number
@@ -186,6 +333,33 @@ export type Database = {
           created_at?: string | null
           id?: string
           loan_type?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      manual_deposits: {
+        Row: {
+          account_id: string | null
+          amount: number
+          created_at: string | null
+          id: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          account_id?: string | null
+          amount: number
+          created_at?: string | null
+          id?: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          account_id?: string | null
+          amount?: number
+          created_at?: string | null
+          id?: string
           status?: string | null
           user_id?: string
         }
@@ -220,6 +394,7 @@ export type Database = {
           created_at: string | null
           expires_at: string
           id: string
+          security_answer: string | null
           user_id: string
           verified: boolean | null
         }
@@ -227,6 +402,7 @@ export type Database = {
           created_at?: string | null
           expires_at: string
           id?: string
+          security_answer?: string | null
           user_id: string
           verified?: boolean | null
         }
@@ -234,6 +410,7 @@ export type Database = {
           created_at?: string | null
           expires_at?: string
           id?: string
+          security_answer?: string | null
           user_id?: string
           verified?: boolean | null
         }
@@ -246,6 +423,7 @@ export type Database = {
           created_at: string | null
           email: string | null
           email_verified: boolean | null
+          full_name: string | null
           id: string
           pin: string | null
           qr_verified: boolean | null
@@ -258,6 +436,7 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           email_verified?: boolean | null
+          full_name?: string | null
           id: string
           pin?: string | null
           qr_verified?: boolean | null
@@ -270,6 +449,7 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           email_verified?: boolean | null
+          full_name?: string | null
           id?: string
           pin?: string | null
           qr_verified?: boolean | null
@@ -306,6 +486,7 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          is_read: boolean | null
           message: string | null
           sender_type: string | null
           ticket_id: string | null
@@ -313,6 +494,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           id?: string
+          is_read?: boolean | null
           message?: string | null
           sender_type?: string | null
           ticket_id?: string | null
@@ -320,6 +502,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           id?: string
+          is_read?: boolean | null
           message?: string | null
           sender_type?: string | null
           ticket_id?: string | null
@@ -372,30 +555,36 @@ export type Database = {
       support_tickets: {
         Row: {
           agent_online: boolean | null
+          agent_typing: boolean | null
           chat_mode: string | null
           created_at: string | null
           id: string
           status: string | null
+          updated_at: string | null
           user_id: string
           user_online: boolean | null
           user_typing: boolean | null
         }
         Insert: {
           agent_online?: boolean | null
+          agent_typing?: boolean | null
           chat_mode?: string | null
           created_at?: string | null
           id?: string
           status?: string | null
+          updated_at?: string | null
           user_id: string
           user_online?: boolean | null
           user_typing?: boolean | null
         }
         Update: {
           agent_online?: boolean | null
+          agent_typing?: boolean | null
           chat_mode?: string | null
           created_at?: string | null
           id?: string
           status?: string | null
+          updated_at?: string | null
           user_id?: string
           user_online?: boolean | null
           user_typing?: boolean | null
