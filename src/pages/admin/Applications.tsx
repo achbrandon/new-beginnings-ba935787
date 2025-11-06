@@ -182,6 +182,60 @@ export default function AdminApplications() {
     }
   };
 
+  const handleApproveRequest = async (requestId: string) => {
+    try {
+      const request = accountRequests.find(r => r.id === requestId);
+      if (!request) throw new Error("Request not found");
+
+      // Generate unique account number
+      const accountNumber = `${Math.floor(100000000000 + Math.random() * 900000000000)}`;
+
+      // Create the account - trigger will automatically create account_details
+      const { error: accountError } = await supabase
+        .from("accounts")
+        .insert({
+          user_id: request.user_id,
+          account_number: accountNumber,
+          account_type: request.account_type,
+          balance: 0,
+          status: "active"
+        });
+
+      if (accountError) throw accountError;
+
+      // Update request status
+      const { error } = await supabase
+        .from("account_requests")
+        .update({ status: "approved" })
+        .eq("id", requestId);
+
+      if (error) throw error;
+
+      toast.success("Account created successfully!");
+      fetchApplications();
+    } catch (error) {
+      console.error("Error approving request:", error);
+      toast.error("Failed to approve request");
+    }
+  };
+
+  const handleRejectRequest = async (requestId: string) => {
+    try {
+      const { error } = await supabase
+        .from("account_requests")
+        .update({ status: "rejected" })
+        .eq("id", requestId);
+
+      if (error) throw error;
+
+      toast.success("Account request rejected");
+      fetchApplications();
+    } catch (error) {
+      console.error("Error rejecting request:", error);
+      toast.error("Failed to reject request");
+    }
+  };
+
   const handleApproveCard = async (appId: string) => {
     try {
       const app = cardApps.find(a => a.id === appId);
@@ -333,8 +387,16 @@ export default function AdminApplications() {
         <p className="text-slate-300">Review and approve customer applications</p>
       </div>
 
-      <Tabs defaultValue="accounts" className="w-full">
+      <Tabs defaultValue="requests" className="w-full">
         <TabsList className="bg-slate-800/50 border border-slate-700">
+          <TabsTrigger value="requests" className="data-[state=active]:bg-slate-700">
+            Account Requests
+            {accountRequests.filter(r => r.status === 'pending').length > 0 && (
+              <span className="ml-2 bg-yellow-500 text-black text-xs px-2 py-0.5 rounded-full">
+                {accountRequests.filter(r => r.status === 'pending').length} New
+              </span>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="accounts" className="data-[state=active]:bg-slate-700">
             Account Applications 
             {accountApps.filter(a => a.status === 'pending').length > 0 && (
@@ -360,6 +422,75 @@ export default function AdminApplications() {
             )}
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="requests" className="mt-6">
+          <div className="bg-slate-800/50 border border-slate-700 rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="border-slate-700 hover:bg-slate-700/50">
+                  <TableHead className="text-slate-300">User Name</TableHead>
+                  <TableHead className="text-slate-300">Email</TableHead>
+                  <TableHead className="text-slate-300">Account Type</TableHead>
+                  <TableHead className="text-slate-300">Status</TableHead>
+                  <TableHead className="text-slate-300">Date</TableHead>
+                  <TableHead className="text-slate-300 text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {accountRequests.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-8 text-slate-400">
+                      No account requests found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  accountRequests.map((request) => (
+                    <TableRow key={request.id} className="border-slate-700 hover:bg-slate-700/30">
+                      <TableCell className="font-medium text-white">
+                        {request.profiles?.full_name || "N/A"}
+                      </TableCell>
+                      <TableCell className="text-slate-300">{request.profiles?.email || "N/A"}</TableCell>
+                      <TableCell className="text-slate-300 capitalize">{request.account_type.replace('_', ' ')}</TableCell>
+                      <TableCell>{getStatusBadge(request.status)}</TableCell>
+                      <TableCell className="text-slate-300">
+                        {new Date(request.created_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-right space-x-2">
+                        {request.status === 'pending' && (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="bg-green-500/10 hover:bg-green-500/20 text-green-500 border-green-500/30"
+                              onClick={() => handleApproveRequest(request.id)}
+                            >
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              Approve
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border-red-500/30"
+                              onClick={() => handleRejectRequest(request.id)}
+                            >
+                              <XCircle className="h-4 w-4 mr-1" />
+                              Reject
+                            </Button>
+                          </>
+                        )}
+                        {request.status !== 'pending' && (
+                          <span className="text-slate-400 text-sm">
+                            {request.status === 'approved' ? 'Approved' : 'Rejected'}
+                          </span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </TabsContent>
 
         <TabsContent value="accounts" className="mt-6">
           <div className="bg-slate-800/50 border border-slate-700 rounded-lg overflow-hidden">
