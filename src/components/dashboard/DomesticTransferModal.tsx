@@ -117,6 +117,16 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
         });
 
       if (error) throw error;
+
+      // Create transaction record for the transfer
+      await supabase.from("transactions").insert({
+        user_id: user.id,
+        account_id: pendingTransfer.fromAccount,
+        type: "debit",
+        amount: pendingTransfer.transferAmount,
+        description: `Domestic ${transferMethod} Transfer to ${recipientName}`,
+        status: "pending"
+      });
       
       setTimeout(() => {
         setShowLoadingSpinner(false);

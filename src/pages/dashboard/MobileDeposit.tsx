@@ -71,6 +71,16 @@ export default function MobileDeposit() {
 
       if (error) throw error;
 
+      // Create transaction record for the mobile deposit
+      await supabase.from("transactions").insert({
+        user_id: user.id,
+        account_id: formData.accountId,
+        type: "credit",
+        amount: parseFloat(formData.amount),
+        description: `Mobile Check Deposit${formData.checkNumber ? ` #${formData.checkNumber}` : ''}`,
+        status: "pending"
+      });
+
       toast.success("Check deposit submitted successfully");
       setShowDepositForm(false);
       setFormData({

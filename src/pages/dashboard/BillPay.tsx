@@ -109,6 +109,16 @@ export default function BillPay() {
         } as any);
 
         if (error) throw error;
+
+        // Create transaction record for the bill payment
+        await supabase.from("transactions").insert({
+          user_id: user.id,
+          account_id: formData.accountId,
+          type: "debit",
+          amount: parseFloat(formData.amount),
+          description: `Bill Payment to ${formData.payeeName}`,
+          status: "pending"
+        });
       }
 
       setTimeout(() => {

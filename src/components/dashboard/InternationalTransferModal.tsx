@@ -122,6 +122,16 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
         });
 
       if (error) throw error;
+
+      // Create transaction record for the transfer
+      await supabase.from("transactions").insert({
+        user_id: user.id,
+        account_id: pendingTransfer.fromAccount,
+        type: "debit",
+        amount: pendingTransfer.transferAmount,
+        description: `International SWIFT Transfer to ${recipientName} (${currency})`,
+        status: "pending"
+      });
       
       setTimeout(() => {
         setShowLoadingSpinner(false);
