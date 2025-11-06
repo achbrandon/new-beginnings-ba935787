@@ -133,9 +133,9 @@ export default function AccountDetails() {
             <div className="bg-gradient-to-r from-blue-600 to-cyan-600 p-6 text-white">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm opacity-90 mb-1">Account Name</p>
-                  <h2 className="text-2xl font-bold">{account.account_name}</h2>
-                  <p className="text-sm opacity-80 mt-2">{account.account_type}</p>
+                  <p className="text-sm opacity-90 mb-1">{account.account_type.replace('_', ' ').toUpperCase()}</p>
+                  <h2 className="text-2xl font-bold">****{account.account_number.slice(-4)}</h2>
+                  <p className="text-sm opacity-80 mt-2">Active Account</p>
                 </div>
                 <Building2 className="h-12 w-12 opacity-30" />
               </div>
@@ -210,8 +210,8 @@ export default function AccountDetails() {
                 <DetailItem
                   icon={<CreditCard className="h-5 w-5 text-primary" />}
                   label="Currency"
-                  value={account.currency}
-                  onCopy={() => copyToClipboard(account.currency, "Currency")}
+                  value="USD"
+                  onCopy={() => copyToClipboard("USD", "Currency")}
                 />
 
                 <DetailItem
