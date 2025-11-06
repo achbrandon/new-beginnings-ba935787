@@ -20,6 +20,7 @@ import Auth from "./pages/Auth";
 import ForgotPassword from "./pages/ForgotPassword";
 import TokenSignIn from "./pages/TokenSignIn";
 import VerifyQR from "./pages/VerifyQR";
+import VerificationSuccess from "./pages/VerificationSuccess";
 import Dashboard from "./pages/Dashboard";
 import CDs from "./pages/CDs";
 import MoneyMarket from "./pages/MoneyMarket";
@@ -109,6 +110,7 @@ function AppRoutes() {
       <Route path="/schedule-meeting" element={<ScheduleMeeting />} />
       <Route path="/mortgage-calculator" element={<MortgageCalculator />} />
       <Route path="/verify-qr" element={<VerifyQR />} />
+      <Route path="/verification-success" element={<VerificationSuccess />} />
       <Route path="/resend-emails" element={<ResendEmails />} />
           <Route path="/create-test-account" element={<CreateTestAccount />} />
           <Route path="/create-admin-account" element={<CreateAdminAccount />} />

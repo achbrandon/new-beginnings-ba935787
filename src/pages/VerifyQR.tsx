@@ -136,11 +136,11 @@ const VerifyQR = () => {
       // Sign out the user so they can login fresh
       await supabase.auth.signOut();
       
-      // Wait for 2 seconds to show the loading state
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Wait for 1 second to show the loading state
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Redirect to login page
-      navigate("/auth");
+      // Redirect to verification success page
+      navigate("/verification-success");
     } catch (error) {
       console.error("Error verifying QR:", error);
       toast.error("An error occurred during verification");
