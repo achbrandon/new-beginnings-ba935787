@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.delete-test-users]
 verify_jwt = false
+
+[functions.delete-unverified-users]
+verify_jwt = true

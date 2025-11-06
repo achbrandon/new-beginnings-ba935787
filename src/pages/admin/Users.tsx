@@ -48,12 +48,22 @@ export default function AdminUsers() {
   const deleteUser = async (userId: string) => {
     setDeleting(true);
     try {
-      // Delete from auth.users using admin API
-      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("You must be logged in to perform this action");
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('delete-unverified-users', {
+        body: { userIds: [userId] },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
+        }
+      });
+
+      if (error) throw error;
       
-      if (authError) throw authError;
-      
-      toast.success("User deleted successfully");
+      toast.success(data.message || "User deleted successfully");
       await fetchUsers();
     } catch (error: any) {
       console.error("Error deleting user:", error);
@@ -72,24 +82,29 @@ export default function AdminUsers() {
       
       if (unverifiedUsers.length === 0) {
         toast.info("No unverified users to delete");
+        setDeleting(false);
+        setShowDeleteDialog(false);
         return;
       }
 
-      let successCount = 0;
-      let errorCount = 0;
-
-      for (const user of unverifiedUsers) {
-        try {
-          const { error } = await supabase.auth.admin.deleteUser(user.id);
-          if (error) throw error;
-          successCount++;
-        } catch (error) {
-          console.error(`Failed to delete user ${user.id}:`, error);
-          errorCount++;
-        }
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("You must be logged in to perform this action");
+        setDeleting(false);
+        setShowDeleteDialog(false);
+        return;
       }
 
-      toast.success(`Deleted ${successCount} unverified users${errorCount > 0 ? ` (${errorCount} failed)` : ''}`);
+      const { data, error } = await supabase.functions.invoke('delete-unverified-users', {
+        body: { deleteAll: true },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success(data.message || "Unverified users deleted successfully");
       await fetchUsers();
     } catch (error: any) {
       console.error("Error deleting unverified users:", error);
