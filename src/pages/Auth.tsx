@@ -30,23 +30,11 @@ const Auth = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
-    // Check for existing session only once on mount
-    const checkExistingSession = async () => {
-      if (isRedirecting.current) return;
-      
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        isRedirecting.current = true;
-        await handleAuthRedirect(user);
-      }
-    };
-    
-    checkExistingSession();
-
-    // Set up auth state listener for NEW sign-ins only
+    // DO NOT auto-redirect on mount - let user choose to sign in
+    // Only set up listener for explicit sign-in actions
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        // Only handle NEW sign-ins (not INITIAL_SESSION)
+        // Only handle explicit SIGNED_IN events (not INITIAL_SESSION or TOKEN_REFRESHED)
         if (event === 'SIGNED_IN' && session?.user && !isRedirecting.current) {
           isRedirecting.current = true;
           await handleAuthRedirect(session.user);
