@@ -28,20 +28,32 @@ const handler = async (req: Request): Promise<Response> => {
       }
     );
 
-    const { userIds }: DeleteUsersRequest = await req.json();
-
-    console.log('Deleting users:', userIds);
+    // Delete test Gmail accounts
+    const testEmails = ['ultimateambahe@gmail.com', 'ultimateambaheu@gmail.com', 'ambaheu@gmail.com'];
+    
+    console.log('Deleting test Gmail accounts:', testEmails);
 
     const results = [];
-    for (const userId of userIds) {
-      const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+    
+    // Get all users
+    const { data: userData } = await supabaseAdmin.auth.admin.listUsers();
+    
+    for (const email of testEmails) {
+      const user = userData?.users.find(u => u.email === email);
       
-      if (error) {
-        console.error(`Error deleting user ${userId}:`, error);
-        results.push({ userId, success: false, error: error.message });
+      if (user) {
+        const { error } = await supabaseAdmin.auth.admin.deleteUser(user.id);
+        
+        if (error) {
+          console.error(`Error deleting user ${email}:`, error);
+          results.push({ email, success: false, error: error.message });
+        } else {
+          console.log(`Successfully deleted user ${email}`);
+          results.push({ email, success: true });
+        }
       } else {
-        console.log(`Successfully deleted user ${userId}`);
-        results.push({ userId, success: true });
+        console.log(`User ${email} not found`);
+        results.push({ email, success: true, message: 'User not found' });
       }
     }
 
