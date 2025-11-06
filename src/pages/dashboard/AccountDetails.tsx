@@ -79,10 +79,6 @@ export default function AccountDetails() {
 
       if (profileRes.data) setProfile(profileRes.data);
       if (accountsRes.data) {
-        console.log("DEBUG - Fetched accounts:", accountsRes.data);
-        accountsRes.data.forEach(acc => {
-          console.log(`Account ${acc.id}: type='${acc.account_type}', isCreditCard=${acc.account_type === 'credit_card'}`);
-        });
         setAccounts(accountsRes.data);
       }
       
@@ -164,14 +160,8 @@ export default function AccountDetails() {
       </div>
 
       {accounts.map((account) => {
-        // Check if this is a credit card account FIRST
-        console.log(`RENDER - Account ${account.id}: type='${account.account_type}'`);
-        const isCreditCard = account.account_type === 'credit_card';
-        console.log(`RENDER - isCreditCard=${isCreditCard}`);
         const details = accountDetails.find(d => d.account_id === account.id);
-        
-        // For non-credit cards, skip if no details exist
-        if (!isCreditCard && !details) return null;
+        if (!details) return null;
 
         return (
           <Card key={account.id} className="border-2 border-primary/20 shadow-xl overflow-hidden">
@@ -186,27 +176,7 @@ export default function AccountDetails() {
               </div>
             </div>
 
-            {isCreditCard ? (
-              <CardContent className="pt-6">
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <div className="h-20 w-20 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
-                    <Lock className="h-10 w-10 text-destructive" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">Credit Card Information Blocked</h3>
-                  <p className="text-muted-foreground max-w-md">
-                    Complete credit card details are restricted for security purposes. 
-                    Please visit the Cards page to manage your credit card or contact support for assistance.
-                  </p>
-                  <Button 
-                    onClick={() => navigate("/dashboard/cards")}
-                    className="mt-6"
-                  >
-                    Go to Cards
-                  </Button>
-                </div>
-              </CardContent>
-            ) : (
-              <CardContent className="pt-6 space-y-6">
+            <CardContent className="pt-6 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <DetailItem
                   icon={<CreditCard className="h-5 w-5 text-primary" />}
@@ -347,7 +317,6 @@ export default function AccountDetails() {
                 </div>
               </div>
               </CardContent>
-            )}
           </Card>
         );
       })}

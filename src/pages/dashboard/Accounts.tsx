@@ -33,8 +33,7 @@ export default function Accounts() {
       const { data, error } = await supabase
         .from("accounts")
         .select("*")
-        .eq("user_id", userId)
-        .eq("status", "active");
+        .eq("user_id", userId);
 
       if (error) throw error;
       if (data) setAccounts(data);

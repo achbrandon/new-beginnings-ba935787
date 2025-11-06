@@ -115,12 +115,12 @@ export function TransactionsList({ transactions, onRefresh }: TransactionsListPr
               className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-4">
-                {getTransactionIcon(transaction.transaction_type)}
+                {getTransactionIcon(transaction.type)}
                 <div>
                   <p className="font-medium">{transaction.description}</p>
                   <div className="flex items-center gap-2 mt-1">
                     <p className="text-sm text-muted-foreground">
-                      {new Date(transaction.transaction_date).toLocaleDateString('en-US', {
+                      {new Date(transaction.created_at).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
                         year: 'numeric'
@@ -140,11 +140,11 @@ export function TransactionsList({ transactions, onRefresh }: TransactionsListPr
 
               <div className="text-right">
                 <p className={`font-semibold ${
-                  transaction.transaction_type === 'credit' || transaction.transaction_type === 'deposit'
+                  transaction.type === 'credit' || transaction.type === 'deposit'
                     ? 'text-green-600 dark:text-green-400'
                     : 'text-red-600 dark:text-red-400'
                 }`}>
-                  {transaction.transaction_type === 'credit' || transaction.transaction_type === 'deposit' ? '+' : '-'}
+                  {transaction.type === 'credit' || transaction.type === 'deposit' ? '+' : '-'}
                   ${Math.abs(parseFloat(transaction.amount)).toFixed(2)}
                 </p>
                 <div className="mt-1">
