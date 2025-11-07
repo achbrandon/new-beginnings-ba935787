@@ -375,12 +375,32 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
 
       console.log('USER: File uploaded successfully, URL:', publicUrl);
 
-      await supabase.from("support_messages").insert({
-        ticket_id: ticketId,
-        message: `📎 ${file.name}`,
-        sender_type: "user",
-        file_url: publicUrl,
-        file_name: file.name
+      // Insert message and get it back immediately
+      const { data: insertedMessage, error: messageError } = await supabase
+        .from("support_messages")
+        .insert({
+          ticket_id: ticketId,
+          message: `📎 ${file.name}`,
+          sender_type: "user",
+          file_url: publicUrl,
+          file_name: file.name
+        })
+        .select()
+        .single();
+
+      if (messageError) {
+        console.error('USER: Message insert error:', messageError);
+        throw messageError;
+      }
+
+      // Add to state immediately (realtime subscription will deduplicate)
+      console.log('USER: Adding file message to state:', insertedMessage.id);
+      setMessages(prev => {
+        if (prev.some(msg => msg.id === insertedMessage.id)) {
+          console.log('USER: File message already in state from realtime');
+          return prev;
+        }
+        return [...prev, insertedMessage];
       });
 
       toast.success("File uploaded successfully");
