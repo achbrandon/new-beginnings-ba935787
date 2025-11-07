@@ -369,39 +369,44 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
       if (!agentOnline && ticket?.chat_mode !== 'agent') {
         console.log('No agent online, calling AI bot...');
         
-        // Call AI bot
-        const { data, error: botError } = await supabase.functions.invoke('support-bot', {
-          body: { message: messageText, ticketId }
-        });
-
-        console.log('Bot response:', data, 'Error:', botError);
-
-        // Even if there's an error, the bot returns a fallback message
-        if (data?.suggestsLiveAgent) {
-          // Update ticket to connecting mode
-          await supabase
-            .from('support_tickets')
-            .update({ chat_mode: 'connecting' })
-            .eq('id', ticketId);
-          
-          toast.info("🔄 Finding the best available agent for you...", {
-            duration: 3000
+        // Call AI bot (don't throw error if bot fails - message still sent)
+        try {
+          const { data, error: botError } = await supabase.functions.invoke('support-bot', {
+            body: { message: messageText, ticketId }
           });
 
-          // Call smart agent assignment
-          const { data: assignData } = await supabase.functions.invoke('assign-best-agent', {
-            body: { ticketId }
-          });
+          console.log('Bot response:', data, 'Error:', botError);
 
-          if (assignData?.assigned) {
-            toast.success(`✅ Connected to ${assignData.agentName}!`, {
-              duration: 4000
+          // If bot succeeded and suggests live agent
+          if (data?.suggestsLiveAgent) {
+            // Update ticket to connecting mode
+            await supabase
+              .from('support_tickets')
+              .update({ chat_mode: 'connecting' })
+              .eq('id', ticketId);
+            
+            toast.info("🔄 Finding the best available agent for you...", {
+              duration: 3000
             });
-          } else {
-            toast.info("⏳ All agents are busy. You'll be connected shortly.", {
-              duration: 5000
+
+            // Call smart agent assignment
+            const { data: assignData } = await supabase.functions.invoke('assign-best-agent', {
+              body: { ticketId }
             });
+
+            if (assignData?.assigned) {
+              toast.success(`✅ Connected to ${assignData.agentName}!`, {
+                duration: 4000
+              });
+            } else {
+              toast.info("⏳ All agents are busy. You'll be connected shortly.", {
+                duration: 5000
+              });
+            }
           }
+        } catch (botError) {
+          // Bot failed, but user's message was still sent successfully
+          console.error('Bot error (non-fatal):', botError);
         }
       }
     } catch (error: any) {
