@@ -373,11 +373,25 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
     if (!newMessage.trim() || !ticketId || !userId) return;
 
     const messageText = newMessage.trim();
+    const tempId = `temp-${Date.now()}`;
+    
+    // Add message optimistically with temporary ID
+    const optimisticMessage = {
+      id: tempId,
+      ticket_id: ticketId,
+      message: messageText,
+      sender_type: "user",
+      created_at: new Date().toISOString(),
+      is_read: false
+    };
+    
+    console.log('USER: Adding optimistic message:', tempId);
+    setMessages(prev => [...prev, optimisticMessage]);
     setNewMessage("");
     setLoading(true);
 
     try {
-      // Insert the user's message to database and get it back immediately
+      // Insert the user's message to database
       const { data: insertedMessage, error: insertError } = await supabase
         .from("support_messages")
         .insert({
@@ -390,15 +404,18 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
 
       if (insertError) throw insertError;
 
-      // Add message to state immediately (realtime subscription will deduplicate)
-      console.log('USER: Adding sent message to state:', insertedMessage.id);
+      console.log('USER: Message sent successfully:', insertedMessage.id);
+      
+      // Replace optimistic message with real one
       setMessages(prev => {
-        // Check if message already exists (from realtime)
-        if (prev.some(msg => msg.id === insertedMessage.id)) {
-          console.log('USER: Message already in state from realtime');
-          return prev;
+        const filtered = prev.filter(msg => msg.id !== tempId);
+        // Check if real message already exists (from realtime)
+        if (filtered.some(msg => msg.id === insertedMessage.id)) {
+          console.log('USER: Real message already in state from realtime');
+          return filtered;
         }
-        return [...prev, insertedMessage];
+        console.log('USER: Replacing optimistic message with real one');
+        return [...filtered, insertedMessage];
       });
 
       // Clear typing indicator
@@ -477,7 +494,8 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
       }
     } catch (error: any) {
       console.error("Error sending message:", error);
-      // Restore message on error
+      // Remove optimistic message and restore input on error
+      setMessages(prev => prev.filter(msg => msg.id !== tempId));
       setNewMessage(messageText);
       toast.error("Failed to send message");
     } finally {
