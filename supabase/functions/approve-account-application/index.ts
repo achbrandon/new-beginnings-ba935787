@@ -36,10 +36,8 @@ Deno.serve(async (req) => {
       throw new Error('Application not found');
     }
 
-    // Check if QR code has been verified
-    if (!app.qr_code_verified) {
-      throw new Error('Cannot approve application - QR code verification not completed by user');
-    }
+    // QR verification is optional - admin can approve without it
+    console.log('QR verified status:', app.qr_code_verified);
 
     // Check if account already exists for this user and type
     const { data: existingAccount } = await supabase
