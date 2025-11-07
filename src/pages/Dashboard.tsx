@@ -213,8 +213,7 @@ const Dashboard = () => {
                     <Card className="p-8 text-center">
                       <Wallet className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                       <h3 className="text-lg font-medium mb-2">No accounts yet</h3>
-                      <p className="text-muted-foreground mb-4">Open your first account to get started</p>
-                      <Button onClick={() => navigate("/open-account")}>Open Account</Button>
+                      <p className="text-muted-foreground">Request an account from your administrator to get started</p>
                     </Card>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
