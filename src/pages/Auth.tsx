@@ -190,10 +190,9 @@ const Auth = () => {
           .eq("id", data.user.id)
           .single();
 
-        // If QR not verified, redirect to QR verification page
+        // If QR not verified, redirect to QR verification page (keep user signed in)
         if (!fullProfile?.qr_verified) {
-          toast.info("📧 Please verify your email with the QR code sent to your inbox.");
-          await supabase.auth.signOut();
+          toast.info("📧 Please complete email verification with the QR code sent to your inbox.");
           setLoading(false);
           setShowLoadingSpinner(false);
           isLoggingIn.current = false;
