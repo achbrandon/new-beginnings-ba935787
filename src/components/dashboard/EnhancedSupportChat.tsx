@@ -102,7 +102,7 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
             const { data } = await supabase
               .from('support_agents')
               .select('name')
-              .eq('id', payload.new.assigned_agent_id)
+              .eq('user_id', payload.new.assigned_agent_id)
               .single();
             if (data) setAgentName(data.name);
           }
@@ -284,6 +284,16 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
         setTicket(currentTicket);
         setAgentOnline(currentTicket.agent_online || false);
         loadMessages(currentTicket.id);
+        
+        // Load agent name if assigned
+        if (currentTicket.assigned_agent_id) {
+          const { data: agentData } = await supabase
+            .from('support_agents')
+            .select('name')
+            .eq('user_id', currentTicket.assigned_agent_id)
+            .single();
+          if (agentData) setAgentName(agentData.name);
+        }
       } else {
         const { data: newTicket, error: createError } = await supabase
           .from("support_tickets")

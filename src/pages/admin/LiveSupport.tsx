@@ -309,7 +309,11 @@ export default function LiveSupport() {
       agent_online: true
     } : null);
 
-    toast.success(`${agent?.name} assigned to this ticket`);
+    // Show prominent success message with agent name
+    toast.success(`✅ ${agent.name} is now handling this conversation`, {
+      description: `The customer will be notified that ${agent.name.replace('Support - ', '')} is assisting them.`,
+      duration: 5000,
+    });
   };
 
   const sendMessage = async () => {
@@ -494,6 +498,14 @@ export default function LiveSupport() {
                             <span className="text-red-500 text-sm">Offline</span>
                           </>
                         )}
+                        {selectedChat.assigned_agent_id && (() => {
+                          const agent = agents.find(a => a.user_id === selectedChat.assigned_agent_id);
+                          return agent && (
+                            <Badge variant="secondary" className="ml-2">
+                              Handled by: {agent.name.replace('Support - ', '')}
+                            </Badge>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>
