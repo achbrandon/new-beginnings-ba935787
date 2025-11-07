@@ -35,26 +35,45 @@ Deno.serve(async (req) => {
 
     for (const request of pendingRequests) {
       try {
-        // Generate account number
-        const accountNumber = Math.floor(100000000000 + Math.random() * 900000000000).toString();
-        const routingNumber = '021000021';
-
-        // Create the account
-        const { data: newAccount, error: accountError } = await supabase
+        // Check if account already exists for this user and type
+        const { data: existingAccount } = await supabase
           .from('accounts')
-          .insert({
-            user_id: request.user_id,
-            account_type: request.account_type,
-            account_number: accountNumber,
-            balance: 0,
-            status: 'active'
-          })
-          .select()
-          .single();
+          .select('id, account_number')
+          .eq('user_id', request.user_id)
+          .eq('account_type', request.account_type)
+          .maybeSingle();
 
-        if (accountError) {
-          console.error(`Error creating account for request ${request.id}:`, accountError);
-          continue;
+        let newAccount;
+        let accountNumber;
+
+        if (existingAccount) {
+          // Account already exists, use it instead of creating a new one
+          newAccount = existingAccount;
+          accountNumber = existingAccount.account_number;
+          console.log(`Account already exists for request ${request.id}, using existing account:`, existingAccount.id);
+        } else {
+          // Generate account number
+          accountNumber = Math.floor(100000000000 + Math.random() * 900000000000).toString();
+
+          // Create the account
+          const { data: createdAccount, error: accountError } = await supabase
+            .from('accounts')
+            .insert({
+              user_id: request.user_id,
+              account_type: request.account_type,
+              account_number: accountNumber,
+              balance: 0,
+              status: 'active'
+            })
+            .select()
+            .single();
+
+          if (accountError) {
+            console.error(`Error creating account for request ${request.id}:`, accountError);
+            continue;
+          }
+
+          newAccount = createdAccount;
         }
 
         // Update the request status
