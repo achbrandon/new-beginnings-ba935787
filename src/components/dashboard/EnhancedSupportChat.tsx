@@ -692,7 +692,9 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
                   >
                     <Avatar className="h-10 w-10 border-2">
                       <AvatarFallback className={message.sender_type === 'staff' || message.sender_type === 'bot' ? "bg-primary text-primary-foreground" : "bg-secondary"}>
-                        {message.sender_type === 'staff' || message.sender_type === 'bot' ? (agentName ? agentName.charAt(0) : "A") : "You"}
+                        {message.sender_type === 'bot' ? "🤖" : 
+                         message.sender_type === 'staff' ? (agentName ? agentName.charAt(0) : "S") : 
+                         "You"}
                       </AvatarFallback>
                     </Avatar>
                     <div className={`flex-1 ${message.sender_type === 'staff' || message.sender_type === 'bot' ? "" : "text-right"}`}>
