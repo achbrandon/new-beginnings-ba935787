@@ -827,6 +827,7 @@ export type Database = {
       }
       support_agents: {
         Row: {
+          avatar_url: string | null
           created_at: string | null
           id: string
           is_online: boolean | null
@@ -834,6 +835,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string | null
           id?: string
           is_online?: boolean | null
@@ -841,6 +843,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string | null
           id?: string
           is_online?: boolean | null

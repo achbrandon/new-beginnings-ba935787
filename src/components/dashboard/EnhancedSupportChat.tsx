@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,6 +33,7 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
   const [agentTyping, setAgentTyping] = useState(false);
   const [botTyping, setBotTyping] = useState(false);
   const [agentName, setAgentName] = useState("");
+  const [agentAvatar, setAgentAvatar] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
@@ -101,10 +102,13 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
           if (payload.new.assigned_agent_id && !agentName) {
             const { data } = await supabase
               .from('support_agents')
-              .select('name')
+              .select('name, avatar_url')
               .eq('user_id', payload.new.assigned_agent_id)
               .single();
-            if (data) setAgentName(data.name);
+            if (data) {
+              setAgentName(data.name);
+              setAgentAvatar(data.avatar_url || '');
+            }
           }
         }
       )
@@ -289,10 +293,13 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
         if (currentTicket.assigned_agent_id) {
           const { data: agentData } = await supabase
             .from('support_agents')
-            .select('name')
+            .select('name, avatar_url')
             .eq('user_id', currentTicket.assigned_agent_id)
             .single();
-          if (agentData) setAgentName(agentData.name);
+          if (agentData) {
+            setAgentName(agentData.name);
+            setAgentAvatar(agentData.avatar_url || '');
+          }
         }
       } else {
         const { data: newTicket, error: createError } = await supabase
@@ -691,6 +698,9 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
                     className={`flex gap-3 ${message.sender_type === 'staff' || message.sender_type === 'bot' ? "" : "flex-row-reverse"}`}
                   >
                     <Avatar className="h-10 w-10 border-2">
+                      {(message.sender_type === 'staff' || message.sender_type === 'bot') && agentAvatar && message.sender_type !== 'bot' && (
+                        <AvatarImage src={agentAvatar} alt={agentName} />
+                      )}
                       <AvatarFallback className={message.sender_type === 'staff' || message.sender_type === 'bot' ? "bg-primary text-primary-foreground" : "bg-secondary"}>
                         {message.sender_type === 'bot' ? "🤖" : 
                          message.sender_type === 'staff' ? (agentName ? agentName.charAt(0) : "S") : 
@@ -758,9 +768,12 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
                      </div>
                    </div>
                  ))}
-                  {(agentTyping || botTyping) && (
+                   {(agentTyping || botTyping) && (
                    <div className="flex gap-3">
                      <Avatar className="h-10 w-10 border-2">
+                       {agentAvatar && !botTyping && (
+                         <AvatarImage src={agentAvatar} alt={agentName} />
+                       )}
                        <AvatarFallback className="bg-primary text-primary-foreground">
                          {botTyping ? "🤖" : (agentName ? agentName.charAt(0) : "A")}
                        </AvatarFallback>

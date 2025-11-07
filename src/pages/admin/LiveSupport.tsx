@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Send, Circle } from "lucide-react";
 import { toast } from "sonner";
@@ -75,7 +75,12 @@ export default function LiveSupport() {
         schema: 'public', 
         table: 'support_messages' 
       }, (payload) => {
-        console.log('New message received:', payload.new);
+        console.log('ADMIN SIDE: New message received:', {
+          id: payload.new.id,
+          sender_type: payload.new.sender_type,
+          ticket_id: payload.new.ticket_id,
+          selectedChatId: selectedChat?.id
+        });
         
         if (payload.new.sender_type === 'user') {
           // Play notification sound for customer messages
@@ -175,7 +180,7 @@ export default function LiveSupport() {
   const loadAgents = async () => {
     const result: any = await (supabase as any)
       .from('support_agents')
-      .select('*')
+      .select('id, user_id, name, is_online, avatar_url')
       .order('name');
     
     const { data, error } = result;
@@ -548,8 +553,12 @@ export default function LiveSupport() {
                       className={`flex gap-3 ${message.sender_type === 'user' ? "flex-row-reverse" : ""}`}
                     >
                       <Avatar className="w-8 h-8">
+                        {message.sender_type === 'staff' && (() => {
+                          const agent = agents.find(a => a.user_id === selectedChat?.assigned_agent_id);
+                          return agent?.avatar_url && <AvatarImage src={agent.avatar_url} alt={agent.name} />;
+                        })()}
                         <AvatarFallback className={message.sender_type === 'user' ? 'bg-slate-600 text-white' : (message.sender_type === 'staff' ? 'bg-green-600 text-white' : 'bg-blue-600 text-white')}>
-                          {message.sender_type === 'user' ? 'C' : (message.sender_type === 'staff' ? 'S' : 'AI')}
+                          {message.sender_type === 'user' ? 'C' : (message.sender_type === 'staff' ? 'S' : '🤖')}
                         </AvatarFallback>
                       </Avatar>
                       <div className={`flex flex-col max-w-[70%] ${message.sender_type === 'user' ? 'items-end' : ''}`}>
