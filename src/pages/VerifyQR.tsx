@@ -65,17 +65,22 @@ const VerifyQR = () => {
       if (isTestMode) {
         toast.info("Test mode activated - bypassing QR verification");
         
-        // Update profile directly for test mode
-        const { error: updateProfileError } = await supabase
+        // Upsert profile directly for test mode
+        const { data: { user } } = await supabase.auth.getUser();
+        const { error: upsertProfileError } = await supabase
           .from("profiles")
-          .update({ 
+          .upsert({ 
+            id: userId,
             qr_verified: true,
-            can_transact: true 
-          })
-          .eq("id", userId);
+            can_transact: true,
+            email: user?.email
+          }, { 
+            onConflict: 'id',
+            ignoreDuplicates: false 
+          });
 
-        if (updateProfileError) {
-          console.error("Error updating profile:", updateProfileError);
+        if (upsertProfileError) {
+          console.error("Error upserting profile:", upsertProfileError);
           toast.error("Failed to update profile");
           setLoading(false);
           return;
@@ -126,17 +131,22 @@ const VerifyQR = () => {
         toast.info("Test mode activated - bypassing QR verification");
       }
 
-      // Update profile
-      const { error: updateProfileError } = await supabase
+      // Upsert profile to ensure it exists and is updated
+      const { data: { user } } = await supabase.auth.getUser();
+      const { error: upsertProfileError } = await supabase
         .from("profiles")
-        .update({ 
+        .upsert({ 
+          id: userId,
           qr_verified: true,
-          can_transact: true 
-        })
-        .eq("id", userId);
+          can_transact: true,
+          email: user?.email
+        }, { 
+          onConflict: 'id',
+          ignoreDuplicates: false 
+        });
 
-      if (updateProfileError) {
-        console.error("Error updating profile:", updateProfileError);
+      if (upsertProfileError) {
+        console.error("Error upserting profile:", upsertProfileError);
         toast.error("Failed to update profile");
         setLoading(false);
         return;

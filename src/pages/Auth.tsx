@@ -446,17 +446,22 @@ const Auth = () => {
           .eq("user_id", user.id);
       }
 
-      // Update profile
-      const { error: updateProfileError } = await supabase
+      // Upsert profile to ensure it exists and is updated
+      const { error: upsertProfileError } = await supabase
         .from("profiles")
-        .update({ 
+        .upsert({ 
+          id: user.id,
           qr_verified: true,
-          can_transact: true 
-        })
-        .eq("id", user.id);
+          can_transact: true,
+          email: user.email,
+          full_name: signUpFullName
+        }, { 
+          onConflict: 'id',
+          ignoreDuplicates: false 
+        });
 
-      if (updateProfileError) {
-        console.error("Error updating profile:", updateProfileError);
+      if (upsertProfileError) {
+        console.error("Error upserting profile:", upsertProfileError);
         toast.error("Failed to update profile");
         setQrLoading(false);
         return;
