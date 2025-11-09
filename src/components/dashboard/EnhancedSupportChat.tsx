@@ -424,17 +424,6 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
     const messageText = newMessage.trim();
     const tempId = `temp-${Date.now()}`;
     
-    // Verify session before sending
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      console.error('No active session found');
-      toast.error("Session expired. Please refresh and try again.");
-      setMessages(prev => prev.filter(msg => msg.id !== tempId));
-      setNewMessage(messageText);
-      setLoading(false);
-      return;
-    }
-    
     // Add message optimistically with temporary ID
     const optimisticMessage = {
       id: tempId,
