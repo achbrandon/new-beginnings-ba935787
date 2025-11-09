@@ -135,7 +135,6 @@ function AppRoutes() {
       <Route path="/dashboard/offers" element={<Offers />} />
       <Route path="/dashboard/alerts" element={<Alerts />} />
       <Route path="/dashboard/settings" element={<Settings />} />
-      <Route path="/dashboard/support" element={<Support />} />
       <Route path="/dashboard/ach-accounts" element={<ACHAccounts />} />
       <Route path="/dashboard/crypto" element={<CryptoWallet />} />
       <Route path="/dashboard/card-application" element={<CardApplication />} />

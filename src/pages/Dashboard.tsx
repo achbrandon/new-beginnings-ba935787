@@ -12,6 +12,7 @@ import { TransactionsList } from "@/components/dashboard/TransactionsList";
 import { QuickActions } from "@/components/dashboard/QuickActions";
 import { SpendingInsights } from "@/components/dashboard/SpendingInsights";
 import { BalanceHistoryChart } from "@/components/dashboard/BalanceHistoryChart";
+import { EnhancedSupportChat } from "@/components/dashboard/EnhancedSupportChat";
 import { useUserActivity } from "@/hooks/useUserActivity";
 import { useSessionTracking } from "@/hooks/useSessionTracking";
 import logo from "@/assets/vaultbank-logo.png";
@@ -24,6 +25,7 @@ const Dashboard = () => {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showBalances, setShowBalances] = useState(true);
+  const [showSupport, setShowSupport] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -197,7 +199,7 @@ const Dashboard = () => {
   return (
     <SidebarProvider>
       <div className="min-h-screen w-full flex bg-gradient-to-br from-background to-muted">
-        <DashboardSidebar />
+        <DashboardSidebar onOpenSupport={() => setShowSupport(true)} />
         <div className="flex-1 flex flex-col w-full">
           <header className="glass sticky top-0 z-50 border-b border-border/40 safe-top">
             <div className="flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4">
@@ -315,6 +317,12 @@ const Dashboard = () => {
           </main>
         </div>
       </div>
+      {showSupport && user && (
+        <EnhancedSupportChat 
+          userId={user.id} 
+          onClose={() => setShowSupport(false)} 
+        />
+      )}
     </SidebarProvider>
   );
 };

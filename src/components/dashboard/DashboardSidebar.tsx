@@ -33,6 +33,10 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
+interface DashboardSidebarProps {
+  onOpenSupport?: () => void;
+}
+
 const menuItems = [
   { title: "Overview", url: "/dashboard", icon: Home },
   { title: "Accounts", url: "/dashboard/accounts", icon: Wallet },
@@ -53,10 +57,9 @@ const menuItems = [
   { title: "Alerts", url: "/dashboard/alerts", icon: Bell },
   { title: "Login History", url: "/dashboard/login-history", icon: Shield },
   { title: "Settings", url: "/dashboard/settings", icon: Settings },
-  { title: "Support", url: "/dashboard/support", icon: LifeBuoy },
 ];
 
-export function DashboardSidebar() {
+export function DashboardSidebar({ onOpenSupport }: DashboardSidebarProps) {
   const { open } = useSidebar();
 
   return (
@@ -84,6 +87,12 @@ export function DashboardSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={onOpenSupport}>
+                  <LifeBuoy className="h-4 w-4" />
+                  {open && <span>Support</span>}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
