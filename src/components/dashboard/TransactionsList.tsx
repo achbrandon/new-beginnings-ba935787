@@ -1,23 +1,17 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { 
-  ArrowUpRight, 
-  ArrowDownLeft, 
   Search,
   Filter,
   Download,
-  AlertCircle,
-  ArrowLeftRight,
-  Wallet,
-  CreditCard,
-  Receipt
+  AlertCircle
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { TransactionDetailsModal } from "./TransactionDetailsModal";
 import { TransactionExportModal } from "./TransactionExportModal";
+import { SwipeableTransactionCard } from "./SwipeableTransactionCard";
 
 interface TransactionsListProps {
   transactions: any[];
@@ -29,6 +23,26 @@ export function TransactionsList({ transactions, onRefresh }: TransactionsListPr
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+
+  // Fetch favorites
+  const fetchFavorites = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data } = await supabase
+      .from('favorite_transactions')
+      .select('transaction_id')
+      .eq('user_id', user.id);
+
+    if (data) {
+      setFavorites(new Set(data.map(f => f.transaction_id)));
+    }
+  };
+
+  useEffect(() => {
+    fetchFavorites();
+  }, []);
 
   // Subscribe to real-time transaction updates
   useEffect(() => {
@@ -37,7 +51,7 @@ export function TransactionsList({ transactions, onRefresh }: TransactionsListPr
       .on(
         'postgres_changes',
         {
-          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          event: '*',
           schema: 'public',
           table: 'transactions'
         },
@@ -51,59 +65,6 @@ export function TransactionsList({ transactions, onRefresh }: TransactionsListPr
       supabase.removeChannel(channel);
     };
   }, [onRefresh]);
-
-  const getTransactionIcon = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'deposit':
-      case 'credit':
-        return (
-          <div className="h-10 w-10 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
-            <Wallet className="h-5 w-5 text-green-600 dark:text-green-400" />
-          </div>
-        );
-      case 'withdrawal':
-      case 'debit':
-        return (
-          <div className="h-10 w-10 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center">
-            <ArrowUpRight className="h-5 w-5 text-red-600 dark:text-red-400" />
-          </div>
-        );
-      case 'transfer':
-        return (
-          <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
-            <ArrowLeftRight className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-          </div>
-        );
-      case 'payment':
-        return (
-          <div className="h-10 w-10 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
-            <CreditCard className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-          </div>
-        );
-      case 'fee':
-        return (
-          <div className="h-10 w-10 rounded-full bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center">
-            <Receipt className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-          </div>
-        );
-      default:
-        return (
-          <div className="h-10 w-10 rounded-full bg-gray-100 dark:bg-gray-900/20 flex items-center justify-center">
-            <ArrowDownLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-          </div>
-        );
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
-    const variants: { [key: string]: "default" | "secondary" | "destructive" | "outline" } = {
-      completed: "default",
-      pending: "secondary",
-      failed: "destructive",
-      disputed: "outline"
-    };
-    return <Badge variant={variants[status] || "secondary"}>{status}</Badge>;
-  };
 
   const filteredTransactions = transactions.filter(t => 
     t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -157,61 +118,15 @@ export function TransactionsList({ transactions, onRefresh }: TransactionsListPr
         </div>
       ) : (
         <div className="space-y-2 sm:space-y-3">
-          {filteredTransactions.map((transaction) => {
-            // Replace "Admin" with "Deposit" anywhere in description
-            let cleanDescription = transaction.description;
-            if (cleanDescription) {
-              cleanDescription = cleanDescription.replace(/\bAdmin\b/gi, 'Deposit');
-            }
-            
-            return (
-              <div
-                key={transaction.id}
-                className="flex items-center justify-between p-3 sm:p-4 rounded-lg border hover:bg-muted/50 transition-all cursor-pointer card-interactive active:scale-[0.98]"
-                onClick={() => handleTransactionClick(transaction)}
-              >
-                <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-                  <div className="shrink-0">
-                    {getTransactionIcon(transaction.type)}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium capitalize text-sm sm:text-base truncate">{cleanDescription}</p>
-                    <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      <p className="text-xs sm:text-sm text-muted-foreground">
-                        {new Date(transaction.created_at).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          year: window.innerWidth < 640 ? undefined : 'numeric'
-                        })}
-                      </p>
-                      {transaction.category && (
-                        <>
-                          <span className="text-muted-foreground hidden sm:inline">•</span>
-                          <span className="text-xs sm:text-sm text-muted-foreground capitalize hidden sm:inline">
-                            {transaction.category}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="text-right shrink-0 ml-2">
-                  <p className={`font-semibold text-sm sm:text-base ${
-                    transaction.type === 'credit' || transaction.type === 'deposit'
-                      ? 'text-green-600 dark:text-green-400'
-                      : 'text-red-600 dark:text-red-400'
-                  }`}>
-                    {transaction.type === 'credit' || transaction.type === 'deposit' ? '+' : '-'}
-                    ${Math.abs(parseFloat(transaction.amount)).toFixed(2)}
-                  </p>
-                  <div className="mt-1">
-                    {getStatusBadge(transaction.status)}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          {filteredTransactions.map((transaction) => (
+            <SwipeableTransactionCard
+              key={transaction.id}
+              transaction={transaction}
+              isFavorite={favorites.has(transaction.id)}
+              onFavoriteChange={fetchFavorites}
+              onClick={() => handleTransactionClick(transaction)}
+            />
+          ))}
         </div>
       )}
     </Card>

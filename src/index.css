@@ -288,6 +288,42 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Touch-based swipe animations */
+  .touch-pan-y {
+    touch-action: pan-y;
+  }
+
+  .touch-pan-x {
+    touch-action: pan-x;
+  }
+
+  /* Swipe action hints */
+  @keyframes swipe-hint-left {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(-10px);
+    }
+  }
+
+  @keyframes swipe-hint-right {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(10px);
+    }
+  }
+
+  .swipe-hint-left {
+    animation: swipe-hint-left 2s ease-in-out infinite;
+  }
+
+  .swipe-hint-right {
+    animation: swipe-hint-right 2s ease-in-out infinite;
+  }
 }
 
 /* Custom animations */
