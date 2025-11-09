@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { TransactionDetailsModal } from "./TransactionDetailsModal";
 import { TransactionExportModal } from "./TransactionExportModal";
 import { SwipeableTransactionCard } from "./SwipeableTransactionCard";
+import { TransactionsStatsSummary } from "./TransactionsStatsSummary";
 
 interface TransactionsListProps {
   transactions: any[];
@@ -124,6 +125,11 @@ export function TransactionsList({ transactions, onRefresh }: TransactionsListPr
 
   return (
     <>
+      {/* Statistics Summary */}
+      {filteredTransactions.length > 0 && (
+        <TransactionsStatsSummary transactions={filteredTransactions} />
+      )}
+
       <Card className="mobile-card-padding animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3">
         <div className="flex items-center gap-2">
