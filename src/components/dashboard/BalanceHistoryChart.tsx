@@ -436,6 +436,12 @@ export const BalanceHistoryChart = () => {
                 const isCredit = transaction.type === "credit";
                 const isAdminTransaction = transaction.description?.toLowerCase().includes('admin');
                 
+                // Clean up description by removing "Admin" prefix
+                let cleanDescription = transaction.description;
+                if (cleanDescription?.toLowerCase().startsWith('admin ')) {
+                  cleanDescription = cleanDescription.substring(6); // Remove "Admin " prefix
+                }
+                
                 return (
                   <div
                     key={transaction.id}
@@ -450,7 +456,7 @@ export const BalanceHistoryChart = () => {
                         )}
                       </div>
                       <div>
-                        <p className="font-medium">{transaction.description}</p>
+                        <p className="font-medium capitalize">{cleanDescription}</p>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <span>{account?.account_type} - {account?.account_number.slice(-4)}</span>
                           {isAdminTransaction && (
