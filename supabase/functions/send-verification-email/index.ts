@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.7";
 import QRCode from "https://esm.sh/qrcode@1.5.4";
 
 const corsHeaders = {
@@ -40,18 +41,30 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("📧 Preparing email for:", email);
 
-    // Generate QR code as SVG (works in Deno without canvas)
-    const qrCodeSvg = await QRCode.toString(qrSecret, {
-      type: 'svg',
-      width: 300,
-      margin: 2,
-      color: {
-        dark: '#000000',
-        light: '#FFFFFF'
+    // Get user ID from email
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
       }
-    });
+    );
+
+    const { data: users } = await supabaseAdmin.auth.admin.listUsers();
+    const user = users.users.find((u: any) => u.email === email);
     
-    console.log("✅ QR code generated successfully");
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Create verification link
+    const appUrl = redirectUrl || Deno.env.get('SUPABASE_URL') || 'https://vaultbankonline.com';
+    const verificationLink = `${appUrl}/api/verify-email?token=${qrSecret}&userId=${user.id}`;
+
+    console.log("✅ Verification link generated");
 
     const emailHtml = `
       <!DOCTYPE html>
@@ -75,20 +88,28 @@ const handler = async (req: Request): Promise<Response> => {
                       <p style="margin: 0 0 20px; color: #333333; font-size: 16px; line-height: 1.6;">
                         Hello ${fullName},
                       </p>
-                      <p style="margin: 0 0 20px; color: #333333; font-size: 16px; line-height: 1.6;">
-                        Thank you for submitting your application to VaultBank. Your email has been successfully verified.
-                      </p>
-                      <p style="margin: 0 0 16px; color: #333333; font-size: 16px; line-height: 1.6;">
-                        Your verification code:
-                      </p>
-                      <div style="background-color: #f5f5f5; padding: 20px; border-radius: 6px; margin: 0 0 24px; text-align: center;">
-                        <p style="margin: 0; color: #1a1a1a; font-size: 24px; font-weight: bold; letter-spacing: 2px; font-family: 'Courier New', monospace;">
-                          ${qrSecret}
-                        </p>
-                      </div>
-                      <p style="margin: 0 0 20px; color: #333333; font-size: 16px; line-height: 1.6;">
-                        Please enter this code to complete your email verification. Once verified, your application will be reviewed by our team for approval.
-                      </p>
+                       <p style="margin: 0 0 20px; color: #333333; font-size: 16px; line-height: 1.6;">
+                         Thank you for submitting your application to VaultBank. Please verify your email address to continue.
+                       </p>
+                       <p style="margin: 0 0 20px; color: #333333; font-size: 16px; line-height: 1.6;">
+                         Click the button below to verify your email address:
+                       </p>
+                       <div style="text-align: center; margin: 0 0 30px;">
+                         <a href="${verificationLink}" style="display: inline-block; padding: 14px 32px; background-color: #2563eb; color: #ffffff; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: 600;">
+                           Verify Email Address
+                         </a>
+                       </div>
+                       <p style="margin: 0 0 16px; color: #333333; font-size: 16px; line-height: 1.6;">
+                         Or enter this verification code manually:
+                       </p>
+                       <div style="background-color: #f5f5f5; padding: 20px; border-radius: 6px; margin: 0 0 24px; text-align: center;">
+                         <p style="margin: 0; color: #1a1a1a; font-size: 24px; font-weight: bold; letter-spacing: 2px; font-family: 'Courier New', monospace;">
+                           ${qrSecret}
+                         </p>
+                       </div>
+                       <p style="margin: 0 0 20px; color: #333333; font-size: 16px; line-height: 1.6;">
+                         Once verified, your application will be reviewed by our team for approval.
+                       </p>
                       <p style="margin: 0 0 20px; color: #333333; font-size: 16px; line-height: 1.6;">
                         <strong>Important:</strong> You will receive another email once your account has been approved and is ready to use.
                       </p>

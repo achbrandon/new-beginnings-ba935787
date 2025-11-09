@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.approve-account-application]
 verify_jwt = false
+
+[functions.verify-email-link]
+verify_jwt = false

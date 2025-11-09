@@ -77,17 +77,25 @@ const Auth = () => {
         return;
       }
 
-      // For all other users: check account application status first
+      // Check if email is verified
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("qr_verified, email_verified")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (!profile?.email_verified) {
+        toast.error("Please verify your email address before logging in. Check your inbox for the verification link.");
+        await supabase.auth.signOut();
+        navigate("/resend-emails", { replace: true });
+        return;
+      }
+
+      // For all other users: check account application status
       const { data: application } = await supabase
         .from("account_applications")
         .select("status, qr_code_verified")
         .eq("user_id", user.id)
-        .maybeSingle();
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("qr_verified")
-        .eq("id", user.id)
         .maybeSingle();
 
       // If account is pending approval
@@ -226,9 +234,20 @@ const Auth = () => {
 
         const { data: fullProfile } = await supabase
           .from("profiles")
-          .select("qr_verified")
+          .select("qr_verified, email_verified")
           .eq("id", data.user.id)
           .maybeSingle();
+
+        // Check email verification first
+        if (!fullProfile?.email_verified) {
+          toast.error("📧 Please verify your email address before logging in. Check your inbox for the verification link.");
+          await supabase.auth.signOut();
+          setLoading(false);
+          setShowLoadingSpinner(false);
+          isLoggingIn.current = false;
+          navigate("/resend-emails");
+          return;
+        }
 
         // Check if account is still pending approval
         if (application?.status === 'pending') {

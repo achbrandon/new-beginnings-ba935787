@@ -73,6 +73,7 @@ const VerifyQR = () => {
             id: userId,
             qr_verified: true,
             can_transact: true,
+            email_verified: true,
             email: user?.email
           }, { 
             onConflict: 'id',
@@ -139,6 +140,7 @@ const VerifyQR = () => {
           id: userId,
           qr_verified: true,
           can_transact: true,
+          email_verified: true,
           email: user?.email
         }, { 
           onConflict: 'id',
