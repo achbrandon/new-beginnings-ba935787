@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
 interface BalanceDataPoint {
@@ -17,10 +18,13 @@ interface Account {
   account_number: string;
 }
 
+type DateRange = '7' | '30' | '90' | 'all';
+
 export const BalanceHistoryChart = () => {
   const [chartData, setChartData] = useState<BalanceDataPoint[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [selectedAccount, setSelectedAccount] = useState<string>("all");
+  const [dateRange, setDateRange] = useState<DateRange>('30');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,7 +35,7 @@ export const BalanceHistoryChart = () => {
     if (accounts.length > 0) {
       fetchBalanceHistory();
     }
-  }, [selectedAccount, accounts]);
+  }, [selectedAccount, dateRange, accounts]);
 
   const fetchAccounts = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -48,17 +52,35 @@ export const BalanceHistoryChart = () => {
     }
   };
 
+  const getDateRangeStart = () => {
+    const now = new Date();
+    switch (dateRange) {
+      case '7':
+        return new Date(now.setDate(now.getDate() - 7));
+      case '30':
+        return new Date(now.setDate(now.getDate() - 30));
+      case '90':
+        return new Date(now.setDate(now.getDate() - 90));
+      case 'all':
+      default:
+        return new Date(0); // Beginning of time
+    }
+  };
+
   const fetchBalanceHistory = async () => {
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
     try {
+      const dateRangeStart = getDateRangeStart();
+      
       let query = supabase
         .from("transactions")
         .select("amount, type, created_at, account_id")
         .eq("user_id", user.id)
         .eq("status", "completed")
+        .gte("created_at", dateRangeStart.toISOString())
         .order("created_at", { ascending: true });
 
       if (selectedAccount !== "all") {
@@ -113,21 +135,54 @@ export const BalanceHistoryChart = () => {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>Balance History</CardTitle>
-          <Select value={selectedAccount} onValueChange={setSelectedAccount}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Select account" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Accounts</SelectItem>
-              {accounts.map((account) => (
-                <SelectItem key={account.id} value={account.id}>
-                  {account.account_type} - {account.account_number.slice(-4)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <CardTitle>Balance History</CardTitle>
+            <Select value={selectedAccount} onValueChange={setSelectedAccount}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Select account" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Accounts</SelectItem>
+                {accounts.map((account) => (
+                  <SelectItem key={account.id} value={account.id}>
+                    {account.account_type} - {account.account_number.slice(-4)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="flex gap-2">
+            <Button
+              variant={dateRange === '7' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setDateRange('7')}
+            >
+              Last 7 Days
+            </Button>
+            <Button
+              variant={dateRange === '30' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setDateRange('30')}
+            >
+              Last 30 Days
+            </Button>
+            <Button
+              variant={dateRange === '90' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setDateRange('90')}
+            >
+              Last 90 Days
+            </Button>
+            <Button
+              variant={dateRange === 'all' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setDateRange('all')}
+            >
+              All Time
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
