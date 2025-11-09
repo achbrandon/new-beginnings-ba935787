@@ -90,15 +90,38 @@ const OpenAccount = () => {
   };
 
   const handleFileChange = (field: string, file: File | null) => {
+    if (!file) {
+      setFormData(prev => ({ ...prev, [field]: null }));
+      setFilePreviews(prev => ({ ...prev, [field]: "" }));
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg', 
+      'image/png',
+      'image/webp',
+      'image/gif',
+      'application/pdf'
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      alert(`File type not supported. Please upload JPG, PNG, WEBP, GIF, or PDF files only.\n\nYour file type: ${file.type}`);
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('File size exceeds 10MB limit. Please choose a smaller file.');
+      return;
+    }
+
     setFormData(prev => ({ ...prev, [field]: file }));
     
     // Create preview URL
-    if (file) {
-      const previewUrl = URL.createObjectURL(file);
-      setFilePreviews(prev => ({ ...prev, [field]: previewUrl }));
-    } else {
-      setFilePreviews(prev => ({ ...prev, [field]: "" }));
-    }
+    const previewUrl = URL.createObjectURL(file);
+    setFilePreviews(prev => ({ ...prev, [field]: previewUrl }));
   };
 
   const validateStep = () => {
@@ -166,6 +189,20 @@ const OpenAccount = () => {
     try {
       console.log('Uploading file:', path, 'Size:', file.size, 'Type:', file.type);
       
+      // Validate file type
+      const allowedTypes = [
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/webp',
+        'image/gif',
+        'application/pdf'
+      ];
+
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error(`File type ${file.type} is not supported. Please use JPG, PNG, WEBP, GIF, or PDF files only.`);
+      }
+
       // Verify file size (max 10MB)
       if (file.size > 10 * 1024 * 1024) {
         throw new Error('File size exceeds 10MB limit');
@@ -502,7 +539,7 @@ const OpenAccount = () => {
                         id="idFront" 
                         type="file" 
                         className="hidden" 
-                        accept="image/*"
+                        accept=".jpg,.jpeg,.png,.webp,.gif,.pdf"
                         onChange={(e) => handleFileChange("idFront", e.target.files?.[0] || null)}
                       />
                     </label>
@@ -530,7 +567,7 @@ const OpenAccount = () => {
                         id="idBack" 
                         type="file" 
                         className="hidden" 
-                        accept="image/*"
+                        accept=".jpg,.jpeg,.png,.webp,.gif,.pdf"
                         onChange={(e) => handleFileChange("idBack", e.target.files?.[0] || null)}
                       />
                     </label>
@@ -560,7 +597,7 @@ const OpenAccount = () => {
                       id="selfie" 
                       type="file" 
                       className="hidden" 
-                      accept="image/*"
+                      accept=".jpg,.jpeg,.png,.webp,.gif"
                       capture="user"
                       onChange={(e) => handleFileChange("selfie", e.target.files?.[0] || null)}
                     />
@@ -578,7 +615,7 @@ const OpenAccount = () => {
                     <input
                       type="file"
                       id="driversLicense"
-                      accept="image/*"
+                      accept=".jpg,.jpeg,.png,.webp,.gif,.pdf"
                       onChange={(e) => handleFileChange("driversLicense", e.target.files?.[0] || null)}
                       className="hidden"
                     />
@@ -637,7 +674,7 @@ const OpenAccount = () => {
                       id="addressProof" 
                       type="file" 
                       className="hidden" 
-                      accept="image/*,.pdf"
+                      accept=".jpg,.jpeg,.png,.webp,.gif,.pdf"
                       onChange={(e) => handleFileChange("addressProof", e.target.files?.[0] || null)}
                     />
                   </label>
