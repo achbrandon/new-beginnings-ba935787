@@ -195,90 +195,112 @@ const Dashboard = () => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen w-full flex bg-gradient-to-br from-banking-navy via-banking-secondary to-banking-primary">
+      <div className="min-h-screen w-full flex bg-gradient-to-br from-background to-muted">
         <DashboardSidebar />
         <div className="flex-1 flex flex-col w-full">
-          <header className="bg-white/95 backdrop-blur-sm shadow-md sticky top-0 z-50">
-            <div className="flex items-center justify-between px-6 py-4">
-              <div className="flex items-center gap-4">
-                <SidebarTrigger />
-                <img src={logo} alt="VaultBank" className="h-12" />
+          <header className="glass sticky top-0 z-50 border-b border-border/40 safe-top">
+            <div className="flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4">
+              <div className="flex items-center gap-2 sm:gap-4">
+                <SidebarTrigger className="mobile-icon-button" />
+                <img src={logo} alt="VaultBank" className="h-8 sm:h-10 lg:h-12" />
               </div>
-              <Button variant="outline" size="sm" onClick={handleSignOut}>
+              <Button variant="outline" size="sm" className="h-9 sm:h-10 text-xs sm:text-sm" onClick={handleSignOut}>
                 Sign Out
               </Button>
             </div>
           </header>
 
-          <main className="flex-1 overflow-auto">
+          <main className="flex-1 overflow-auto pull-refresh safe-bottom">
             {isDashboardHome ? (
-              <div className="container mx-auto px-4 py-8">
-                <div className="mb-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h1 className="text-3xl font-bold text-foreground mb-2">
-                        Welcome back, {profile?.full_name}
+              <div className="mobile-section max-w-7xl mx-auto">
+                <div className="mb-4 sm:mb-6 animate-fade-in">
+                  <div className="flex items-start sm:items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <h1 className="mobile-title text-foreground mb-1 sm:mb-2 truncate">
+                        Welcome back
                       </h1>
-                      <p className="text-muted-foreground">
+                      <p className="mobile-subtitle text-muted-foreground truncate">
+                        {profile?.full_name?.split(' ')[0] || 'User'}
+                      </p>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-1 hidden sm:block">
                         {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                       </p>
+                      <p className="text-xs text-muted-foreground mt-1 sm:hidden">
+                        {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </p>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => setShowBalances(!showBalances)}>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="mobile-icon-button shrink-0" 
+                      onClick={() => setShowBalances(!showBalances)}
+                    >
                       {showBalances ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
                     </Button>
                   </div>
                 </div>
 
-                <Card className="p-6 mb-6 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm opacity-90 mb-1">NET WORTH</p>
-                      <h2 className="text-4xl font-bold">
+                <Card className="mobile-card-padding mb-4 sm:mb-6 bg-gradient-primary text-primary-foreground shadow-elegant border-0 overflow-hidden animate-scale-in card-interactive">
+                  <div className="flex items-center justify-between relative">
+                    <div className="z-10">
+                      <p className="text-xs sm:text-sm font-medium opacity-90 mb-1 sm:mb-2">NET WORTH</p>
+                      <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-1 sm:mb-2">
                         {showBalances ? `$${calculateNetWorth().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '••••••'}
                       </h2>
-                      <p className="text-sm opacity-80 mt-2">
-                        Based on {accounts.length} account{accounts.length !== 1 ? 's' : ''}
+                      <p className="text-xs sm:text-sm opacity-90">
+                        {accounts.length} account{accounts.length !== 1 ? 's' : ''}
                       </p>
                     </div>
-                    <Wallet className="h-16 w-16 opacity-20" />
+                    <Wallet className="h-12 w-12 sm:h-16 sm:w-16 lg:h-20 lg:w-20 opacity-10 absolute -right-2 -bottom-2 sm:relative sm:opacity-20" />
                   </div>
                 </Card>
 
                 <QuickActions onAction={fetchData} />
 
-                <div className="mb-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-2xl font-bold">Your Accounts</h2>
-                    <Button size="sm" onClick={() => navigate("/dashboard/request-account")}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Account
+                <div className="mb-4 sm:mb-6 animate-fade-in-up">
+                  <div className="flex items-center justify-between mb-3 sm:mb-4">
+                    <h2 className="text-xl sm:text-2xl font-bold">Your Accounts</h2>
+                    <Button 
+                      size="sm" 
+                      className="h-9 sm:h-10 text-xs sm:text-sm mobile-button" 
+                      onClick={() => navigate("/dashboard/request-account")}
+                    >
+                      <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                      <span className="hidden sm:inline">Add Account</span>
+                      <span className="sm:hidden">Add</span>
                     </Button>
                   </div>
                   
                   {accounts.length === 0 ? (
-                    <Card className="p-8 text-center">
-                      <Wallet className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                      <h3 className="text-lg font-medium mb-2">No accounts yet</h3>
-                      <p className="text-muted-foreground">Request an account from your administrator to get started</p>
+                    <Card className="mobile-card-padding text-center animate-scale-in">
+                      <Wallet className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-muted-foreground" />
+                      <h3 className="text-base sm:text-lg font-medium mb-2">No accounts yet</h3>
+                      <p className="text-sm text-muted-foreground">Request an account to get started</p>
                     </Card>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {accounts.map((account) => (
-                        <AccountCard key={account.id} account={account} showBalance={showBalances} onRefresh={fetchData} />
+                    <div className="mobile-grid">
+                      {accounts.map((account, index) => (
+                        <div 
+                          key={account.id} 
+                          className="animate-fade-in-up"
+                          style={{ animationDelay: `${index * 0.1}s` }}
+                        >
+                          <AccountCard account={account} showBalance={showBalances} onRefresh={fetchData} />
+                        </div>
                       ))}
                     </div>
                   )}
                 </div>
 
-                <div className="mb-6">
+                <div className="mb-4 sm:mb-6 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                   <BalanceHistoryChart />
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <div className="lg:col-span-2">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                  <div className="lg:col-span-2 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
                     <TransactionsList transactions={transactions} onRefresh={fetchData} />
                   </div>
-                  <div>
+                  <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
                     <SpendingInsights userId={user?.id} />
                   </div>
                 </div>

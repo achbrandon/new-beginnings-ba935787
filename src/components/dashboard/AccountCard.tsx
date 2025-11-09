@@ -60,56 +60,61 @@ export function AccountCard({ account, showBalance, onRefresh }: AccountCardProp
   const isDebitAccount = account.account_type === 'credit_card' || account.account_type === 'loan';
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-      <div className={`bg-gradient-to-br ${getAccountColor(account.account_type)} p-6 text-white`}>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            {getAccountIcon(account.account_type)}
-            <span className="text-sm font-medium capitalize">
-              {account.account_type.replace('_', ' ')}
-            </span>
-          </div>
-          <Badge variant="secondary" className="bg-white/20 text-white border-0">
-            {account.status}
-          </Badge>
-        </div>
-
-        <h3 className="text-lg font-semibold mb-1">{account.account_name}</h3>
-        <p className="text-sm opacity-80 mb-4">{formatAccountNumber(account.account_number)}</p>
-
-        <div className="space-y-2">
-          <div>
-            <p className="text-xs opacity-80">
-              {isDebitAccount ? 'Balance' : 'Available Balance'}
-            </p>
-            <p className="text-2xl font-bold">
-              {showBalance 
-                ? `${isDebitAccount ? '-' : ''}$${parseFloat(account.available_balance || account.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}` 
-                : '••••••'}
-            </p>
-          </div>
-
-          {account.account_type === 'credit_card' && (
-            <div className="flex justify-between text-xs">
-              <span className="opacity-80">Available Credit</span>
-              <span className="font-medium">
-                {showBalance ? `$${(parseFloat(account.available_balance) + parseFloat(account.balance)).toFixed(2)}` : '••••••'}
+    <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 card-interactive h-full flex flex-col">
+      <div className={`bg-gradient-to-br ${getAccountColor(account.account_type)} p-4 sm:p-6 text-white relative overflow-hidden`}>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-16"></div>
+        <div className="relative z-10">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 sm:p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                {getAccountIcon(account.account_type)}
+              </div>
+              <span className="text-xs sm:text-sm font-medium capitalize">
+                {account.account_type.replace('_', ' ')}
               </span>
             </div>
-          )}
+            <Badge variant="secondary" className="bg-white/20 text-white border-0 text-xs">
+              {account.status}
+            </Badge>
+          </div>
+
+          <h3 className="text-base sm:text-lg font-semibold mb-1 truncate">{account.account_name}</h3>
+          <p className="text-xs sm:text-sm opacity-80 mb-3 sm:mb-4">{formatAccountNumber(account.account_number)}</p>
+
+          <div className="space-y-1.5 sm:space-y-2">
+            <div>
+              <p className="text-xs opacity-80 mb-1">
+                {isDebitAccount ? 'Balance' : 'Available Balance'}
+              </p>
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold">
+                {showBalance 
+                  ? `${isDebitAccount ? '-' : ''}$${parseFloat(account.available_balance || account.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}` 
+                  : '••••••'}
+              </p>
+            </div>
+
+            {account.account_type === 'credit_card' && (
+              <div className="flex justify-between text-xs pt-2 border-t border-white/20">
+                <span className="opacity-80">Available Credit</span>
+                <span className="font-medium">
+                  {showBalance ? `$${(parseFloat(account.available_balance) + parseFloat(account.balance)).toFixed(2)}` : '••••••'}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="p-4 bg-card">
+      <div className="p-3 sm:p-4 bg-card mt-auto">
         <Button 
           variant="ghost" 
-          className="w-full justify-between text-sm"
+          className="w-full justify-between text-xs sm:text-sm mobile-button hover:bg-primary/5 hover:text-primary transition-colors"
           onClick={() => {
             window.location.href = `/dashboard/account-details?id=${account.id}`;
           }}
         >
           View Details
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
         </Button>
       </div>
     </Card>

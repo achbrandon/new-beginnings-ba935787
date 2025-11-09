@@ -69,20 +69,20 @@ export function QuickActions({ onAction }: QuickActionsProps) {
 
   return (
     <>
-      <Card className="p-6 mb-6">
-        <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+      <Card className="mobile-card-padding mb-4 sm:mb-6 animate-fade-in">
+        <h2 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Quick Actions</h2>
+        <div className="mobile-action-grid">
           {actions.map((action, index) => (
             <Button
               key={index}
               variant="outline"
-              className="h-auto flex-col gap-2 p-4 hover:bg-primary/5 hover:border-primary"
+              className="h-auto flex-col gap-2 p-3 sm:p-4 hover:bg-primary/5 hover:border-primary hover:shadow-md transition-all touch-target card-interactive"
               onClick={action.onClick}
             >
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+              <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center text-primary">
                 {action.icon}
               </div>
-              <span className="text-xs text-center leading-tight">{action.label}</span>
+              <span className="text-[10px] sm:text-xs text-center leading-tight font-medium">{action.label}</span>
             </Button>
           ))}
         </div>

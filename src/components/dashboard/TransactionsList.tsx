@@ -117,15 +117,18 @@ export function TransactionsList({ transactions, onRefresh }: TransactionsListPr
 
   return (
     <>
-      <Card className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">Recent Transactions</h2>
+      <Card className="mobile-card-padding animate-fade-in">
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold">Recent Transactions</h2>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" className="hidden sm:flex">
             <Filter className="h-4 w-4 mr-2" />
             Filter
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setShowExportModal(true)}>
+          <Button variant="outline" size="sm" className="sm:hidden" onClick={() => setShowExportModal(true)}>
+            <Download className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="sm" className="hidden sm:flex" onClick={() => setShowExportModal(true)}>
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
@@ -139,21 +142,21 @@ export function TransactionsList({ transactions, onRefresh }: TransactionsListPr
             placeholder="Search transactions..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
+            className="pl-9 h-10 sm:h-11"
           />
         </div>
       </div>
 
       {filteredTransactions.length === 0 ? (
-        <div className="text-center py-12">
-          <AlertCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-lg font-medium mb-2">No transactions found</h3>
-          <p className="text-muted-foreground">
+        <div className="text-center py-8 sm:py-12">
+          <AlertCircle className="h-10 w-10 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-muted-foreground" />
+          <h3 className="text-base sm:text-lg font-medium mb-2">No transactions found</h3>
+          <p className="text-sm text-muted-foreground">
             {searchQuery ? "Try adjusting your search" : "Your transactions will appear here"}
           </p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           {filteredTransactions.map((transaction) => {
             // Replace "Admin" with "Deposit" anywhere in description
             let cleanDescription = transaction.description;
@@ -164,25 +167,27 @@ export function TransactionsList({ transactions, onRefresh }: TransactionsListPr
             return (
               <div
                 key={transaction.id}
-                className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
+                className="flex items-center justify-between p-3 sm:p-4 rounded-lg border hover:bg-muted/50 transition-all cursor-pointer card-interactive active:scale-[0.98]"
                 onClick={() => handleTransactionClick(transaction)}
               >
-                <div className="flex items-center gap-4">
-                  {getTransactionIcon(transaction.type)}
-                  <div>
-                    <p className="font-medium capitalize">{cleanDescription}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <p className="text-sm text-muted-foreground">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                  <div className="shrink-0">
+                    {getTransactionIcon(transaction.type)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium capitalize text-sm sm:text-base truncate">{cleanDescription}</p>
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      <p className="text-xs sm:text-sm text-muted-foreground">
                         {new Date(transaction.created_at).toLocaleDateString('en-US', {
                           month: 'short',
                           day: 'numeric',
-                          year: 'numeric'
+                          year: window.innerWidth < 640 ? undefined : 'numeric'
                         })}
                       </p>
                       {transaction.category && (
                         <>
-                          <span className="text-muted-foreground">•</span>
-                          <span className="text-sm text-muted-foreground capitalize">
+                          <span className="text-muted-foreground hidden sm:inline">•</span>
+                          <span className="text-xs sm:text-sm text-muted-foreground capitalize hidden sm:inline">
                             {transaction.category}
                           </span>
                         </>
@@ -191,8 +196,8 @@ export function TransactionsList({ transactions, onRefresh }: TransactionsListPr
                   </div>
                 </div>
 
-                <div className="text-right">
-                  <p className={`font-semibold ${
+                <div className="text-right shrink-0 ml-2">
+                  <p className={`font-semibold text-sm sm:text-base ${
                     transaction.type === 'credit' || transaction.type === 'deposit'
                       ? 'text-green-600 dark:text-green-400'
                       : 'text-red-600 dark:text-red-400'
