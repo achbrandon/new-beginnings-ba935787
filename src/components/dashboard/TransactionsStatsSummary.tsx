@@ -79,16 +79,24 @@ export function TransactionsStatsSummary({ transactions }: TransactionsStatsSumm
       >
         <span className="text-sm font-medium">Transaction Statistics</span>
         {isCollapsed ? (
-          <ChevronDown className="h-4 w-4" />
+          <ChevronDown className="h-4 w-4 transition-transform duration-300" />
         ) : (
-          <ChevronUp className="h-4 w-4" />
+          <ChevronUp className="h-4 w-4 transition-transform duration-300" />
         )}
       </Button>
 
       {/* Stats Cards */}
-      <div className={`grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4 transition-all duration-300 ${
-        isCollapsed ? 'hidden sm:grid' : 'grid'
-      }`}>
+      <div 
+        className={`grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4 overflow-hidden transition-all duration-500 ease-in-out sm:!max-h-none sm:!opacity-100 ${
+          isCollapsed 
+            ? 'max-h-0 opacity-0 sm:max-h-none sm:opacity-100' 
+            : 'max-h-[500px] opacity-100'
+        }`}
+        style={{
+          transform: isCollapsed ? 'translateY(-10px)' : 'translateY(0)',
+          transition: 'max-height 0.5s ease-in-out, opacity 0.5s ease-in-out, transform 0.5s ease-in-out'
+        }}
+      >
       {/* Income Card */}
       <Card className="p-3 sm:p-5 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/10 border-green-200 dark:border-green-900/30 hover:shadow-md transition-all animate-scale-in" style={{ animationDelay: '0ms' }}>
         <div className="flex items-start justify-between">
