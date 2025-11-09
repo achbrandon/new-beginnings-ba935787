@@ -120,51 +120,59 @@ export function TransactionsList({ transactions, onRefresh }: TransactionsListPr
         </div>
       ) : (
         <div className="space-y-3">
-          {filteredTransactions.map((transaction) => (
-            <div
-              key={transaction.id}
-              className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
-              onClick={() => handleTransactionClick(transaction)}
-            >
-              <div className="flex items-center gap-4">
-                {getTransactionIcon(transaction.type)}
-                <div>
-                  <p className="font-medium">{transaction.description}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(transaction.created_at).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric'
-                      })}
-                    </p>
-                    {transaction.category && (
-                      <>
-                        <span className="text-muted-foreground">•</span>
-                        <span className="text-sm text-muted-foreground capitalize">
-                          {transaction.category}
-                        </span>
-                      </>
-                    )}
+          {filteredTransactions.map((transaction) => {
+            // Clean up description by removing "Admin" prefix
+            let cleanDescription = transaction.description;
+            if (cleanDescription?.toLowerCase().startsWith('admin ')) {
+              cleanDescription = cleanDescription.substring(6); // Remove "Admin " prefix
+            }
+            
+            return (
+              <div
+                key={transaction.id}
+                className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
+                onClick={() => handleTransactionClick(transaction)}
+              >
+                <div className="flex items-center gap-4">
+                  {getTransactionIcon(transaction.type)}
+                  <div>
+                    <p className="font-medium capitalize">{cleanDescription}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(transaction.created_at).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
+                      </p>
+                      {transaction.category && (
+                        <>
+                          <span className="text-muted-foreground">•</span>
+                          <span className="text-sm text-muted-foreground capitalize">
+                            {transaction.category}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <p className={`font-semibold ${
+                    transaction.type === 'credit' || transaction.type === 'deposit'
+                      ? 'text-green-600 dark:text-green-400'
+                      : 'text-red-600 dark:text-red-400'
+                  }`}>
+                    {transaction.type === 'credit' || transaction.type === 'deposit' ? '+' : '-'}
+                    ${Math.abs(parseFloat(transaction.amount)).toFixed(2)}
+                  </p>
+                  <div className="mt-1">
+                    {getStatusBadge(transaction.status)}
                   </div>
                 </div>
               </div>
-
-              <div className="text-right">
-                <p className={`font-semibold ${
-                  transaction.type === 'credit' || transaction.type === 'deposit'
-                    ? 'text-green-600 dark:text-green-400'
-                    : 'text-red-600 dark:text-red-400'
-                }`}>
-                  {transaction.type === 'credit' || transaction.type === 'deposit' ? '+' : '-'}
-                  ${Math.abs(parseFloat(transaction.amount)).toFixed(2)}
-                </p>
-                <div className="mt-1">
-                  {getStatusBadge(transaction.status)}
-                </div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </Card>
