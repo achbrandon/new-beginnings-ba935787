@@ -44,6 +44,11 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const typingSoundRef = useRef<HTMLAudioElement | null>(null);
   
+  // Swipe gesture state
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [swipeDistance, setSwipeDistance] = useState(0);
+  
   // Connection status monitoring
   const { status: connectionStatus, isConnected, reconnect: reconnectChannel, lastConnected } = useConnectionStatus(channelRef.current);
 
@@ -632,10 +637,66 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
     }
   };
 
+  // Swipe gesture handlers
+  const minSwipeDistance = 100; // Minimum distance for a valid swipe
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientY);
+    setSwipeDistance(0);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStart) return;
+    
+    const currentTouch = e.targetTouches[0].clientY;
+    const distance = currentTouch - touchStart;
+    
+    // Only track downward swipes
+    if (distance > 0) {
+      setSwipeDistance(distance);
+      setTouchEnd(currentTouch);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) {
+      setSwipeDistance(0);
+      return;
+    }
+    
+    const distance = touchEnd - touchStart;
+    const isDownSwipe = distance > minSwipeDistance;
+    
+    if (isDownSwipe) {
+      console.log('Swipe down detected, closing chat');
+      onClose();
+    }
+    
+    // Reset states
+    setTouchStart(null);
+    setTouchEnd(null);
+    setSwipeDistance(0);
+  };
+
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-4xl h-[85vh] flex flex-col p-0" onInteractOutside={(e) => e.preventDefault()}>
-        <DialogHeader className="p-6 pb-4 border-b bg-gradient-to-r from-primary/5 to-primary/10">
+      <DialogContent 
+        className="sm:max-w-4xl h-[85vh] flex flex-col p-0 transition-transform duration-200" 
+        onInteractOutside={(e) => e.preventDefault()}
+        style={{
+          transform: swipeDistance > 0 ? `translateY(${Math.min(swipeDistance, 200)}px)` : 'translateY(0)',
+          opacity: swipeDistance > 0 ? Math.max(1 - swipeDistance / 300, 0.5) : 1
+        }}
+      >
+        <DialogHeader 
+          className="p-6 pb-4 border-b bg-gradient-to-r from-primary/5 to-primary/10 cursor-grab active:cursor-grabbing touch-none"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* Swipe indicator - only visible on mobile */}
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1 bg-muted-foreground/30 rounded-full sm:hidden" />
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <MessageSquare className="h-6 w-6 text-primary" />
