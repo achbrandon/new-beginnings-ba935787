@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -682,26 +682,20 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent 
-        className="w-[100vw] h-[100vh] sm:w-auto sm:h-[85vh] sm:max-w-4xl max-w-none flex flex-col p-0 transition-transform duration-200 m-0 sm:m-4" 
+        className="max-w-[95vw] w-full sm:max-w-4xl h-[90vh] sm:h-[85vh] flex flex-col p-0 gap-0" 
         onInteractOutside={(e) => e.preventDefault()}
-        style={{
-          transform: swipeDistance > 0 ? `translateY(${Math.min(swipeDistance, 200)}px)` : 'translateY(0)',
-          opacity: swipeDistance > 0 ? Math.max(1 - swipeDistance / 300, 0.5) : 1
-        }}
       >
         <DialogHeader 
-          className="p-6 pb-4 border-b bg-gradient-to-r from-primary/5 to-primary/10 cursor-grab active:cursor-grabbing touch-none"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
+          className="p-6 pb-4 border-b bg-gradient-to-r from-primary/5 to-primary/10"
         >
-          {/* Swipe indicator - only visible on mobile */}
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-1 bg-muted-foreground/30 rounded-full sm:hidden" />
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <MessageSquare className="h-6 w-6 text-primary" />
               <div>
                 <DialogTitle className="text-lg">VaultBank Support</DialogTitle>
+                <DialogDescription className="sr-only">
+                  Chat with our support team to get help with your account
+                </DialogDescription>
                  <div className="flex items-center gap-2 mt-1">
                    <Badge variant={agentOnline ? "default" : "secondary"} className="text-xs">
                      {ticket?.chat_mode === 'connecting' ? "Connecting to agent..." :
