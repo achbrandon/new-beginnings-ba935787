@@ -634,7 +634,7 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-4xl h-[85vh] flex flex-col p-0">
+      <DialogContent className="sm:max-w-4xl h-[85vh] flex flex-col p-0" onInteractOutside={(e) => e.preventDefault()}>
         <DialogHeader className="p-6 pb-4 border-b bg-gradient-to-r from-primary/5 to-primary/10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -659,16 +659,21 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
                 size="icon"
                 onClick={() => setShowHistory(!showHistory)}
                 title="View chat history"
+                className="touch-manipulation"
               >
                 <History className="h-4 w-4" />
               </Button>
               <Button 
                 variant="ghost" 
                 size="icon" 
-                onClick={onClose}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClose();
+                }}
                 title="Close chat"
+                className="touch-manipulation min-w-[44px] min-h-[44px]"
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </Button>
             </div>
           </div>
@@ -905,7 +910,11 @@ export function EnhancedSupportChat({ userId, onClose }: EnhancedSupportChatProp
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={handleCloseTicket}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCloseTicket();
+                  }}
+                  className="touch-manipulation"
                 >
                   Close Chat
                 </Button>
