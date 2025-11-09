@@ -248,6 +248,15 @@ export const BalanceHistoryChart = () => {
     }).format(value);
   };
 
+  const formatCompactCurrency = (value: number) => {
+    if (value >= 1000000) {
+      return `$${(value / 1000000).toFixed(1)}M`;
+    } else if (value >= 1000) {
+      return `$${(value / 1000).toFixed(0)}K`;
+    }
+    return `$${value.toFixed(0)}`;
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -312,7 +321,11 @@ export const BalanceHistoryChart = () => {
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={chartData} onClick={handlePointClick}>
+            <LineChart 
+              data={chartData} 
+              onClick={handlePointClick}
+              margin={{ top: 5, right: 10, left: 10, bottom: 5 }}
+            >
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis 
                 dataKey="date" 
@@ -320,9 +333,10 @@ export const BalanceHistoryChart = () => {
                 tick={{ fill: 'hsl(var(--foreground))' }}
               />
               <YAxis 
-                tickFormatter={formatCurrency}
+                tickFormatter={formatCompactCurrency}
                 className="text-xs"
                 tick={{ fill: 'hsl(var(--foreground))' }}
+                width={60}
               />
               <Tooltip 
                 formatter={(value: number) => formatCurrency(value)}
