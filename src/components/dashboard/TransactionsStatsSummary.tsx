@@ -101,10 +101,10 @@ export function TransactionsStatsSummary({ transactions }: TransactionsStatsSumm
 
       {/* Stats Cards */}
       <div 
-        className={`grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4 overflow-hidden transition-all duration-500 ease-in-out sm:!max-h-none sm:!opacity-100 ${
+        className={`grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 overflow-hidden transition-all duration-500 ease-in-out sm:!max-h-none sm:!opacity-100 ${
           isCollapsed 
             ? 'max-h-0 opacity-0 sm:max-h-none sm:opacity-100' 
-            : 'max-h-[500px] opacity-100'
+            : 'max-h-[600px] opacity-100'
         }`}
         style={{
           transform: isCollapsed ? 'translateY(-10px)' : 'translateY(0)',
@@ -112,21 +112,21 @@ export function TransactionsStatsSummary({ transactions }: TransactionsStatsSumm
         }}
       >
       {/* Income Card */}
-      <Card className="p-3 sm:p-5 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/10 border-green-200 dark:border-green-900/30 hover:shadow-md transition-all animate-scale-in" style={{ animationDelay: '0ms' }}>
-        <div className="flex items-start justify-between">
-          <div className="flex-1 min-w-0 overflow-hidden">
-            <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
-              <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0">
-                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 dark:text-green-400" />
-              </div>
-              <p className="text-xs sm:text-sm font-medium text-muted-foreground truncate">Income</p>
+      <Card className="p-4 sm:p-5 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/10 border-green-200 dark:border-green-900/30 hover:shadow-md transition-all animate-scale-in" style={{ animationDelay: '0ms' }}>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0">
+              <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-600 dark:text-green-400" />
             </div>
-            <p className="text-lg sm:text-2xl font-bold text-green-700 dark:text-green-400 mt-1.5 sm:mt-2 break-words">
+            <p className="text-sm sm:text-sm font-medium text-muted-foreground">Income</p>
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="text-2xl sm:text-2xl font-bold text-green-700 dark:text-green-400 leading-tight">
               {formatCurrency(animatedIncome)}
             </p>
-            <div className="flex items-center gap-1 mt-1.5 sm:mt-2">
+            <div className="flex items-center gap-1">
               <ArrowUpRight className="h-3 w-3 text-green-600 dark:text-green-500 shrink-0" />
-              <p className="text-xs text-green-600 dark:text-green-500 font-medium truncate">
+              <p className="text-xs text-green-600 dark:text-green-500 font-medium">
                 {transactions.filter(t => t.type === 'credit' || t.type === 'deposit').length} transactions
               </p>
             </div>
@@ -135,21 +135,21 @@ export function TransactionsStatsSummary({ transactions }: TransactionsStatsSumm
       </Card>
 
       {/* Expenses Card */}
-      <Card className="p-3 sm:p-5 bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/10 border-red-200 dark:border-red-900/30 hover:shadow-md transition-all animate-scale-in" style={{ animationDelay: '100ms' }}>
-        <div className="flex items-start justify-between">
-          <div className="flex-1 min-w-0 overflow-hidden">
-            <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
-              <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0">
-                <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-red-600 dark:text-red-400" />
-              </div>
-              <p className="text-xs sm:text-sm font-medium text-muted-foreground truncate">Expenses</p>
+      <Card className="p-4 sm:p-5 bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/10 border-red-200 dark:border-red-900/30 hover:shadow-md transition-all animate-scale-in" style={{ animationDelay: '100ms' }}>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0">
+              <TrendingDown className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-red-600 dark:text-red-400" />
             </div>
-            <p className="text-lg sm:text-2xl font-bold text-red-700 dark:text-red-400 mt-1.5 sm:mt-2 break-words">
+            <p className="text-sm sm:text-sm font-medium text-muted-foreground">Expenses</p>
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className="text-2xl sm:text-2xl font-bold text-red-700 dark:text-red-400 leading-tight">
               {formatCurrency(animatedExpenses)}
             </p>
-            <div className="flex items-center gap-1 mt-1.5 sm:mt-2">
+            <div className="flex items-center gap-1">
               <ArrowDownRight className="h-3 w-3 text-red-600 dark:text-red-500 shrink-0" />
-              <p className="text-xs text-red-600 dark:text-red-500 font-medium truncate">
+              <p className="text-xs text-red-600 dark:text-red-500 font-medium">
                 {transactions.filter(t => t.type !== 'credit' && t.type !== 'deposit').length} transactions
               </p>
             </div>
@@ -158,41 +158,41 @@ export function TransactionsStatsSummary({ transactions }: TransactionsStatsSumm
       </Card>
 
       {/* Net Change Card */}
-      <Card className={`p-3 sm:p-5 ${
+      <Card className={`p-4 sm:p-5 ${
         isPositive 
           ? 'bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/10 border-blue-200 dark:border-blue-900/30' 
           : 'bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/10 border-orange-200 dark:border-orange-900/30'
       } hover:shadow-md transition-all animate-scale-in`} style={{ animationDelay: '200ms' }}>
-        <div className="flex items-start justify-between">
-          <div className="flex-1 min-w-0 overflow-hidden">
-            <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
-              <div className={`h-6 w-6 sm:h-8 sm:w-8 rounded-full ${
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <div className={`h-7 w-7 sm:h-8 sm:w-8 rounded-full ${
+              isPositive 
+                ? 'bg-blue-100 dark:bg-blue-900/30' 
+                : 'bg-orange-100 dark:bg-orange-900/30'
+            } flex items-center justify-center shrink-0`}>
+              <DollarSign className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${
                 isPositive 
-                  ? 'bg-blue-100 dark:bg-blue-900/30' 
-                  : 'bg-orange-100 dark:bg-orange-900/30'
-              } flex items-center justify-center shrink-0`}>
-                <DollarSign className={`h-3 w-3 sm:h-4 sm:w-4 ${
-                  isPositive 
-                    ? 'text-blue-600 dark:text-blue-400' 
-                    : 'text-orange-600 dark:text-orange-400'
-                }`} />
-              </div>
-              <p className="text-xs sm:text-sm font-medium text-muted-foreground truncate">Net Change</p>
+                  ? 'text-blue-600 dark:text-blue-400' 
+                  : 'text-orange-600 dark:text-orange-400'
+              }`} />
             </div>
-            <p className={`text-lg sm:text-2xl font-bold mt-1.5 sm:mt-2 break-words ${
+            <p className="text-sm sm:text-sm font-medium text-muted-foreground">Net Change</p>
+          </div>
+          <div className="flex flex-col gap-1">
+            <p className={`text-2xl sm:text-2xl font-bold leading-tight ${
               isPositive 
                 ? 'text-blue-700 dark:text-blue-400' 
                 : 'text-orange-700 dark:text-orange-400'
             }`}>
               {isPositive ? '+' : ''}{formatCurrency(animatedNetChange)}
             </p>
-            <div className="flex items-center gap-1 mt-1.5 sm:mt-2">
+            <div className="flex items-center gap-1">
               {isPositive ? (
                 <TrendingUp className="h-3 w-3 text-blue-600 dark:text-blue-500 shrink-0" />
               ) : (
                 <TrendingDown className="h-3 w-3 text-orange-600 dark:text-orange-500 shrink-0" />
               )}
-              <p className={`text-xs font-medium truncate ${
+              <p className={`text-xs font-medium ${
                 isPositive 
                   ? 'text-blue-600 dark:text-blue-500' 
                   : 'text-orange-600 dark:text-orange-500'
