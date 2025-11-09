@@ -47,7 +47,7 @@ export function AdminNotifications() {
     try {
       const { data, error } = await supabase
         .from("admin_notifications")
-        .select("*, profiles(full_name, email)")
+        .select("*")
         .order("created_at", { ascending: false })
         .limit(10);
 
@@ -126,9 +126,6 @@ export function AdminNotifications() {
                   )}
                 </div>
                 <p className="text-sm text-muted-foreground">{notification.message}</p>
-                <p className="text-xs text-muted-foreground">
-                  {notification.profiles?.email}
-                </p>
                 <p className="text-xs text-muted-foreground">
                   {new Date(notification.created_at).toLocaleString()}
                 </p>

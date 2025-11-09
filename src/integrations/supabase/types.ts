@@ -254,20 +254,31 @@ export type Database = {
           id: string
           is_read: boolean | null
           message: string | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string | null
           id?: string
           is_read?: boolean | null
           message?: string | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string | null
           id?: string
           is_read?: boolean | null
           message?: string | null
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "admin_notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       admin_settings: {
         Row: {
