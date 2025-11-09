@@ -1,12 +1,24 @@
 import { Card } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, DollarSign, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { TrendingUp, TrendingDown, DollarSign, ArrowUpRight, ArrowDownRight, ChevronDown, ChevronUp } from "lucide-react";
 import { useCountUp } from "@/hooks/useCountUp";
+import { useState, useEffect } from "react";
 
 interface TransactionsStatsSummaryProps {
   transactions: any[];
 }
 
 export function TransactionsStatsSummary({ transactions }: TransactionsStatsSummaryProps) {
+  // Collapse state - persist in localStorage
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    const saved = localStorage.getItem('statsCollapsed');
+    return saved === 'true';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('statsCollapsed', isCollapsed.toString());
+  }, [isCollapsed]);
+
   // Calculate statistics
   const stats = transactions.reduce(
     (acc, transaction) => {
@@ -57,7 +69,26 @@ export function TransactionsStatsSummary({ transactions }: TransactionsStatsSumm
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4 mb-3 sm:mb-6">
+    <div className="mb-3 sm:mb-6">
+      {/* Toggle Button - Mobile Only */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="w-full flex items-center justify-between mb-2 sm:hidden hover:bg-accent/50"
+      >
+        <span className="text-sm font-medium">Transaction Statistics</span>
+        {isCollapsed ? (
+          <ChevronDown className="h-4 w-4" />
+        ) : (
+          <ChevronUp className="h-4 w-4" />
+        )}
+      </Button>
+
+      {/* Stats Cards */}
+      <div className={`grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4 transition-all duration-300 ${
+        isCollapsed ? 'hidden sm:grid' : 'grid'
+      }`}>
       {/* Income Card */}
       <Card className="p-3 sm:p-5 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/10 border-green-200 dark:border-green-900/30 hover:shadow-md transition-all animate-scale-in" style={{ animationDelay: '0ms' }}>
         <div className="flex items-start justify-between">
@@ -150,6 +181,7 @@ export function TransactionsStatsSummary({ transactions }: TransactionsStatsSumm
           </div>
         </div>
       </Card>
+      </div>
     </div>
   );
 }
