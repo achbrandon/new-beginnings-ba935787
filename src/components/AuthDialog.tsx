@@ -54,26 +54,10 @@ export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
       }
 
       if (data.user) {
-        // Check if user is admin FIRST - admins bypass all other checks
-        const { data: roleData } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", data.user.id)
-          .eq("role", "admin")
-          .maybeSingle();
-
         // Wait for minimum spinner time before proceeding
         await minSpinnerTime;
 
-        // If admin, redirect to admin panel immediately
-        if (roleData) {
-          toast.success("Welcome, Admin!");
-          onOpenChange(false);
-          navigate("/admin");
-          return;
-        }
-
-        // For regular users: Check profile verification status
+        // Check profile verification status
         const { data: profile } = await supabase
           .from("profiles")
           .select("qr_verified, email_verified, can_transact, pin")
