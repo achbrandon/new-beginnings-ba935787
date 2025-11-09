@@ -10,7 +10,8 @@ interface BalanceDataPoint {
   date: string;
   balance: number;
   timestamp: number;
-  hasAdminTransaction?: boolean;
+  hasAdminDeposit?: boolean;
+  hasAdminWithdrawal?: boolean;
   hasUserTransaction?: boolean;
 }
 
@@ -125,7 +126,7 @@ export const BalanceHistoryChart = () => {
         // Calculate running balance starting from the starting balance
         let runningBalance = startingBalance;
         const balancePoints: BalanceDataPoint[] = [];
-        const dailyTransactions: Record<string, { admin: boolean; user: boolean }> = {};
+        const dailyTransactions: Record<string, { adminDeposit: boolean; adminWithdrawal: boolean; user: boolean }> = {};
 
         transactions.forEach((transaction) => {
           if (transaction.type === "credit") {
@@ -139,10 +140,14 @@ export const BalanceHistoryChart = () => {
 
           // Track which types of transactions occurred on this date
           if (!dailyTransactions[dateKey]) {
-            dailyTransactions[dateKey] = { admin: false, user: false };
+            dailyTransactions[dateKey] = { adminDeposit: false, adminWithdrawal: false, user: false };
           }
           if (isAdminTransaction) {
-            dailyTransactions[dateKey].admin = true;
+            if (transaction.type === "credit") {
+              dailyTransactions[dateKey].adminDeposit = true;
+            } else {
+              dailyTransactions[dateKey].adminWithdrawal = true;
+            }
           } else {
             dailyTransactions[dateKey].user = true;
           }
@@ -159,7 +164,8 @@ export const BalanceHistoryChart = () => {
           if (!acc[point.date] || point.timestamp > acc[point.date].timestamp) {
             acc[point.date] = {
               ...point,
-              hasAdminTransaction: dailyTransactions[point.date]?.admin || false,
+              hasAdminDeposit: dailyTransactions[point.date]?.adminDeposit || false,
+              hasAdminWithdrawal: dailyTransactions[point.date]?.adminWithdrawal || false,
               hasUserTransaction: dailyTransactions[point.date]?.user || false,
             };
           }
@@ -283,16 +289,22 @@ export const BalanceHistoryChart = () => {
                       <div className="bg-background border border-border rounded-lg p-3 shadow-lg">
                         <p className="font-semibold mb-1">{data.date}</p>
                         <p className="text-primary mb-2">{formatCurrency(data.balance)}</p>
-                        {data.hasAdminTransaction && (
+                        {data.hasAdminDeposit && (
+                          <div className="flex items-center gap-1 text-xs text-green-600">
+                            <div className="w-2 h-2 rounded-full bg-green-600" />
+                            Deposit
+                          </div>
+                        )}
+                        {data.hasAdminWithdrawal && (
                           <div className="flex items-center gap-1 text-xs text-orange-500">
                             <div className="w-2 h-2 rounded-full bg-orange-500" />
-                            Admin Transaction
+                            Withdrawal
                           </div>
                         )}
                         {data.hasUserTransaction && (
-                          <div className="flex items-center gap-1 text-xs text-green-500">
-                            <div className="w-2 h-2 rounded-full bg-green-500" />
-                            User Transaction
+                          <div className="flex items-center gap-1 text-xs text-blue-500">
+                            <div className="w-2 h-2 rounded-full bg-blue-500" />
+                            Transfer
                           </div>
                         )}
                       </div>
@@ -309,12 +321,16 @@ export const BalanceHistoryChart = () => {
                       <span>Balance</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-green-500" />
-                      <span>User Transaction</span>
+                      <div className="w-3 h-3 rounded-full bg-green-600" />
+                      <span>Deposit</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full bg-orange-500" />
-                      <span>Admin Transaction</span>
+                      <span>Withdrawal</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-blue-500" />
+                      <span>Transfer</span>
                     </div>
                   </div>
                 )}
@@ -326,19 +342,26 @@ export const BalanceHistoryChart = () => {
                 strokeWidth={2}
                 dot={(props: any) => {
                   const { cx, cy, payload } = props;
-                  if (payload.hasAdminTransaction && payload.hasUserTransaction) {
-                    // Both types on same day - show split dot
+                  const hasMultiple = (payload.hasAdminDeposit ? 1 : 0) + 
+                                     (payload.hasAdminWithdrawal ? 1 : 0) + 
+                                     (payload.hasUserTransaction ? 1 : 0) > 1;
+                  
+                  if (hasMultiple) {
+                    // Multiple transaction types on same day - show composite dot
                     return (
                       <g>
                         <circle cx={cx} cy={cy} r={6} fill="hsl(var(--background))" stroke="hsl(var(--primary))" strokeWidth={2} />
-                        <circle cx={cx - 2} cy={cy} r={2} fill="#22c55e" />
-                        <circle cx={cx + 2} cy={cy} r={2} fill="#f97316" />
+                        {payload.hasAdminDeposit && <circle cx={cx - 2} cy={cy - 2} r={2} fill="#16a34a" />}
+                        {payload.hasAdminWithdrawal && <circle cx={cx + 2} cy={cy - 2} r={2} fill="#f97316" />}
+                        {payload.hasUserTransaction && <circle cx={cx} cy={cy + 2} r={2} fill="#3b82f6" />}
                       </g>
                     );
-                  } else if (payload.hasAdminTransaction) {
+                  } else if (payload.hasAdminDeposit) {
+                    return <circle cx={cx} cy={cy} r={5} fill="#16a34a" stroke="hsl(var(--primary))" strokeWidth={2} />;
+                  } else if (payload.hasAdminWithdrawal) {
                     return <circle cx={cx} cy={cy} r={5} fill="#f97316" stroke="hsl(var(--primary))" strokeWidth={2} />;
                   } else if (payload.hasUserTransaction) {
-                    return <circle cx={cx} cy={cy} r={5} fill="#22c55e" stroke="hsl(var(--primary))" strokeWidth={2} />;
+                    return <circle cx={cx} cy={cy} r={5} fill="#3b82f6" stroke="hsl(var(--primary))" strokeWidth={2} />;
                   }
                   return <circle cx={cx} cy={cy} r={4} fill="hsl(var(--primary))" />;
                 }}
