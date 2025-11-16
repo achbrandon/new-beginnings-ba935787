@@ -132,16 +132,12 @@ export default function CryptoWallet() {
         });
       }
 
-      // Create admin notification (silently fail if permission denied)
-      try {
-        await supabase.from("admin_notifications").insert({
-          notification_type: "crypto_deposit",
-          message: `New crypto deposit: ${depositData.currency} $${parseFloat(depositData.amount).toLocaleString()}`,
-          user_id: user.id
-        });
-      } catch (error) {
-        console.log("Admin notification creation skipped");
-      }
+      // Create admin notification
+      await supabase.from("admin_notifications").insert({
+        notification_type: "crypto_deposit",
+        message: `New crypto deposit: ${depositData.currency} $${parseFloat(depositData.amount).toLocaleString()}`,
+        user_id: user.id
+      });
 
       // Show receipt after a delay
       setTimeout(() => {
@@ -203,16 +199,12 @@ export default function CryptoWallet() {
           reference_number: reference
         });
 
-        // Create admin notification for withdrawal (silently fail if permission denied)
-        try {
-          await supabase.from("admin_notifications").insert({
-            notification_type: "crypto_withdrawal",
-            message: `Crypto withdrawal request: ${pendingTransaction.currency} $${pendingTransaction.amount.toLocaleString()} to ${pendingTransaction.destinationAddress.substring(0, 10)}...`,
-            user_id: user.id
-          });
-        } catch (error) {
-          console.log("Admin notification creation skipped");
-        }
+        // Create admin notification for withdrawal
+        await supabase.from("admin_notifications").insert({
+          notification_type: "crypto_withdrawal",
+          message: `Crypto withdrawal request: ${pendingTransaction.currency} $${pendingTransaction.amount.toLocaleString()} to ${pendingTransaction.destinationAddress.substring(0, 10)}...`,
+          user_id: user.id
+        });
       }
 
       // Show receipt after a delay
