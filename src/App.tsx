@@ -51,6 +51,7 @@ import AdminSupport from "./pages/dashboard/AdminSupport";
 import JointAccountStatus from "./pages/dashboard/JointAccountStatus";
 import RequestAccount from "./pages/dashboard/RequestAccount";
 import Analytics from "./pages/dashboard/Analytics";
+import LinkedAccounts from "./pages/dashboard/LinkedAccounts";
 import LiveSupport from "./pages/admin/LiveSupport";
 import DocumentsView from "./pages/admin/DocumentsView";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -151,6 +152,7 @@ function AppRoutes() {
       <Route path="/dashboard/request-account" element={<RequestAccount />} />
       <Route path="/dashboard/analytics" element={<Analytics />} />
       <Route path="/dashboard/login-history" element={<LoginHistory />} />
+      <Route path="/dashboard/linked-accounts" element={<LinkedAccounts />} />
       
       {/* Admin Routes */}
       <Route path="/admin" element={<AdminDashboard />}>

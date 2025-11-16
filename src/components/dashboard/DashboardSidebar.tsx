@@ -20,6 +20,7 @@ import {
   BarChart3,
   Shield,
   Users,
+  Link2,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
@@ -43,6 +44,7 @@ const menuItems = [
   { title: "Accounts", url: "/dashboard/accounts", icon: Wallet },
   { title: "Account Details", url: "/dashboard/account-details", icon: FileText },
   { title: "Joint Account Status", url: "/dashboard/joint-account-status", icon: Users },
+  { title: "Linked Payment Accounts", url: "/dashboard/linked-accounts", icon: Link2 },
   { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
   { title: "Transfers", url: "/dashboard/transfers", icon: ArrowLeftRight },
   { title: "Bill Pay", url: "/dashboard/bill-pay", icon: FileText },

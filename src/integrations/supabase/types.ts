@@ -544,6 +544,42 @@ export type Database = {
         }
         Relationships: []
       }
+      external_payment_accounts: {
+        Row: {
+          account_identifier: string
+          account_name: string | null
+          account_type: string
+          created_at: string | null
+          id: string
+          is_verified: boolean | null
+          updated_at: string | null
+          user_id: string
+          verification_status: string | null
+        }
+        Insert: {
+          account_identifier: string
+          account_name?: string | null
+          account_type: string
+          created_at?: string | null
+          id?: string
+          is_verified?: boolean | null
+          updated_at?: string | null
+          user_id: string
+          verification_status?: string | null
+        }
+        Update: {
+          account_identifier?: string
+          account_name?: string | null
+          account_type?: string
+          created_at?: string | null
+          id?: string
+          is_verified?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+          verification_status?: string | null
+        }
+        Relationships: []
+      }
       favorite_transactions: {
         Row: {
           created_at: string | null
