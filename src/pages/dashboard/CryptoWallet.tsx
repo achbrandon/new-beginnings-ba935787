@@ -20,6 +20,7 @@ export default function CryptoWallet() {
   const [profile, setProfile] = useState<any>(null);
   const [wallets, setWallets] = useState<any[]>([]);
   const [accounts, setAccounts] = useState<any[]>([]);
+  const [depositAddresses, setDepositAddresses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showOTP, setShowOTP] = useState(false);
   const [pendingTransaction, setPendingTransaction] = useState<any>(null);
@@ -64,13 +65,15 @@ export default function CryptoWallet() {
 
   const fetchData = async (userId: string) => {
     try {
-      const [walletsRes, accountsRes] = await Promise.all([
+      const [walletsRes, accountsRes, addressesRes] = await Promise.all([
         supabase.from("crypto_wallets").select("*").eq("user_id", userId),
-        supabase.from("accounts").select("*").eq("user_id", userId).eq("status", "active")
+        supabase.from("accounts").select("*").eq("user_id", userId).eq("status", "active"),
+        supabase.from("crypto_deposit_addresses").select("*").eq("is_active", true)
       ]);
 
       if (walletsRes.data) setWallets(walletsRes.data);
       if (accountsRes.data) setAccounts(accountsRes.data);
+      if (addressesRes.data) setDepositAddresses(addressesRes.data);
     } catch (error) {
       console.error("Error fetching data:", error);
       toast.error("Failed to load data");
@@ -310,6 +313,45 @@ export default function CryptoWallet() {
             </TabsList>
 
             <TabsContent value="deposit" className="space-y-4 mt-6">
+              {/* Display Available Deposit Addresses */}
+              {depositAddresses.length > 0 && (
+                <div className="mb-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
+                  <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                    <Wallet className="h-4 w-4" />
+                    Available Deposit Addresses
+                  </h3>
+                  <div className="space-y-3">
+                    {depositAddresses.map((address) => (
+                      <div key={address.id} className="p-3 bg-background rounded-md border">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium text-sm">{address.currency}</span>
+                          <span className="text-xs text-muted-foreground">{address.network}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <code className="flex-1 text-xs bg-muted p-2 rounded break-all">
+                            {address.wallet_address}
+                          </code>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              navigator.clipboard.writeText(address.wallet_address);
+                              toast.success("Address copied to clipboard!");
+                            }}
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Send {address.currency} to this address, then submit proof of payment below
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <form onSubmit={handleDeposit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="currency">Cryptocurrency</Label>
