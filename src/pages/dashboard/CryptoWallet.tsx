@@ -138,7 +138,8 @@ export default function CryptoWallet() {
       if (accounts[0]) {
         // Find the matching VaultBank deposit address for this currency AND network
         const depositAddress = depositAddresses.find(
-          addr => addr.currency === depositData.currency && addr.network === depositData.network
+          addr => addr.currency === depositData.currency && 
+            addr.network.toLowerCase().replace(/[^a-z0-9]/g, '') === depositData.network.toLowerCase().replace(/[^a-z0-9]/g, '')
         );
 
         if (!depositAddress) {
@@ -450,7 +451,8 @@ export default function CryptoWallet() {
                 {/* Display Deposit Address for Selected Currency & Network */}
                 {depositData.currency && depositData.network && (() => {
                   const matchingAddress = depositAddresses.find(
-                    addr => addr.currency === depositData.currency && addr.network === depositData.network
+                    addr => addr.currency === depositData.currency && 
+                      addr.network.toLowerCase().replace(/[^a-z0-9]/g, '') === depositData.network.toLowerCase().replace(/[^a-z0-9]/g, '')
                   );
                   
                   if (matchingAddress) {
