@@ -159,6 +159,13 @@ export default function JointAccountRequests() {
 
   const handleApprove = async (requestId: string) => {
     try {
+      // Get the request details before updating
+      const { data: request } = await supabase
+        .from("joint_account_requests")
+        .select("requester_user_id, partner_full_name")
+        .eq("id", requestId)
+        .single();
+
       const { error } = await supabase
         .from("joint_account_requests")
         .update({ status: "approved", updated_at: new Date().toISOString() })
@@ -166,9 +173,19 @@ export default function JointAccountRequests() {
 
       if (error) throw error;
 
+      // Create notification for the user
+      if (request) {
+        await supabase.from("alerts").insert({
+          user_id: request.requester_user_id,
+          title: "Joint Account Request Approved",
+          message: `Your joint account request with ${request.partner_full_name} has been approved! You can now proceed with the next steps.`,
+          type: "success",
+        });
+      }
+
       toast({
         title: "Request Approved",
-        description: "Joint account request has been approved",
+        description: "Joint account request has been approved and user notified",
       });
 
       fetchRequests();
@@ -183,6 +200,13 @@ export default function JointAccountRequests() {
 
   const handleReject = async (requestId: string) => {
     try {
+      // Get the request details before updating
+      const { data: request } = await supabase
+        .from("joint_account_requests")
+        .select("requester_user_id, partner_full_name")
+        .eq("id", requestId)
+        .single();
+
       const { error } = await supabase
         .from("joint_account_requests")
         .update({ status: "rejected", updated_at: new Date().toISOString() })
@@ -190,9 +214,19 @@ export default function JointAccountRequests() {
 
       if (error) throw error;
 
+      // Create notification for the user
+      if (request) {
+        await supabase.from("alerts").insert({
+          user_id: request.requester_user_id,
+          title: "Joint Account Request Rejected",
+          message: `Your joint account request with ${request.partner_full_name} has been rejected. Please contact support for more information.`,
+          type: "error",
+        });
+      }
+
       toast({
         title: "Request Rejected",
-        description: "Joint account request has been rejected",
+        description: "Joint account request has been rejected and user notified",
       });
 
       fetchRequests();

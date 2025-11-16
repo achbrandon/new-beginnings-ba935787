@@ -17,6 +17,7 @@ import { useUserActivity } from "@/hooks/useUserActivity";
 import { useSessionTracking } from "@/hooks/useSessionTracking";
 import logo from "@/assets/vaultbank-logo.png";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import NotificationBar from "@/components/dashboard/NotificationBar";
 
 const Dashboard = () => {
   const [user, setUser] = useState<any>(null);
@@ -208,6 +209,7 @@ const Dashboard = () => {
                 <img src={logo} alt="VaultBank" className="h-8 sm:h-10 lg:h-12" />
               </div>
               <div className="flex items-center gap-2">
+                <NotificationBar />
                 <ThemeToggle />
                 <Button variant="outline" size="sm" className="h-9 sm:h-10 text-xs sm:text-sm" onClick={handleSignOut}>
                   Sign Out
