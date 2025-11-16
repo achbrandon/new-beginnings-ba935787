@@ -45,18 +45,37 @@ export default function TransactionApprovals() {
 
   const fetchTransactions = async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch pending transactions
+      const { data: txData, error: txError } = await supabase
         .from("transactions")
-        .select(`
-          *,
-          profiles:user_id (full_name, email),
-          accounts:account_id (account_number, account_type)
-        `)
+        .select("*")
         .eq("status", "pending")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      setTransactions(data || []);
+      if (txError) throw txError;
+
+      // Fetch user profiles and accounts separately
+      const userIds = [...new Set(txData?.map(tx => tx.user_id) || [])];
+      const accountIds = [...new Set(txData?.map(tx => tx.account_id).filter(Boolean) || [])];
+
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, full_name, email")
+        .in("id", userIds);
+
+      const { data: accounts } = await supabase
+        .from("accounts")
+        .select("id, account_number, account_type")
+        .in("id", accountIds);
+
+      // Merge the data
+      const enrichedTransactions = txData?.map(tx => ({
+        ...tx,
+        profiles: profiles?.find(p => p.id === tx.user_id),
+        accounts: accounts?.find(a => a.id === tx.account_id)
+      })) || [];
+
+      setTransactions(enrichedTransactions);
     } catch (error) {
       console.error("Error fetching transactions:", error);
       toast.error("Failed to load transactions");
