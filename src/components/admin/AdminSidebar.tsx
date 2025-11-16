@@ -11,7 +11,8 @@ import {
   Activity,
   Sliders,
   Shield,
-  Wrench
+  Wrench,
+  UserPlus
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
@@ -51,6 +52,11 @@ const menuItems = [
     title: "Applications",
     url: "/admin/applications",
     icon: FileText,
+  },
+  {
+    title: "Joint Account Requests",
+    url: "/admin/joint-accounts",
+    icon: UserPlus,
   },
   {
     title: "Documents & Verification",

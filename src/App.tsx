@@ -71,6 +71,7 @@ import ActivityLogs from "./pages/admin/ActivityLogs";
 import AuthenticationLogs from "./pages/admin/AuthenticationLogs";
 import LoginHistory from "./pages/dashboard/LoginHistory";
 import AccountRepair from "./pages/admin/AccountRepair";
+import JointAccountRequests from "./pages/admin/JointAccountRequests";
 import { useState } from "react";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 
@@ -152,6 +153,7 @@ function AppRoutes() {
         <Route path="user-management" element={<AdminUserManagement />} />
         <Route path="live-monitoring" element={<AdminLiveMonitoring />} />
         <Route path="applications" element={<AdminApplications />} />
+        <Route path="joint-accounts" element={<JointAccountRequests />} />
         <Route path="documents" element={<DocumentsView />} />
         <Route path="transactions" element={<AdminTransactions />} />
         <Route path="support" element={<AdminSupportPage />} />
