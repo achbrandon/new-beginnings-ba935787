@@ -58,21 +58,21 @@ export function SpendingInsights({ userId, transactions = [] }: SpendingInsights
   const [monthlyChange, setMonthlyChange] = useState(0);
   const [topCategory, setTopCategory] = useState("");
   const [loading, setLoading] = useState(true);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleRefresh = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
 
   useEffect(() => {
     if (userId) {
       console.log("SpendingInsights: Starting analysis for user:", userId);
-      // Use timeout to debounce multiple rapid calls
-      const timer = setTimeout(() => {
-        analyzeTransactions();
-      }, 300);
-      
-      return () => clearTimeout(timer);
+      analyzeTransactions();
     } else {
       console.log("SpendingInsights: No userId provided");
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, refreshTrigger]);
 
   const categorizeTransaction = (description: string, type: string): string => {
     const lowerDesc = description.toLowerCase();
@@ -229,7 +229,7 @@ export function SpendingInsights({ userId, transactions = [] }: SpendingInsights
             </p>
           </div>
           <div className="pt-2">
-            <CategorizeTransactionsButton />
+            <CategorizeTransactionsButton onSuccess={handleRefresh} />
           </div>
         </div>
       </Card>
