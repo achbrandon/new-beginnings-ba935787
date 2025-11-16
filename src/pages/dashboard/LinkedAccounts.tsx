@@ -525,7 +525,11 @@ export default function LinkedAccounts() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setReviewDialogOpen(false)}>
+            <AlertDialogAction onClick={() => {
+              setReviewDialogOpen(false);
+              setOtpModalOpen(false);
+              setAddingNew(false);
+            }}>
               Okay, Got It!
             </AlertDialogAction>
           </AlertDialogFooter>
