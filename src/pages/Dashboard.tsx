@@ -51,8 +51,28 @@ const Dashboard = () => {
           schema: 'public',
           table: 'accounts'
         },
-        () => {
-          fetchData();
+        (payload) => {
+          console.log('Account change detected:', payload);
+          // Update accounts in real-time without full refetch
+          if (payload.eventType === 'UPDATE') {
+            setAccounts(prev => prev.map(acc => 
+              acc.id === payload.new.id ? payload.new : acc
+            ));
+            // Show toast for balance updates
+            const oldAcc = accounts.find(a => a.id === payload.new.id);
+            if (oldAcc && oldAcc.balance !== payload.new.balance) {
+              const diff = parseFloat(payload.new.balance) - parseFloat(oldAcc.balance);
+              const diffText = diff > 0 ? `+$${diff.toFixed(2)}` : `-$${Math.abs(diff).toFixed(2)}`;
+              toast.success(`Balance updated: ${diffText}`, {
+                description: `${payload.new.account_type} account`,
+              });
+            }
+          } else if (payload.eventType === 'INSERT') {
+            setAccounts(prev => [...prev, payload.new]);
+            toast.success('New account added!');
+          } else if (payload.eventType === 'DELETE') {
+            setAccounts(prev => prev.filter(acc => acc.id !== payload.old.id));
+          }
         }
       )
       .subscribe();
