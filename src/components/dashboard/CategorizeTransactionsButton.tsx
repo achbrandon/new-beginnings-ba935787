@@ -4,7 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { RefreshCw, Sparkles } from "lucide-react";
 
-export function CategorizeTransactionsButton() {
+interface CategorizeTransactionsButtonProps {
+  onSuccess?: () => void;
+}
+
+export function CategorizeTransactionsButton({ onSuccess }: CategorizeTransactionsButtonProps) {
   const [loading, setLoading] = useState(false);
 
   const handleCategorize = async () => {
@@ -25,14 +29,16 @@ export function CategorizeTransactionsButton() {
       console.log('Categorization result:', data);
       
       if (data.updated > 0) {
-        toast.success(`Successfully categorized ${data.updated} transactions! Refresh to see insights.`, {
-          duration: 5000
+        toast.success(`Successfully categorized ${data.updated} transactions!`, {
+          duration: 3000
         });
         
-        // Refresh the page to show updated insights
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
+        // Call the onSuccess callback to refresh the insights
+        if (onSuccess) {
+          setTimeout(() => {
+            onSuccess();
+          }, 1000);
+        }
       } else {
         toast.info("All your transactions are already categorized!");
       }
