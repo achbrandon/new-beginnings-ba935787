@@ -599,7 +599,7 @@ export default function CryptoWallet() {
                     required
                   />
                   <p className="text-xs text-muted-foreground">
-                    Enter the wallet address where you want to receive your crypto
+                    Enter your external wallet address where you want to send your crypto
                   </p>
                 </div>
 
