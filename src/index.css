@@ -360,6 +360,22 @@
   background-size: 1000px 100%;
 }
 
+/* Bottom Navigation Animations */
+@keyframes slide-up-nav {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up-nav {
+  animation: slide-up-nav 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 /* Mobile-Optimized Spending Insights */
 @layer utilities {
   .chart-mobile-container {
@@ -373,6 +389,11 @@
   .category-icon-mobile {
     @apply h-10 w-10 rounded-full flex items-center justify-center;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Safe area for iOS notch */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
   @media (max-width: 640px) {

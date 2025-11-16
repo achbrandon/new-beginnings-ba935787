@@ -13,6 +13,7 @@ import { QuickActions } from "@/components/dashboard/QuickActions";
 import { SpendingInsights } from "@/components/dashboard/SpendingInsights";
 import { BalanceHistoryChart } from "@/components/dashboard/BalanceHistoryChart";
 import { EnhancedSupportChat } from "@/components/dashboard/EnhancedSupportChat";
+import { BottomNav } from "@/components/dashboard/BottomNav";
 import { useUserActivity } from "@/hooks/useUserActivity";
 import { useSessionTracking } from "@/hooks/useSessionTracking";
 import { useLoginTracking } from "@/hooks/useLoginTracking";
@@ -220,7 +221,7 @@ const Dashboard = () => {
             </div>
           </header>
 
-          <main className="flex-1 overflow-auto pull-refresh safe-bottom">
+          <main className="flex-1 overflow-auto pull-refresh pb-20 md:pb-0">
             {isDashboardHome ? (
               <div className="mobile-section max-w-7xl mx-auto">
                 <div className="mb-4 sm:mb-6 animate-fade-in">
@@ -330,6 +331,10 @@ const Dashboard = () => {
           </main>
         </div>
       </div>
+      
+      {/* Bottom Navigation - Mobile Only */}
+      <BottomNav />
+      
       {showSupport && user && (
         <EnhancedSupportChat 
           userId={user.id} 
