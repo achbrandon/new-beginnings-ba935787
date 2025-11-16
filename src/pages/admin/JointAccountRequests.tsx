@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { CheckCircle, XCircle, Clock, AlertCircle, Shield, Eye, FileText, Mail, Package } from "lucide-react";
+import { CheckCircle, XCircle, Clock, AlertCircle, Shield, Eye, FileText, Package } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
@@ -52,11 +52,6 @@ export default function JointAccountRequests() {
   const [selectedRequest, setSelectedRequest] = useState<JointAccountRequest | null>(null);
   const [accountDetails, setAccountDetails] = useState<AccountDetails | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
-  const [emailSubject, setEmailSubject] = useState("");
-  const [emailContent, setEmailContent] = useState("");
-  const [trackingNumber, setTrackingNumber] = useState("");
-  const [sendingEmail, setSendingEmail] = useState(false);
 
   useEffect(() => {
     checkAdminAccess();
@@ -160,102 +155,6 @@ export default function JointAccountRequests() {
     setSelectedRequest(request);
     await fetchAccountDetails(request.account_id, request.requester_user_id);
     setDetailsOpen(true);
-  };
-
-  const openEmailDialog = (request: JointAccountRequest) => {
-    setSelectedRequest(request);
-    setEmailSubject("Joint Account Agreement - Action Required");
-    setEmailContent(`Dear ${request.partner_full_name} and account holder,
-
-We are pleased to inform you that your joint account request has been approved.
-
-Important Next Steps:
-1. Both parties must review and sign the joint account agreement
-2. Physical documents will be shipped to your registered addresses
-3. If you applied for a credit card, it will be shipped separately
-4. All signed documents must be scanned and returned to us
-
-Account Details:
-- Account Type: Joint Account
-- Required Deposit: $${request.deposit_amount.toFixed(2)}
-
-Please allow 5-7 business days for document delivery.
-
-Best regards,
-VaultBank Team`);
-    setEmailDialogOpen(true);
-  };
-
-  const handleSendEmail = async () => {
-    if (!selectedRequest || !emailSubject || !emailContent) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all email fields",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setSendingEmail(true);
-    try {
-      const { error } = await supabase.functions.invoke("send-custom-joint-email", {
-        body: {
-          requestId: selectedRequest.id,
-          accountHolderEmail: accountDetails?.user_email,
-          partnerEmail: selectedRequest.partner_email,
-          subject: emailSubject,
-          content: emailContent,
-          trackingNumber: trackingNumber || null,
-        },
-      });
-
-      if (error) throw error;
-
-      // Update request status
-      await supabase
-        .from("joint_account_requests")
-        .update({ 
-          agreement_sent: true,
-          status: 'documents_sent'
-        })
-        .eq("id", selectedRequest.id);
-
-      // Create document records
-      await supabase.from("joint_account_documents").insert([
-        {
-          joint_request_id: selectedRequest.id,
-          document_type: 'agreement_letter',
-          sent_to_email: accountDetails?.user_email,
-          shipped_to_address: selectedRequest.partner_address,
-          status: 'sent',
-          tracking_number: trackingNumber || null,
-        },
-        {
-          joint_request_id: selectedRequest.id,
-          document_type: 'partner_agreement',
-          sent_to_email: selectedRequest.partner_email,
-          shipped_to_address: selectedRequest.partner_address,
-          status: 'sent',
-          tracking_number: trackingNumber || null,
-        },
-      ]);
-
-      toast({
-        title: "Email Sent",
-        description: "Joint account emails sent successfully to both parties",
-      });
-
-      setEmailDialogOpen(false);
-      fetchRequests();
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setSendingEmail(false);
-    }
   };
 
   const handleApprove = async (requestId: string) => {
@@ -445,17 +344,6 @@ VaultBank Team`);
                                 >
                                   <Eye className="w-4 h-4 mr-1" />
                                   Details
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="default"
-                                  onClick={async () => {
-                                    await fetchAccountDetails(request.account_id, request.requester_user_id);
-                                    openEmailDialog(request);
-                                  }}
-                                >
-                                  <Mail className="w-4 h-4 mr-1" />
-                                  Email
                                 </Button>
                                 {request.status === "pending" && (
                                   <>
@@ -663,75 +551,6 @@ VaultBank Team`);
                     </Button>
                   </div>
                 )}
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
-
-        {/* Email Dialog */}
-        <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Send Joint Account Email</DialogTitle>
-              <DialogDescription>
-                Compose and send agreement emails to both parties
-              </DialogDescription>
-            </DialogHeader>
-            
-            {selectedRequest && (
-              <div className="space-y-4">
-                <div className="bg-muted p-4 rounded-lg">
-                  <p className="text-sm"><strong>Account Holder:</strong> {accountDetails?.user_name} ({accountDetails?.user_email})</p>
-                  <p className="text-sm"><strong>Partner:</strong> {selectedRequest.partner_full_name} ({selectedRequest.partner_email})</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="subject">Email Subject</Label>
-                  <Input
-                    id="subject"
-                    value={emailSubject}
-                    onChange={(e) => setEmailSubject(e.target.value)}
-                    placeholder="Enter email subject"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="content">Email Content</Label>
-                  <Textarea
-                    id="content"
-                    value={emailContent}
-                    onChange={(e) => setEmailContent(e.target.value)}
-                    placeholder="Enter email content"
-                    rows={12}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="tracking">Tracking Number (Optional)</Label>
-                  <Input
-                    id="tracking"
-                    value={trackingNumber}
-                    onChange={(e) => setTrackingNumber(e.target.value)}
-                    placeholder="Enter shipping tracking number"
-                  />
-                </div>
-
-                <div className="flex gap-2">
-                  <Button
-                    onClick={handleSendEmail}
-                    disabled={sendingEmail}
-                    className="flex-1"
-                  >
-                    <Mail className="mr-2 h-4 w-4" />
-                    {sendingEmail ? "Sending..." : "Send to Both Parties"}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setEmailDialogOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                </div>
               </div>
             )}
           </DialogContent>
