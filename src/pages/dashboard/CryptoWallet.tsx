@@ -529,8 +529,8 @@ export default function CryptoWallet() {
                           </div>
                           <div className="mt-3 p-3 bg-orange-500/10 border border-orange-500/20 rounded">
                             <p className="text-xs text-orange-600 dark:text-orange-400 font-medium">
-                              ⚠️ CRITICAL: Send only {matchingAddress.currency} to this address via {matchingAddress.network} network. 
-                              Sending other cryptocurrencies or using a different network will result in permanent loss of funds.
+                              ⚠️ CRITICAL: Deposit only {matchingAddress.currency} to this address via {matchingAddress.network} network. 
+                              Depositing other cryptocurrencies or using a different network will result in permanent loss of funds.
                             </p>
                           </div>
                         </div>
