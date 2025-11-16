@@ -196,7 +196,7 @@ export function AddJointHolderDialog({ open, onOpenChange, account, onSuccess }:
         .eq("id", user.id)
         .single();
 
-      await supabase.functions.invoke("send-joint-account-emails", {
+      const { data: emailResponse, error: emailError } = await supabase.functions.invoke("send-joint-account-emails", {
         body: {
           accountHolderEmail: profile?.email || user.email,
           accountHolderName: profile?.full_name || "Account Holder",
@@ -208,6 +208,17 @@ export function AddJointHolderDialog({ open, onOpenChange, account, onSuccess }:
           accountType: account.account_type,
         },
       });
+
+      if (emailError) {
+        console.error("Email sending error:", emailError);
+        toast({
+          title: "Email notification failed",
+          description: "Request created but email notifications could not be sent. Please contact support.",
+          variant: "destructive",
+        });
+      } else {
+        console.log("Emails sent successfully:", emailResponse);
+      }
 
       setStep("success");
     } catch (error: any) {
