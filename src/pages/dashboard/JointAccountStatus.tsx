@@ -9,6 +9,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle, Clock, Package, FileText, Mail } from "lucide-react";
 import { format } from "date-fns";
+import { JointAccountFlowDiagram } from "@/components/dashboard/JointAccountFlowDiagram";
 
 interface JointRequest {
   id: string;
@@ -145,6 +146,8 @@ export default function JointAccountStatus() {
               <p className="text-muted-foreground">Track your joint account requests and documents</p>
             </div>
           </div>
+
+          <JointAccountFlowDiagram />
 
           {requests.length === 0 ? (
             <Card>
