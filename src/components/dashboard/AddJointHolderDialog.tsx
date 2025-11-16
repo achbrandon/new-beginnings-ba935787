@@ -189,6 +189,26 @@ export function AddJointHolderDialog({ open, onOpenChange, account, onSuccess }:
         message: `New joint account holder request from ${formData.partnerFullName}`,
       });
 
+      // Send emails to both parties
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name, email")
+        .eq("id", user.id)
+        .single();
+
+      await supabase.functions.invoke("send-joint-account-emails", {
+        body: {
+          accountHolderEmail: profile?.email || user.email,
+          accountHolderName: profile?.full_name || "Account Holder",
+          partnerEmail: formData.partnerEmail,
+          partnerName: formData.partnerFullName,
+          accountNumber: account.account_number,
+          accountBalance: account.balance,
+          requiredDeposit: requiredDeposit,
+          accountType: account.account_type,
+        },
+      });
+
       setStep("success");
     } catch (error: any) {
       toast({
@@ -440,12 +460,24 @@ export function AddJointHolderDialog({ open, onOpenChange, account, onSuccess }:
               </div>
             </div>
 
+            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-3">
+              <h4 className="font-medium text-sm flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-primary" />
+                Confirmation Emails Sent
+              </h4>
+              <div className="text-xs text-muted-foreground space-y-1 pl-6">
+                <p>✉️ <strong>To you:</strong> Complete terms, conditions, and documentation</p>
+                <p>✉️ <strong>To {formData.partnerFullName}:</strong> Welcome letter with deposit instructions and account terms</p>
+              </div>
+            </div>
+
             <div className="bg-muted/50 rounded-lg p-4 space-y-2 text-sm">
               <p className="font-medium">What happens next?</p>
               <ul className="space-y-1 text-muted-foreground">
-                <li>• Admin will review the request</li>
-                <li>• Partner will be notified to deposit ${requiredDeposit.toFixed(2)}</li>
-                <li>• Account will be activated after deposit confirmation</li>
+                <li>• Both parties have received detailed documentation via email</li>
+                <li>• Admin will review the request within 1-2 business days</li>
+                <li>• {formData.partnerFullName} must deposit ${requiredDeposit.toFixed(2)} to activate</li>
+                <li>• You'll receive confirmation once the account is fully activated</li>
               </ul>
             </div>
 
