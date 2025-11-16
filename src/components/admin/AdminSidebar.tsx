@@ -91,6 +91,11 @@ const menuItems = [
     icon: Bell,
   },
   {
+    title: "Notification History",
+    url: "/admin/notification-history",
+    icon: Bell,
+  },
+  {
     title: "Wallet Settings",
     url: "/admin/wallets",
     icon: Wallet,

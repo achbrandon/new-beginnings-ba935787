@@ -78,6 +78,13 @@ export default function SendNotification() {
 
     setSending(true);
     try {
+      // Get current admin's ID
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("You must be logged in to send notifications");
+        return;
+      }
+
       const recipientIds = sendToAll ? users.map(u => u.id) : selectedUsers;
       
       // Send notifications to all selected users
@@ -86,7 +93,8 @@ export default function SendNotification() {
           userId,
           title: formData.title,
           message: formData.message,
-          type: formData.type
+          type: formData.type,
+          sentByAdminId: user.id
         })
       );
 

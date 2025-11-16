@@ -7,6 +7,7 @@ interface CreateNotificationParams {
   title: string;
   message: string;
   type: NotificationType;
+  sentByAdminId?: string;
 }
 
 /**
@@ -19,6 +20,8 @@ export async function createNotification(params: CreateNotificationParams) {
       title: params.title,
       message: params.message,
       type: params.type,
+      sent_by_admin_id: params.sentByAdminId,
+      sent_at: new Date().toISOString(),
     });
 
     if (error) throw error;
