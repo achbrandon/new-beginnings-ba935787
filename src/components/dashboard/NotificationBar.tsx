@@ -94,11 +94,13 @@ export default function NotificationBar() {
           table: 'alerts'
         },
         (payload) => {
-          console.log('Notification change:', payload);
+          console.log('🔔 Notification change detected:', payload);
           fetchNotifications();
           
           // Show toast for new notifications
           if (payload.eventType === 'INSERT') {
+            console.log('📥 New notification inserted:', payload.new);
+            
             // Determine sound type based on notification type
             const notificationType = payload.new.type || 'general';
             let soundType: 'inheritance' | 'transaction' | 'security' | 'general' = 'general';
@@ -111,6 +113,7 @@ export default function NotificationBar() {
               soundType = 'security';
             }
             
+            console.log(`🔊 Playing ${soundType} sound for notification type: ${notificationType}`);
             playSound(soundType);
             
             toast({
@@ -125,7 +128,7 @@ export default function NotificationBar() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [playSound, toast]);
 
   const fetchNotifications = async () => {
     try {
