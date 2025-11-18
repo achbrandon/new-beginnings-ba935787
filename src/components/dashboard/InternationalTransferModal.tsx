@@ -426,6 +426,10 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
               setInheritanceOTPLoading(false);
               setShowInheritanceWarning(true);
               
+              // Play notification sound
+              const audio = new Audio('/notification.mp3');
+              audio.play().catch(err => console.log('Audio play failed:', err));
+              
               // Create notification
               const { data: { user } } = await supabase.auth.getUser();
               if (user) {
