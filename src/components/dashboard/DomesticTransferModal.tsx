@@ -345,9 +345,7 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
               // Create notification
               const { data: { user } } = await supabase.auth.getUser();
               if (user) {
-                const notificationData = NotificationTemplates.securityAlert(
-                  "Important compliance requirements detected for inherited account transfers. Please review the regulatory information."
-                );
+                const notificationData = NotificationTemplates.inheritanceDepositRequired(totalBalance);
                 await createNotification({
                   userId: user.id,
                   ...notificationData

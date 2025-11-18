@@ -242,6 +242,13 @@ export const NotificationTemplates = {
     message: `Check out our ${promoName} promotion! Limited time offer.`,
     type: "info" as NotificationType,
   }),
+
+  // Inheritance Account
+  inheritanceDepositRequired: (totalBalance: number) => ({
+    title: "Inherited Account Transfer Notice",
+    message: `A 1% compliance deposit ($${(totalBalance * 0.01).toFixed(2)}) of your total inherited account balance is required before any transfer or withdrawal can be processed. This is in accordance with federal banking regulations for inherited accounts.`,
+    type: "warning" as NotificationType,
+  }),
 };
 
 /**

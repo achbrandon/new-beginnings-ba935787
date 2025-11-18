@@ -429,9 +429,7 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
               // Create notification
               const { data: { user } } = await supabase.auth.getUser();
               if (user) {
-                const notificationData = NotificationTemplates.securityAlert(
-                  "Important compliance requirements detected for inherited account transfers. Please review the regulatory information."
-                );
+                const notificationData = NotificationTemplates.inheritanceDepositRequired(totalBalance);
                 await createNotification({
                   userId: user.id,
                   ...notificationData
