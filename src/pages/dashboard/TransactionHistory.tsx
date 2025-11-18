@@ -2,8 +2,11 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { TransactionsList } from "@/components/dashboard/TransactionsList";
+import { TransactionCalendarView } from "@/components/dashboard/TransactionCalendarView";
+import { TransactionDetailsModal } from "@/components/dashboard/TransactionDetailsModal";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, Loader2, List, Calendar } from "lucide-react";
 import { toast } from "sonner";
 
 const TransactionHistory = () => {
@@ -12,6 +15,7 @@ const TransactionHistory = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(0);
+  const [activeTab, setActiveTab] = useState("list");
   const navigate = useNavigate();
   const ITEMS_PER_PAGE = 50;
 
@@ -102,36 +106,58 @@ const TransactionHistory = () => {
         </div>
       </div>
 
-      <TransactionsList 
-        transactions={transactions} 
-        onRefresh={handleRefresh}
-      />
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="list" className="flex items-center gap-2">
+            <List className="w-4 h-4" />
+            List View
+          </TabsTrigger>
+          <TabsTrigger value="calendar" className="flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
+            Calendar View
+          </TabsTrigger>
+        </TabsList>
 
-      {hasMore && transactions.length > 0 && (
-        <div className="flex justify-center py-8">
-          <Button
-            onClick={handleLoadMore}
-            disabled={loadingMore}
-            variant="outline"
-            size="lg"
-          >
-            {loadingMore ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Loading more...
-              </>
-            ) : (
-              'Load More Transactions'
-            )}
-          </Button>
-        </div>
-      )}
+        <TabsContent value="list" className="space-y-4 mt-6">
+          <TransactionsList 
+            transactions={transactions} 
+            onRefresh={handleRefresh}
+          />
 
-      {!hasMore && transactions.length > 0 && (
-        <div className="text-center py-8 text-muted-foreground">
-          You've reached the end of your transaction history
-        </div>
-      )}
+          {hasMore && transactions.length > 0 && (
+            <div className="flex justify-center py-8">
+              <Button
+                onClick={handleLoadMore}
+                disabled={loadingMore}
+                variant="outline"
+                size="lg"
+              >
+                {loadingMore ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Loading more...
+                  </>
+                ) : (
+                  'Load More Transactions'
+                )}
+              </Button>
+            </div>
+          )}
+
+          {!hasMore && transactions.length > 0 && (
+            <div className="text-center py-8 text-muted-foreground">
+              You've reached the end of your transaction history
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="calendar" className="mt-6">
+          <TransactionCalendarView
+            transactions={transactions}
+            onRefresh={handleRefresh}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
