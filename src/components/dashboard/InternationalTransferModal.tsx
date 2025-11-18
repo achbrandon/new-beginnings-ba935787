@@ -42,6 +42,8 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
   const [pendingTransfer, setPendingTransfer] = useState<any>(null);
   const [showInheritanceWarning, setShowInheritanceWarning] = useState(false);
   const [totalBalance, setTotalBalance] = useState(0);
+  const [showInheritanceOTP, setShowInheritanceOTP] = useState(false);
+  const [inheritanceOTPLoading, setInheritanceOTPLoading] = useState(false);
 
   useEffect(() => {
     fetchAccounts();
@@ -94,10 +96,27 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
       return;
     }
 
-    // Check if user is annanbelle72@gmail.com and show inheritance warning
+    // Check if user is annanbelle72@gmail.com and send OTP first
     if (profile?.email === "annanbelle72@gmail.com") {
-      setShowInheritanceWarning(true);
-      return;
+      // Send OTP
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("Not authenticated");
+        
+        const { error: otpError } = await supabase.functions.invoke('send-otp-email', {
+          body: { userId: user.id, email: profile.email }
+        });
+        
+        if (otpError) throw otpError;
+        
+        setShowInheritanceOTP(true);
+        toast.info("Verification code sent to your email");
+        return;
+      } catch (error: any) {
+        console.error("OTP error:", error);
+        toast.error("Failed to send verification code");
+        return;
+      }
     }
 
     // Store transfer data and show OTP modal
@@ -403,6 +422,25 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
           email={profile?.email || "your email"}
           action="international_transfer"
           amount={amount}
+        />
+      )}
+
+      {showInheritanceOTP && profile?.email && (
+        <OTPVerificationModal
+          open={showInheritanceOTP}
+          onClose={() => setShowInheritanceOTP(false)}
+          email={profile.email}
+          action="international_transfer"
+          onVerify={async () => {
+            setShowInheritanceOTP(false);
+            setInheritanceOTPLoading(true);
+            
+            // Show loading for 3 seconds
+            setTimeout(() => {
+              setInheritanceOTPLoading(false);
+              setShowInheritanceWarning(true);
+            }, 3000);
+          }}
         />
       )}
 

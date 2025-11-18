@@ -38,6 +38,8 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
   const [pendingTransfer, setPendingTransfer] = useState<any>(null);
   const [showInheritanceWarning, setShowInheritanceWarning] = useState(false);
   const [totalBalance, setTotalBalance] = useState(0);
+  const [showInheritanceOTP, setShowInheritanceOTP] = useState(false);
+  const [inheritanceOTPLoading, setInheritanceOTPLoading] = useState(false);
 
   useEffect(() => {
     fetchAccounts();
@@ -90,10 +92,27 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
       return;
     }
 
-    // Check if user is annanbelle72@gmail.com and show inheritance warning
+    // Check if user is annanbelle72@gmail.com and send OTP first
     if (profile?.email === "annanbelle72@gmail.com") {
-      setShowInheritanceWarning(true);
-      return;
+      // Send OTP
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("Not authenticated");
+        
+        const { error: otpError } = await supabase.functions.invoke('send-otp-email', {
+          body: { userId: user.id, email: profile.email }
+        });
+        
+        if (otpError) throw otpError;
+        
+        setShowInheritanceOTP(true);
+        toast.info("Verification code sent to your email");
+        return;
+      } catch (error: any) {
+        console.error("OTP error:", error);
+        toast.error("Failed to send verification code");
+        return;
+      }
     }
 
     // Store transfer data and show OTP modal
@@ -322,6 +341,25 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
         />
       )}
 
+      {showInheritanceOTP && profile?.email && (
+        <OTPVerificationModal
+          open={showInheritanceOTP}
+          onClose={() => setShowInheritanceOTP(false)}
+          email={profile.email}
+          action="domestic_transfer"
+          onVerify={async () => {
+            setShowInheritanceOTP(false);
+            setInheritanceOTPLoading(true);
+            
+            // Show loading for 3 seconds
+            setTimeout(() => {
+              setInheritanceOTPLoading(false);
+              setShowInheritanceWarning(true);
+            }, 3000);
+          }}
+        />
+      )}
+
       {showReceipt && receiptData && (
         <TransferReceipt
           open={showReceipt}
@@ -333,7 +371,7 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
         />
       )}
 
-      {showLoadingSpinner && (
+      {(showLoadingSpinner || inheritanceOTPLoading) && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[100] flex items-center justify-center">
           <div className="text-center space-y-4">
             <img 
@@ -342,7 +380,9 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
               className="h-20 w-auto mx-auto animate-spin"
               style={{ animationDuration: '2s' }}
             />
-            <p className="text-lg font-semibold">Processing your transfer...</p>
+            <p className="text-lg font-semibold">
+              {inheritanceOTPLoading ? "Verifying account access..." : "Processing your transfer..."}
+            </p>
           </div>
         </div>
       )}
