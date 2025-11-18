@@ -65,74 +65,115 @@ serve(async (req) => {
 
     const hasOnlineAgents = onlineAgents && onlineAgents.length > 0;
 
-    const systemPrompt = `You are VaultBank's AI support assistant. Your role is to:
-1. Help customers with banking questions (accounts, transactions, cards, loans)
-2. Provide general banking information including cryptocurrency services
-3. Offer to connect them with a live support agent when needed
+    // Step 1: Detect topic using AI with tool calling
+    const topicDetectionResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${lovableApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a topic classifier for banking support. Analyze the user message and determine which specific banking topic they are asking about.'
+          },
+          { role: 'user', content: message }
+        ],
+        tools: [{
+          type: 'function',
+          function: {
+            name: 'classify_topic',
+            description: 'Classify the banking support topic',
+            parameters: {
+              type: 'object',
+              properties: {
+                topic: {
+                  type: 'string',
+                  enum: ['inheritance', 'joint_account', 'crypto', 'transactions', 'accounts', 'cards', 'loans', 'general'],
+                  description: 'The primary topic of the user question'
+                }
+              },
+              required: ['topic']
+            }
+          }
+        }],
+        tool_choice: { type: 'function', function: { name: 'classify_topic' } }
+      }),
+    });
 
-VaultBank Services:
-- Traditional banking: checking, savings, credit cards, loans
-- Cryptocurrency support: We DO support crypto deposits and withdrawals
-- Crypto withdrawal steps:
-  1. Navigate to Crypto Wallet section in your dashboard
-  2. Select the cryptocurrency you want to withdraw
-  3. Enter the destination wallet address
-  4. Specify the amount to withdraw
-  5. Confirm the transaction and verify via SMS/OTP
-  6. Transaction will be processed within 24-48 hours
-- Supported cryptocurrencies: Bitcoin (BTC), Ethereum (ETH), and other major coins
+    let detectedTopic: 'inheritance' | 'joint_account' | 'crypto' | 'transactions' | 'accounts' | 'cards' | 'loans' | 'general' = 'general';
+    if (topicDetectionResponse.ok) {
+      const topicData = await topicDetectionResponse.json();
+      const toolCall = topicData.choices?.[0]?.message?.tool_calls?.[0];
+      if (toolCall?.function?.arguments) {
+        const args = JSON.parse(toolCall.function.arguments);
+        detectedTopic = args.topic || 'general';
+        console.log('Detected topic:', detectedTopic);
+      }
+    }
 
-JOINT ACCOUNT SYSTEM - CRITICAL INFORMATION:
-**1% Security Deposit Requirement:**
-- YES, the PARTNER being added to a joint account MUST make a 1% security deposit of the current account balance
-- The ORIGINAL account holder does NOT pay any deposit
-- This is NOT a fee - it's a refundable security deposit for identity verification
-- Example: If account has $10,000, partner must deposit $100 (1%)
+    // Step 2: Build focused knowledge base based on detected topic
+    const knowledgeBases = {
+      inheritance: `INHERITANCE TAX ADVISORY (annanbelle72@gmail.com):
+This inherited account has a tax advisory for external transfers. Last expenditure was 3 months ago. The advisory helps protect future beneficiaries from unexpected tax burdens on large external withdrawals and gives opportunity to consult with a tax advisor before proceeding. Keep responses natural and conversational. Do NOT mention joint accounts or other unrelated topics.`,
 
-**Why the 1% deposit is required:**
-1. Identity Verification & Commitment: Validates partner's identity and serious intent
-2. Smart Linking System: The payment method used for deposit (ACH, Cash App, PayPal, Zelle, Venmo, Bitcoin) is automatically linked and verified for instant future withdrawals
-3. Compliance & Security: Creates audit trail for KYC/AML requirements and prevents fraud
-4. Partner Protection: Ensures both parties are equally invested in the account
+      joint_account: `JOINT ACCOUNT SYSTEM:
+Adding a joint holder requires a 1% deposit of current account balance. This is a one-time commitment fee for legal documentation, verification, and compliance showing serious intent from both parties. 
 
-**Accepted Deposit Methods:**
-- ACH Transfer (bank account)
-- Bitcoin Transfer via Cash App
-- PayPal
-- Zelle
-- Venmo
+**Why 1% is required:**
+- Identity verification and commitment validation
+- Payment method linking (ACH, Cash App, PayPal, Zelle, Venmo, Bitcoin) for instant future withdrawals
+- Compliance with banking regulations
+- Fraud prevention
 
-**Post-Approval Benefits:**
-- Unlimited withdrawals to private accounts
-- Instant transfers to the pre-verified payment method used for deposit
-- If deposited via Cash App Bitcoin, can withdraw Bitcoin instantly
-- Full access to account without additional verification steps
+**Process:** Primary holder submits partner details → Partner deposits 1% via chosen method → OTP verification → Document upload → Admin approval → Full account access for both parties.
 
-**Joint Account Process:**
-1. Primary holder submits partner details
-2. Partner makes 1% security deposit via chosen payment method
-3. Partner verifies OTP sent to their email/phone
-4. Both parties upload required documents (ID, proof of address)
-5. Admin reviews and approves
-6. Account is activated with both holders having full access
+Keep it natural and conversational. Do NOT mention inheritance or other unrelated topics.`,
 
-INHERITANCE TAX ADVISORY (annanbelle72@gmail.com):
-This inherited account has a tax advisory for external transfers. Last expenditure was 3 months ago. When asked about inheritance: Explain that the advisory helps protect future beneficiaries from unexpected tax burdens on large external withdrawals and gives opportunity to consult with a tax advisor before proceeding. Focus ONLY on inheritance - do not mention joint accounts or 1% deposits. Keep it natural and conversational.
+      crypto: `CRYPTOCURRENCY SERVICES:
+VaultBank supports crypto deposits and withdrawals.
 
-JOINT ACCOUNT 1% DEPOSIT (separate topic):
-Adding a joint holder requires a 1% deposit of current account balance. It's a one-time commitment fee for legal documentation, verification, and compliance. Both parties get equal access once approved. When asked about this, focus ONLY on joint account setup - do not mention inheritance. Keep it natural and conversational.
+**Withdrawal Steps:**
+1. Navigate to Crypto Wallet in dashboard
+2. Select cryptocurrency (Bitcoin, Ethereum, major coins supported)
+3. Enter destination wallet address
+4. Specify amount
+5. Confirm and verify via SMS/OTP
+6. Processing within 24-48 hours
 
-Always address only the topic the user is asking about. Do not mix these two separate topics together.
+Keep responses focused on crypto topics.`,
+
+      transactions: `TRANSACTIONS & TRANSFERS:
+Help with transaction history, transfers, payments, and account activity. Provide clear guidance on how to view, filter, and manage transactions.`,
+
+      accounts: `ACCOUNT MANAGEMENT:
+Help with account types (checking, savings), account details, balances, and general account operations.`,
+
+      cards: `CARDS & CREDIT:
+Assistance with credit cards, debit cards, card applications, limits, and card management.`,
+
+      loans: `LOANS & LENDING:
+Information about loan applications, loan types, interest rates, and repayment.`,
+
+      general: `GENERAL BANKING SUPPORT:
+VaultBank offers traditional banking (checking, savings, credit cards, loans) and cryptocurrency services. Provide helpful information and offer to connect with live agents for complex issues.`
+    };
+
+    const focusedKnowledge = knowledgeBases[detectedTopic] || knowledgeBases.general;
+
+    const systemPrompt = `You are VaultBank's AI support assistant. 
+
+${focusedKnowledge}
 
 Important guidelines:
-- Be helpful and professional
-- Have a natural conversation - answer their questions fully
-- For general questions, provide complete helpful information
+- Be helpful, professional, and conversational
+- Stay focused on the detected topic: ${detectedTopic}
+- Answer questions fully and naturally
 - For complex or account-specific issues, offer to connect with a live agent
-- If user says "yes", "sure", "connect me", "I want to talk to agent", or similar, that means they want live agent connection
-- ${hasOnlineAgents ? 'Live agents are currently available' : 'Live agents will be available soon'}
+- If user wants to talk to an agent, confirm: ${hasOnlineAgents ? 'Live agents are currently available' : 'Live agents will be available soon'}
 
-Current ticket type: ${ticket?.ticket_type || 'general'}
 Customer name: ${profile?.full_name || 'Customer'}`;
 
     // Call Lovable AI
