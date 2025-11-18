@@ -121,7 +121,7 @@ const TransactionHistory = () => {
             </p>
             {userEmail === "annanbelle72@gmail.com" && (
               <p className="text-sm text-amber-600 dark:text-amber-500 mt-1 font-medium">
-                Last expenditure: 3 months ago (before inheritance)
+                Last expenditure: 1 year ago (before inheritance)
               </p>
             )}
           </div>
