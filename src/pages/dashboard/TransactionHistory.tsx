@@ -102,6 +102,9 @@ const TransactionHistory = () => {
             <p className="text-muted-foreground">
               View all your transactions across all accounts
             </p>
+            <p className="text-sm text-amber-600 dark:text-amber-500 mt-1 font-medium">
+              Last expenditure: 3 months ago (before inheritance)
+            </p>
           </div>
         </div>
       </div>
