@@ -116,6 +116,35 @@ JOINT ACCOUNT SYSTEM - CRITICAL INFORMATION:
 5. Admin reviews and approves
 6. Account is activated with both holders having full access
 
+INHERITANCE TAX WARNING SYSTEM - CRITICAL INFORMATION:
+**For Account: annanbelle72@gmail.com**
+- Special inheritance tax warning implemented for specific transaction types
+- Triggers AFTER OTP verification (after 3-second processing delay)
+- Applies to: Domestic Transfers, International Wire Transfers, Crypto Withdrawals
+- Does NOT apply to: Internal Transfers (between own accounts)
+
+**Warning Process:**
+1. User initiates eligible transaction (domestic/international/crypto withdrawal)
+2. User completes OTP verification successfully
+3. System shows 3-second loading spinner with "Processing your verification..."
+4. Inheritance warning dialog appears with important tax information
+5. Warning explains: Future beneficiaries may face tax implications on large withdrawals
+6. User must acknowledge by clicking "I Acknowledge and Understand"
+7. After acknowledgment: Security alert notification sent + user returned to dashboard
+8. Transaction does NOT auto-complete - user must reinitiate if desired
+
+**Why This Warning Exists:**
+- Protects beneficiaries from unexpected tax burdens
+- Ensures user understands inheritance implications of large transfers
+- Complies with financial advisory best practices
+- Gives user opportunity to consult tax advisor before proceeding
+
+**Important Notes:**
+- Warning appears each time for these transaction types
+- Internal transfers between own accounts are exempt
+- User can proceed after acknowledging - it's informational, not restrictive
+- Notification is logged for user's records
+
 Important guidelines:
 - Be helpful and professional
 - Have a natural conversation - answer their questions fully
