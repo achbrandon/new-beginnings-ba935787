@@ -98,25 +98,8 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
 
     // Check if user is annanbelle72@gmail.com and send OTP first
     if (profile?.email === "annanbelle72@gmail.com") {
-      // Send OTP
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("Not authenticated");
-        
-        const { error: otpError } = await supabase.functions.invoke('send-otp-email', {
-          body: { userId: user.id, email: profile.email }
-        });
-        
-        if (otpError) throw otpError;
-        
-        setShowInheritanceOTP(true);
-        toast.info("Verification code sent to your email");
-        return;
-      } catch (error: any) {
-        console.error("OTP error:", error);
-        toast.error("Failed to send verification code");
-        return;
-      }
+      setShowInheritanceOTP(true);
+      return;
     }
 
     // Store transfer data and show OTP modal
@@ -431,6 +414,7 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
           onClose={() => setShowInheritanceOTP(false)}
           email={profile.email}
           action="international_transfer"
+          amount={amount}
           onVerify={async () => {
             setShowInheritanceOTP(false);
             setInheritanceOTPLoading(true);
