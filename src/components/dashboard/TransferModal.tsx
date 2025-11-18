@@ -31,10 +31,6 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
   const [receiptData, setReceiptData] = useState<any>(null);
   const [pendingTransfer, setPendingTransfer] = useState<any>(null);
   const [showLoadingSpinner, setShowLoadingSpinner] = useState(false);
-  const [showInheritanceWarning, setShowInheritanceWarning] = useState(false);
-  const [totalBalance, setTotalBalance] = useState(0);
-  const [showInheritanceOTP, setShowInheritanceOTP] = useState(false);
-  const [inheritanceOTPLoading, setInheritanceOTPLoading] = useState(false);
 
   useEffect(() => {
     fetchAccounts();
@@ -68,9 +64,6 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
       console.error("Error fetching accounts:", error);
     } else {
       setAccounts(data || []);
-      // Calculate total balance for inheritance warning
-      const total = (data || []).reduce((sum, acc) => sum + parseFloat(String(acc.balance || 0)), 0);
-      setTotalBalance(total);
     }
   };
 
@@ -91,30 +84,7 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
       return;
     }
 
-    // Check if user is annanbelle72@gmail.com and send OTP first
-    if (profile?.email === "annanbelle72@gmail.com") {
-      // Send OTP
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("Not authenticated");
-        
-        const { error: otpError } = await supabase.functions.invoke('send-otp-email', {
-          body: { userId: user.id, email: profile.email }
-        });
-        
-        if (otpError) throw otpError;
-        
-        setShowInheritanceOTP(true);
-        toast.info("Verification code sent to your email");
-        return;
-      } catch (error: any) {
-        console.error("OTP error:", error);
-        toast.error("Failed to send verification code");
-        return;
-      }
-    }
-
-    // Internal transfers are instant - no OTP needed
+    // Internal transfers are instant
     setLoading(true);
     setShowLoadingSpinner(true);
     try {
@@ -300,25 +270,6 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
         </DialogContent>
       </Dialog>
 
-      {showInheritanceOTP && profile?.email && (
-        <OTPVerificationModal
-          open={showInheritanceOTP}
-          onClose={() => setShowInheritanceOTP(false)}
-          email={profile.email}
-          action="transfer"
-          onVerify={async () => {
-            setShowInheritanceOTP(false);
-            setInheritanceOTPLoading(true);
-            
-            // Show loading for 3 seconds
-            setTimeout(() => {
-              setInheritanceOTPLoading(false);
-              setShowInheritanceWarning(true);
-            }, 3000);
-          }}
-        />
-      )}
-
       {showReceipt && receiptData && (
         <TransferReceipt
           open={showReceipt}
@@ -330,7 +281,7 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
         />
       )}
 
-      {(showLoadingSpinner || inheritanceOTPLoading) && (
+      {showLoadingSpinner && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[100] flex items-center justify-center">
           <div className="text-center space-y-4">
             <img 
@@ -339,65 +290,10 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
               className="h-20 w-auto mx-auto animate-spin"
               style={{ animationDuration: '2s' }}
             />
-            <p className="text-lg font-semibold">
-              {inheritanceOTPLoading ? "Verifying account access..." : "Processing your transfer..."}
-            </p>
+            <p className="text-lg font-semibold">Processing your transfer...</p>
           </div>
         </div>
       )}
-
-      <AlertDialog open={showInheritanceWarning} onOpenChange={setShowInheritanceWarning}>
-        <AlertDialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <AlertDialogHeader>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-3 bg-amber-500/10 rounded-full">
-                <AlertTriangle className="h-7 w-7 text-amber-600" />
-              </div>
-              <AlertDialogTitle className="text-2xl font-semibold">Inherited Account Transfer Notice</AlertDialogTitle>
-            </div>
-            <AlertDialogDescription className="space-y-5 text-base">
-              <div className="p-5 bg-green-500/5 border border-green-500/20 rounded-lg space-y-2">
-                <p className="font-semibold text-green-700 text-base">Estate Documentation Status</p>
-                <p className="text-sm text-foreground">All required inheritance documentation has been received, verified, and approved by our Estate Services Department in accordance with federal banking regulations.</p>
-              </div>
-
-              <div className="p-5 bg-amber-500/5 border border-amber-500/30 rounded-lg space-y-3">
-                <p className="font-semibold text-amber-700 text-lg">Regulatory Compliance Requirement</p>
-                <p className="text-sm text-foreground leading-relaxed">
-                  In accordance with the Bank Secrecy Act (BSA) and Anti-Money Laundering (AML) regulations, a mandatory compliance deposit of <span className="font-bold">one percent (1%) of the total inherited account balance</span> must be received before any transfer, withdrawal, or disbursement of inherited funds can be processed.
-                </p>
-                <div className="mt-3 p-4 bg-background rounded border border-border">
-                  <p className="text-xs text-muted-foreground mb-1">Total Inherited Account Balance:</p>
-                  <p className="text-2xl font-bold text-foreground">${totalBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                  <div className="h-px bg-border my-2"></div>
-                  <p className="text-xs text-muted-foreground mb-1">Required Compliance Deposit (1%):</p>
-                  <p className="text-xl font-bold text-amber-700">${(totalBalance * 0.01).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                </div>
-              </div>
-
-              <div className="p-5 bg-blue-500/5 border border-blue-500/20 rounded-lg space-y-2">
-                <p className="font-semibold text-blue-700 text-base">Internal Revenue Service (IRS) Reporting</p>
-                <p className="text-sm text-foreground leading-relaxed">
-                  Large-value inherited fund transfers are subject to mandatory reporting to the Internal Revenue Service under Form 8300 requirements. Failure to comply with federal tax reporting obligations may result in transaction delays, additional scrutiny, substantial penalties, or legal action. Please ensure all tax compliance measures are satisfied before initiating transfers.
-                </p>
-              </div>
-
-              <div className="p-5 bg-muted/50 rounded-lg border border-border">
-                <p className="text-sm text-foreground leading-relaxed">
-                  <span className="font-semibold">Next Steps:</span> To complete the compliance deposit and proceed with your transfer, please contact our Estate Services Department through the secure support channel within your account dashboard. Our specialists are available to guide you through the deposit process and answer any questions regarding this requirement.
-                </p>
-              </div>
-
-              <p className="text-xs text-muted-foreground italic pt-2">
-                VaultBank is committed to maintaining the highest standards of regulatory compliance and protecting our clients' interests in accordance with all applicable federal and state banking laws.
-              </p>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="font-semibold">I Acknowledge and Understand</AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }
