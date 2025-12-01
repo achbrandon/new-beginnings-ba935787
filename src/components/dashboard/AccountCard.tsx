@@ -129,7 +129,7 @@ export function AccountCard({ account, showBalance, onRefresh }: AccountCardProp
           variant="ghost" 
           className="w-full justify-between text-xs sm:text-sm mobile-button hover:bg-primary/5 hover:text-primary transition-colors"
           onClick={() => {
-            navigate(`/dashboard/account-details?id=${account.id}`);
+            navigate(`/bank/dashboard/account-details?id=${account.id}`);
           }}
         >
           View Details
