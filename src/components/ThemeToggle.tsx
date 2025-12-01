@@ -9,7 +9,12 @@ import {
 import { useTheme } from "@/contexts/ThemeContext";
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, isAdminRoute } = useTheme();
+
+  // Only show theme toggle on admin routes
+  if (!isAdminRoute) {
+    return null;
+  }
 
   return (
     <DropdownMenu>
