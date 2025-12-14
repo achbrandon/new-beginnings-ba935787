@@ -14,7 +14,7 @@ import { OTPVerificationModal } from "./OTPVerificationModal";
 import { createNotification, NotificationTemplates } from "@/lib/notifications";
 import bankLogo from "@/assets/vaultbank-logo.png";
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle, AlertDialogFooter, AlertDialogCancel } from "@/components/ui/alert-dialog";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, ShieldAlert, Phone, Mail, MessageSquare } from "lucide-react";
 
 interface DomesticTransferModalProps {
   onClose: () => void;
@@ -44,6 +44,7 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
   const [totalBalance, setTotalBalance] = useState(0);
   const [showInheritanceOTP, setShowInheritanceOTP] = useState(false);
   const [inheritanceOTPLoading, setInheritanceOTPLoading] = useState(false);
+  const [showAccountRestricted, setShowAccountRestricted] = useState(false);
 
   useEffect(() => {
     fetchAccounts();
@@ -86,10 +87,16 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
   const handleTransfer = async () => {
     // Check if account is restricted
     if (profile?.can_transact === false) {
-      toast.error("Account Restricted", {
-        description: "Your account has been restricted and transfer can't be made on this account until further notice, kindly visit support center for further assistance",
-        duration: 8000
-      });
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await createNotification({
+          userId: user.id,
+          title: "Transfer Blocked - Account Restricted",
+          message: "Your account has been restricted and transfers cannot be made until further notice. Please contact our support center for assistance.",
+          type: "error"
+        });
+      }
+      setShowAccountRestricted(true);
       return;
     }
 
@@ -464,6 +471,63 @@ export function DomesticTransferModal({ onClose, onSuccess }: DomesticTransferMo
               }}
             >
               I Acknowledge and Understand
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Account Restricted Alert */}
+      <AlertDialog open={showAccountRestricted} onOpenChange={setShowAccountRestricted}>
+        <AlertDialogContent className="max-w-lg">
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-3 bg-destructive/10 rounded-full">
+                <ShieldAlert className="h-7 w-7 text-destructive" />
+              </div>
+              <AlertDialogTitle className="text-xl font-semibold">Account Restricted</AlertDialogTitle>
+            </div>
+            <AlertDialogDescription className="space-y-4 text-base">
+              <div className="p-4 bg-destructive/5 border border-destructive/20 rounded-lg">
+                <p className="text-foreground leading-relaxed">
+                  Your account has been temporarily restricted and outgoing transfers cannot be processed at this time. This restriction has been placed pending further review.
+                </p>
+              </div>
+
+              <div className="p-4 bg-muted rounded-lg space-y-3">
+                <p className="font-semibold text-foreground">What You Can Do:</p>
+                <ul className="text-sm text-muted-foreground space-y-2">
+                  <li className="flex items-start gap-2">
+                    <MessageSquare className="h-4 w-4 mt-0.5 text-primary" />
+                    <span>Contact our Support Center through your dashboard for immediate assistance</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Phone className="h-4 w-4 mt-0.5 text-primary" />
+                    <span>Call our dedicated support line: 1-800-VAULTBK (1-800-828-5825)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Mail className="h-4 w-4 mt-0.5 text-primary" />
+                    <span>Email us at support@vaultbank.com</span>
+                  </li>
+                </ul>
+              </div>
+
+              <p className="text-xs text-muted-foreground">
+                Our team is available 24/7 to assist you in resolving this matter as quickly as possible. We apologize for any inconvenience this may cause.
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2 sm:gap-0">
+            <Button 
+              variant="outline"
+              onClick={() => {
+                setShowAccountRestricted(false);
+                navigate('/bank/dashboard/support');
+              }}
+            >
+              Contact Support
+            </Button>
+            <AlertDialogCancel onClick={() => setShowAccountRestricted(false)}>
+              Close
             </AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
