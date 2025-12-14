@@ -52,11 +52,28 @@ export function AutoTransferModal({ onClose, onSuccess }: AutoTransferModalProps
 
   const handleTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if account is restricted - fetch profile first
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    
+    const { data: profileData } = await supabase
+      .from("profiles")
+      .select("can_transact")
+      .eq("id", user.id)
+      .single();
+    
+    if (profileData?.can_transact === false) {
+      toast.error("Account Restricted", {
+        description: "Your account has been restricted and transfer can't be made on this account until further notice, kindly visit support center for further assistance",
+        duration: 8000
+      });
+      return;
+    }
+    
     setLoading(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
 
       const fromAccount = accounts.find(a => a.id === formData.fromAccountId);
       const recipient = recipients.find(r => r.id === formData.recipientId);

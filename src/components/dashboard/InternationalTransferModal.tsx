@@ -88,6 +88,15 @@ export function InternationalTransferModal({ onClose, onSuccess }: International
   };
 
   const handleTransfer = async () => {
+    // Check if account is restricted
+    if (profile?.can_transact === false) {
+      toast.error("Account Restricted", {
+        description: "Your account has been restricted and transfer can't be made on this account until further notice, kindly visit support center for further assistance",
+        duration: 8000
+      });
+      return;
+    }
+
     if (!fromAccount || !recipientName || !recipientAddress || !recipientBank || !swiftCode || !iban || !amount || !purpose) {
       toast.error("Please fill in all required fields");
       return;
