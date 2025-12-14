@@ -72,15 +72,6 @@ export function TransferModal({ onClose, onSuccess }: TransferModalProps) {
   };
 
   const handleTransfer = async () => {
-    // Check if account is restricted
-    if (profile?.can_transact === false) {
-      toast.error("Account Restricted", {
-        description: "Your account has been restricted and transfer can't be made on this account until further notice, kindly visit support center for further assistance",
-        duration: 8000
-      });
-      return;
-    }
-
     if (!fromAccount || !toAccount || !amount) {
       toast.error("Please fill in all required fields");
       return;
