@@ -22,6 +22,7 @@ import {
   Users,
   Link2,
   History,
+  Scale,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
@@ -46,6 +47,7 @@ const menuItems = [
   { title: "Accounts", url: "/bank/dashboard/accounts", icon: Wallet },
   { title: "Account Details", url: "/bank/dashboard/account-details", icon: FileText },
   { title: "Joint Account Status", url: "/bank/dashboard/joint-account-status", icon: Users },
+  { title: "Compliance Case", url: "/bank/dashboard/compliance", icon: Scale },
   { title: "Linked Payment Accounts", url: "/bank/dashboard/linked-accounts", icon: Link2 },
   { title: "Analytics", url: "/bank/dashboard/analytics", icon: BarChart3 },
   { title: "Transfers", url: "/bank/dashboard/transfers", icon: ArrowLeftRight },
