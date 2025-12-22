@@ -150,11 +150,15 @@ const ComplianceDashboard = () => {
           <CardContent className="py-4">
             <div className="flex items-center gap-3">
               <div className="bg-white/20 rounded-full p-2">
-                <CheckCircle2 className="h-8 w-8" />
+                {complianceCase.status.toLowerCase().includes("pending") ? (
+                  <Clock className="h-8 w-8" />
+                ) : (
+                  <CheckCircle2 className="h-8 w-8" />
+                )}
               </div>
               <div className="flex-1">
                 <h2 className="font-bold text-lg uppercase tracking-wide">
-                  {complianceCase.status.includes("Cleared") ? "COMPLIANCE APPROVED" : complianceCase.status.toUpperCase()}
+                  {complianceCase.status.toUpperCase()}
                 </h2>
                 <button 
                   onClick={() => setShowCaseDetails(!showCaseDetails)}
@@ -190,7 +194,12 @@ const ComplianceDashboard = () => {
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground font-medium">STATUS:</span>
-                <Badge variant="outline" className="text-green-600 border-green-600">
+                <Badge 
+                  variant="outline" 
+                  className={complianceCase.status.toLowerCase().includes("pending") 
+                    ? "text-amber-600 border-amber-600" 
+                    : "text-green-600 border-green-600"}
+                >
                   {complianceCase.status}
                 </Badge>
               </div>
