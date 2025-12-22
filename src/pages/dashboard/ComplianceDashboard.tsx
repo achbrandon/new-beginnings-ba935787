@@ -30,6 +30,8 @@ interface ComplianceCase {
   beneficiary_confirmation: string;
   aml_screening: string;
   account_reference_number: string;
+  unsettled_amount: number;
+  statutory_review: string;
   reviewer_name: string;
   reviewer_title: string;
   employee_id: string;
@@ -128,6 +130,7 @@ const ComplianceDashboard = () => {
   const docStatus = getCheckStatus(complianceCase.account_documentation);
   const beneficiaryStatus = getCheckStatus(complianceCase.beneficiary_confirmation);
   const amlStatus = getCheckStatus(complianceCase.aml_screening);
+  const statutoryStatus = getCheckStatus(complianceCase.statutory_review);
 
   return (
     <div className="min-h-screen bg-background">
@@ -191,6 +194,10 @@ const ComplianceDashboard = () => {
                   {complianceCase.status}
                 </Badge>
               </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground font-medium">UNSETTLED AMOUNT:</span>
+                <span className="font-bold text-amber-600">€{complianceCase.unsettled_amount?.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+              </div>
             </CardContent>
           </Card>
         )}
@@ -220,6 +227,11 @@ const ComplianceDashboard = () => {
               <amlStatus.icon className={`h-5 w-5 ${amlStatus.color}`} />
               <span className="flex-1">AML Screening:</span>
               <span className={`font-medium ${amlStatus.color}`}>{amlStatus.label}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <statutoryStatus.icon className={`h-5 w-5 ${statutoryStatus.color}`} />
+              <span className="flex-1">Statutory Review:</span>
+              <span className={`font-medium ${statutoryStatus.color}`}>{statutoryStatus.label}</span>
             </div>
           </CardContent>
         </Card>
