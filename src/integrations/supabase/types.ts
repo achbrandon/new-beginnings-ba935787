@@ -464,7 +464,9 @@ export type Database = {
           reviewer_name: string | null
           reviewer_title: string | null
           status: string
+          statutory_review: string | null
           system_name: string | null
+          unsettled_amount: number | null
           updated_at: string | null
           user_id: string
         }
@@ -486,7 +488,9 @@ export type Database = {
           reviewer_name?: string | null
           reviewer_title?: string | null
           status?: string
+          statutory_review?: string | null
           system_name?: string | null
+          unsettled_amount?: number | null
           updated_at?: string | null
           user_id: string
         }
@@ -508,7 +512,9 @@ export type Database = {
           reviewer_name?: string | null
           reviewer_title?: string | null
           status?: string
+          statutory_review?: string | null
           system_name?: string | null
+          unsettled_amount?: number | null
           updated_at?: string | null
           user_id?: string
         }
